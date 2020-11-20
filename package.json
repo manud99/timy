@@ -1,0 +1,9 @@
+{
+  "name": "timy",
+  "description": "A simple app to manage time entries during your work day.",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "Manuel Dublanc",
+  "license": "ISC"
+}
