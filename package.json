@@ -6,13 +6,12 @@
   "version": "1.0.0",
   "license": "ISC",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && mix",
+    "prod": "tsc && mix --production",
+    "watch-vue": "mix watch",
     "watch-ts": "tsc -w",
-    "watch-node": "nodemon dist/server.js",
-    "start": "concurrently --raw -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yello.bold, cyan.bold\" \"npm:watch-ts\" \"npm:watch-node\"",
-    "client:dev": "mix",
-    "client:watch": "mix watch",
-    "client:prod": "mix --production"
+    "watch-node": "nodemon dist/server/server.js",
+    "start": "concurrently --raw -p \"[{name}]\" -n \"TypeScript,Node,Vue\" -c \"yello.bold, cyan.bold, green.bold\" \"npm:watch-ts\" \"npm:watch-node\" \"npm:watch-vue\""
   },
   "dependencies": {
     "@types/express": "^4.17.9",
