@@ -1,3 +1,6 @@
 /node_modules/
 /dist/
 /.idea/
+/web/css/
+/web/js/
+/web/mix-manifest.json
