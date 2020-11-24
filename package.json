@@ -6,10 +6,10 @@
   "version": "1.0.0",
   "license": "ISC",
   "scripts": {
-    "build": "tsc && mix",
+    "build": "tsc --build tsconfig.server.json && mix",
     "watch": "mix watch",
-    "prod": "tsc && mix --production",
-    "run-ts": "tsc -w",
+    "prod": "tsc --build tsconfig.server.json && mix --production",
+    "run-ts": "tsc --build tsconfig.server.json -w",
     "run-node": "nodemon --watch dist dist/server/server.js",
     "start": "concurrently --raw npm:run-*"
   },
