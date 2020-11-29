@@ -4,11 +4,13 @@ import TimeRepository from '../Repositories/TimeRepository';
 const router = Router();
 
 router.get('/api/v1/times', (req, res) => {
+    console.log(new TimeRepository().getTimeEntries());
+
     res.json({
         data: [
             {
                 id: 1,
-                title: 'Reading emails',
+                title: 'Reading emails 2',
                 start: '08:15',
                 duration: 15,
             },
