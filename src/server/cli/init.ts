@@ -1,43 +1,26 @@
-import { CommandModule } from "yargs";
 import * as yargs from "yargs";
-import * as path from "path";
-import app from "../../config/app";
-import { Database } from "sqlite3";
+import { CommandModule } from "yargs";
+import DB from '../Services/DB';
 
-const sqlite3 = require('sqlite3').verbose();
-const DB_PATH = path.join(`${process.cwd()}${app.dbPath}`);
+const db = new DB();
 
-function addSampleData(DB: Database) {
-    return new Promise((resolve, reject) => {
-        DB.get('SELECT COUNT(*) as count from time_entries;', [], (err: Error | null, row) => {
-            if (err) {
-                reject(err);
-                return;
-            }
+async function addSampleData(db: DB) {
+    const row = await db.get('SELECT COUNT(*) as count from time_entries;');
 
-            if (row.count === 0) {
-                const insert = `INSERT INTO time_entries (title, created_at, updated_at)
-                                VALUES (?, ?, ?)`;
-                DB.run(insert, ['Reading E-Mails', new Date(), new Date()]);
-            }
-
-            resolve(row.count);
-        });
-    })
+    if (row.count === 0) {
+        db.run(`
+            INSERT INTO time_entries (title, created_at, updated_at)
+            VALUES (?, ?, ?)
+        `, ['Reading E-Mails', new Date(), new Date()]);
+    }
 }
 
 function handler(args: yargs.Arguments<{}>): void {
-    const DB = new sqlite3.Database(DB_PATH, (err: Error | null) => {
-        if (err) {
-            return console.error(err.message);
-        }
-    });
-
     if (args.reset === true) {
-        DB.exec('DROP TABLE IF EXISTS time_entries;');
+        db.exec('DROP TABLE IF EXISTS time_entries;');
     }
 
-    DB.exec(`
+    db.exec(`
         CREATE TABLE IF NOT EXISTS time_entries
         (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,11 +28,12 @@ function handler(args: yargs.Arguments<{}>): void {
             created_at datetime,
             updated_at datetime
         );
-    `, (err: Error | null) => {
-        if (err) console.error(err.message);
-    });
+    `);
 
-    addSampleData(DB).then(() => DB.close());
+    addSampleData(db)
+        .then(() => {
+            db.close();
+        });
 }
 
 const InitModule: CommandModule = {
