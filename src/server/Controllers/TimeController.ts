@@ -4,19 +4,15 @@ import TimeRepository from '../Repositories/TimeRepository';
 const router = Router();
 
 router.get('/api/v1/times', async (req, res) => {
-    const timeRepository = new TimeRepository();
-    const timeEntries = await timeRepository.all() as Array<TimeEntry>;
+    const timeEntries = await new TimeRepository().all();
 
     res.json({
-        data: timeEntries.map((timeEntry: TimeEntry) => {
-            let start = new Date(timeEntry.start);
-            return ({
-                id: timeEntry.id,
-                title: timeEntry.title,
-                start: `${start.getHours()}:${start.getMinutes().toString().padStart(2, '0')}`,
-                duration: 15,
-            });
-        }),
+        data: timeEntries.map((timeEntry) => ({
+            id: timeEntry.id,
+            title: timeEntry.title,
+            time: timeEntry.time,
+            type: timeEntry.type,
+        })),
     });
 });
 

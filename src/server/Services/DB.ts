@@ -39,7 +39,7 @@ export default class DB {
         });
     }
 
-    async all(query: string, params: Array<any> = []): Promise<any> {
+    async all(query: string, params: Array<any> = []): Promise<Array<any>> {
         return new Promise((resolve, reject) => {
             this.db.all(query, params, (err: Error | null, rows: any[]) => {
                 if (err) {

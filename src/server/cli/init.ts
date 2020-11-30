@@ -4,6 +4,31 @@ import DB from '../Services/DB';
 
 const db = new DB();
 
+type InitCommandArguments = { reset: boolean };
+
+function handler(args: yargs.Arguments<InitCommandArguments>): void {
+    if (args.reset === true) {
+        db.exec('DROP TABLE IF EXISTS time_entries;');
+    }
+
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS time_entries
+        (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            title      TEXT,
+            type       INTEGER  NOT NULL,
+            time       DATETIME NOT NULL,
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL
+        );
+    `);
+
+    addSampleData(db)
+        .then(() => {
+            db.close();
+        });
+}
+
 async function addSampleData(db: DB) {
     const row = await db.get('SELECT COUNT(*) as count from time_entries;');
 
@@ -14,7 +39,7 @@ async function addSampleData(db: DB) {
         start2.setHours(8, 15);
 
         db.runMany(`
-            INSERT INTO time_entries (title, type, start, created_at, updated_at)
+            INSERT INTO time_entries (title, type, time, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?)
         `, [
             [null, 0, start1, new Date(), new Date()],
@@ -23,30 +48,7 @@ async function addSampleData(db: DB) {
     }
 }
 
-function handler(args: yargs.Arguments<{}>): void {
-    if (args.reset === true) {
-        db.exec('DROP TABLE IF EXISTS time_entries;');
-    }
-
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS time_entries
-        (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            title      text,
-            type       INTEGER NOT NULL,
-            start      datetime NOT NULL,
-            created_at datetime NOT NULL,
-            updated_at datetime NOT NULL
-        );
-    `);
-
-    addSampleData(db)
-        .then(() => {
-            db.close();
-        });
-}
-
-const InitModule: CommandModule = {
+const InitModule: CommandModule<{}, InitCommandArguments> = {
     command: 'init',
     describe: 'Setup the database.',
     builder: {
