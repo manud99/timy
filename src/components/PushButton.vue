@@ -35,22 +35,24 @@ export default {
     methods: {
         onStart() {
             this.running = true;
+
+            this.$emit('start')
         },
 
         onSplit() {
             this.running = true;
 
-            this.addEntry();
+            this.addEntry(1);
         },
 
         onStop() {
             this.running = false;
 
-            this.addEntry();
+            this.addEntry(2);
         },
 
-        addEntry() {
-            this.$emit('add');
+        addEntry(type) {
+            this.$emit('add', type);
         }
     },
 };

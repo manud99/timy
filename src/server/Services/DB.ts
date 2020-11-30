@@ -1,5 +1,5 @@
 import * as path from "path";
-import { Database } from "sqlite3";
+import { Database, RunResult } from "sqlite3";
 import app from "../../config/app";
 
 export default class DB {
@@ -26,7 +26,7 @@ export default class DB {
         });
     }
 
-    async get(query: string, params: Array<any> = []): Promise<any> {
+    async get(query: string, params: Array<any> | Object = []): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.get(query, params, (err: Error | null, row: any) => {
                 if (err) {
@@ -52,8 +52,17 @@ export default class DB {
         });
     }
 
-    run(query: string, params: Array<any> = []): void {
-        this.db.run(query, params, DB.errorCallback);
+    run(query: string, params: Array<any> = []): Promise<RunResult> {
+        return new Promise(((resolve, reject) => {
+            this.db.run(query, params, function (this: RunResult, err: Error | null) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(this);
+            });
+        }));
     }
 
     runMany(query: string, paramArray: Array<Array<any>> = [[]]): void {

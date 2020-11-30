@@ -26,7 +26,12 @@
                     <div class="mb-4">
                         <div class="flex items-center py-4">
                             <label for="title" class="w-full md:w-1/3 font-semibold text-lg pr-4">Title</label>
-                            <input v-model="title" class="w-full md:w-2/3 border rounded px-4 py-2" type="text" id="title" name="title" placeholder="Title">
+                            <input v-model="title"
+                                   class="w-full md:w-2/3 border rounded px-4 py-2"
+                                   type="text"
+                                   id="title"
+                                   name="title"
+                                   placeholder="Title">
                         </div>
                     </div>
 
@@ -59,7 +64,10 @@ export default {
     props: {
         entry: {
             type: Object,
-        }
+        },
+        type: {
+            type: Number,
+        },
     },
 
     data() {
@@ -91,13 +99,14 @@ export default {
         onSubmit() {
             this.$emit('submit', {
                 title: this.title,
+                type: this.type,
             });
 
             this.close();
         },
 
         onEntryUpdate(entry) {
-            if (!entry) {
+            if (! entry) {
                 this.resetForm();
                 return;
             }
@@ -107,7 +116,7 @@ export default {
 
         resetForm() {
             this.title = '';
-        }
+        },
     },
 };
 </script>
