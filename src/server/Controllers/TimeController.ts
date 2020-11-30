@@ -3,18 +3,20 @@ import TimeRepository from '../Repositories/TimeRepository';
 
 const router = Router();
 
-router.get('/api/v1/times', (req, res) => {
-    console.log(new TimeRepository().getTimeEntries());
+router.get('/api/v1/times', async (req, res) => {
+    const timeRepository = new TimeRepository();
+    const timeEntries = await timeRepository.all() as Array<TimeEntry>;
 
     res.json({
-        data: [
-            {
-                id: 1,
-                title: 'Reading emails 2',
-                start: '08:15',
+        data: timeEntries.map((timeEntry: TimeEntry) => {
+            let start = new Date(timeEntry.start);
+            return ({
+                id: timeEntry.id,
+                title: timeEntry.title,
+                start: `${start.getHours()}:${start.getMinutes().toString().padStart(2, '0')}`,
                 duration: 15,
-            },
-        ],
+            });
+        }),
     });
 });
 

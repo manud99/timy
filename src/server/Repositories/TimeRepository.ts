@@ -7,7 +7,7 @@ export default class TimeRepository {
         this.db = new DB()
     }
 
-    getTimeEntries() {
-        return this.db.get('SELECT * FROM time_entries');
+    all() {
+        return this.db.all('SELECT * FROM time_entries');
     }
 }

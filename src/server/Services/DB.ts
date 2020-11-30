@@ -39,15 +39,40 @@ export default class DB {
         });
     }
 
-    run(query: string, params: Array<any> = []): void {
-        this.db.run(query, params, (err: Error | null) => {
-            if (err) {
-                console.error(err.message);
-            }
+    async all(query: string, params: Array<any> = []): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.db.all(query, params, (err: Error | null, rows: any[]) => {
+                if (err) {
+                    reject(err);
+                    return console.error(err.message);
+                }
+
+                resolve(rows);
+            });
         });
+    }
+
+    run(query: string, params: Array<any> = []): void {
+        this.db.run(query, params, DB.errorCallback);
+    }
+
+    runMany(query: string, paramArray: Array<Array<any>> = [[]]): void {
+        const statement = this.db.prepare(query);
+
+        paramArray.forEach((params) => {
+            statement.run(params, DB.errorCallback);
+        });
+
+        statement.finalize();
     }
 
     close(): void {
         this.db.close();
+    }
+
+    private static errorCallback(err: Error | null) {
+        if (err) {
+            console.error(err.message);
+        }
     }
 };

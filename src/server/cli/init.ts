@@ -8,10 +8,18 @@ async function addSampleData(db: DB) {
     const row = await db.get('SELECT COUNT(*) as count from time_entries;');
 
     if (row.count === 0) {
-        db.run(`
-            INSERT INTO time_entries (title, created_at, updated_at)
-            VALUES (?, ?, ?)
-        `, ['Reading E-Mails', new Date(), new Date()]);
+        const start1 = new Date();
+        const start2 = new Date();
+        start1.setHours(8, 0);
+        start2.setHours(8, 15);
+
+        db.runMany(`
+            INSERT INTO time_entries (title, type, start, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+        `, [
+            [null, 0, start1, new Date(), new Date()],
+            ['Reading E-Mails', 1, start2, new Date(), new Date()],
+        ]);
     }
 }
 
@@ -25,8 +33,10 @@ function handler(args: yargs.Arguments<{}>): void {
         (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             title      text,
-            created_at datetime,
-            updated_at datetime
+            type       INTEGER NOT NULL,
+            start      datetime NOT NULL,
+            created_at datetime NOT NULL,
+            updated_at datetime NOT NULL
         );
     `);
 
