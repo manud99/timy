@@ -1,6 +1,7 @@
 import DB from "../services/DB";
 import { TimeEntry } from "../models/TimeEntry";
 import { parseDto, parseDtoArray } from "../services/DomainConverter";
+import { TimeEntryType } from "../enums/TimeEntryType";
 
 export default class TimeRepository {
     private db: DB;
@@ -10,13 +11,13 @@ export default class TimeRepository {
     }
 
     async all(): Promise<Array<TimeEntry>> {
-        let timeEntries = parseDtoArray<TimeEntry>(TimeEntry, await this.db.all('SELECT * FROM time_entries ORDER BY time ASC'));
+        let timeEntries = parseDtoArray<TimeEntry>(TimeEntry, await this.db.all(`SELECT * FROM time_entries ORDER BY time`));
 
         timeEntries = timeEntries.map<TimeEntry | null>((entry, index, array) => {
-            if (index === 0) {
+            if (index === 0 || entry.type === TimeEntryType.START) {
                 return null;
             } else {
-                entry.duration = Number((entry.time - array[index - 1].time) / 3600000).toFixed(2);
+                entry.intDuration = Math.round((entry.time - array[index - 1].time) / 60000);
 
                 return entry;
             }
@@ -35,5 +36,11 @@ export default class TimeRepository {
         ]);
 
         return this.find(result.lastID);
+    }
+
+    async delete(id: number): Promise<boolean> {
+        const result = await this.db.run("DELETE FROM time_entries WHERE id = $id", {'$id': id});
+
+        return result.changes === 1;
     }
 }

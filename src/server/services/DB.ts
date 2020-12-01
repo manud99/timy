@@ -52,7 +52,7 @@ export default class DB {
         });
     }
 
-    run(query: string, params: Array<any> = []): Promise<RunResult> {
+    run(query: string, params: Array<any> | Object = []): Promise<RunResult> {
         return new Promise(((resolve, reject) => {
             this.db.run(query, params, function (this: RunResult, err: Error | null) {
                 if (err) {
@@ -65,7 +65,7 @@ export default class DB {
         }));
     }
 
-    runMany(query: string, paramArray: Array<Array<any>> = [[]]): void {
+    runMany(query: string, paramArray: Array<Array<any> | Object> = [[]]): void {
         const statement = this.db.prepare(query);
 
         paramArray.forEach((params) => {
