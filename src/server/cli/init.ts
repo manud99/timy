@@ -1,6 +1,6 @@
 import * as yargs from "yargs";
 import { CommandModule } from "yargs";
-import DB from '../Services/DB';
+import DB from '../services/DB';
 
 const db = new DB();
 

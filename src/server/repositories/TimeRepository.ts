@@ -1,6 +1,6 @@
-import DB from "../Services/DB";
+import DB from "../services/DB";
 import { TimeEntry } from "../models/TimeEntry";
-import { parseDto, parseDtoArray } from "../Services/DomainConverter";
+import { parseDto, parseDtoArray } from "../services/DomainConverter";
 
 export default class TimeRepository {
     private db: DB;

@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import TimeRepository from '../Repositories/TimeRepository';
+import TimeRepository from '../repositories/TimeRepository';
 import { body, validationResult } from 'express-validator';
 
 const router = Router();

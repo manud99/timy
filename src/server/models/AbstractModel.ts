@@ -1,4 +1,4 @@
-import { toDto } from "../Services/DomainConverter";
+import { toDto } from "../services/DomainConverter";
 
 export abstract class AbstractModel<T extends IModel> {
     protected state: T;
