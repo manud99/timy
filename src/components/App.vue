@@ -2,10 +2,11 @@
     <div class="container flex justify-center py-4">
         <div class="lg:w-1/2 bg-white rounded-lg py-4">
             <h1 class="text-4xl text-center uppercase text-indigo-600 font-bold border-b border-gray-300 px-4 pb-4 mb-6">
-                Timy</h1>
+                Timy
+            </h1>
 
             <div class="border-b border-gray-300 px-4 mb-6">
-                <PushButton @start="onStart" @add="onAdd"/>
+                <PushButton v-model:running="running" @start="onStart" @add="onAdd" />
             </div>
 
             <div class="px-4">
@@ -25,7 +26,10 @@
                     <tr v-for="(time, index) in times" :class="{'bg-gray-200': index % 2 === 0}">
                         <td class="border-b border-gray-300 px-2 py-3">{{ time.title }}</td>
                         <td class="border-b border-gray-300 px-2 py-3">{{ time.start }}</td>
-                        <td class="border-b border-gray-300 px-2 py-3">{{ time.end }}</td>
+                        <td class="border-b border-gray-300 px-2 py-3">
+                            <span v-if="time.end">{{ time.end }}</span>
+                            <!-- <spinner v-else /> -->
+                        </td>
                         <td class="border-b border-gray-300 px-2 py-3">{{ time.duration }}h</td>
                         <td class="border-b border-gray-300 px-2 py-3">
                             <button
@@ -48,13 +52,14 @@
         </div>
     </div>
 
-    <Modal ref="modal" :entry="activeEntry" :type="activeType" @submit="onSubmit" @close="resetActiveEntry"/>
+    <Modal ref="modal" :entry="activeEntry" @add="onAddEntry" @update="onUpdateEntry" />
 </template>
 
 <script>
 import Axios from 'axios';
 import PushButton from './PushButton';
 import Modal from './Modal';
+import { formatDate, getRoundedTime, prepareDate } from "../client/dates";
 
 export default {
     components: {
@@ -64,71 +69,71 @@ export default {
 
     data() {
         return {
+            running: false,
             times: [],
             modalOpen: false,
             activeEntry: null,
-            activeType: 0,
+            isSplitting: true,
         };
     },
 
     created() {
         this.getData();
+
+        // TODO: Automatically update the duration of unfinished entries.
     },
 
     methods: {
         async getData() {
             const response = await Axios.get('/api/v1/times');
             this.times = response.data.data;
+
+            this.checkIfIsRunning();
         },
 
-        onSubmit(entry) {
-            if (this.activeEntry) {
-                this.updateEntry(entry, this.activeEntry.id);
-            } else {
-                this.addEntry(entry);
-            }
-        },
+        checkIfIsRunning() {
+            if (this.times.length === 0) return;
 
-        async addEntry(entry) {
-            const response = await Axios.post('/api/v1/times', {
-                title: entry.title,
-                type: entry.type,
-            });
-
-            this.times.push(response.data.data);
-
-            this.resetActiveEntry();
-        },
-
-        async updateEntry(entry, id) {
-            const response = await Axios.put(`/api/v1/times/${id}`, {
-                title: entry.title,
-                type: entry.type,
-            });
-
-            const index = this.times.findIndex((time) => time.id === id);
-            this.times[index] = { ...this.activeEntry, ...response.data.data };
+            this.activeEntry = this.times[this.times.length - 1];
+            this.running = this.activeEntry.end === null;
         },
 
         async onStart() {
-            await Axios.post('/api/v1/times', {
-                title: '',
-                type: 0,
+            const response = await Axios.post('/api/v1/times', {
+                title: null,
+                start: getRoundedTime(),
             });
 
-            this.resetActiveEntry();
+            const entry = response.data.data;
+            this.times.push(entry);
+            this.activeEntry = entry;
         },
 
-        onAdd(type) {
-            this.activeEntry = null;
-            this.activeType = type;
+        onAdd(isSplitting = false) {
+            this.activeEntry.end = formatDate(getRoundedTime());
+            this.isSplitting = isSplitting;
+
             this.openModal();
         },
 
         onEdit(entry) {
             this.activeEntry = entry;
-            this.activeType = entry.type;
             this.openModal();
+        },
+
+        onAddEntry(entry) {
+            this.times.push(entry);
+        },
+
+        onUpdateEntry(entry, id) {
+            const index = this.times.findIndex((time) => time.id === id);
+
+            this.times[index] = { ...this.activeEntry, ...entry };
+
+            if (this.isSplitting) {
+                this.onStart();
+                this.isSplitting = false;
+            }
         },
 
         async onDelete(entry, index) {
@@ -143,10 +148,6 @@ export default {
 
         closeModal() {
             this.$refs.modal.close();
-        },
-
-        resetActiveEntry() {
-            this.activeEntry = null;
         },
     },
 };

@@ -1,6 +1,6 @@
 import * as path from "path";
 import { Database, RunResult } from "sqlite3";
-import app from "../../config/app";
+import app from "../../config/app.json";
 
 export default class DB {
     private db: Database;
@@ -16,8 +16,7 @@ export default class DB {
         });
     }
 
-    exec(query: string, errorCallback: (err: Error) => any = () => {
-    }): void {
+    exec(query: string, errorCallback: (err: Error) => any = () => null): void {
         this.db.exec(query, (err) => {
             if (err) {
                 errorCallback(err);

@@ -1,63 +1,59 @@
-import { TimeEntryType } from "../enums/TimeEntryType";
 import { AbstractModel } from "./AbstractModel";
 import { toTimeFormat } from "../services/DateFormatter";
 
-export class TimeEntry extends AbstractModel<ITimeEntry> {
-    private _intDuration: number = 0;
-
+export class TimeEntry extends AbstractModel<DbTimeEntry, ApiTimeEntry> {
     get title(): string {
         return this.state.title;
     }
 
-    get start(): string {
-        const time = new Date(this.state.time);
-        console.log(this._intDuration);
-        time.setMinutes(time.getMinutes() - this._intDuration);
+    set title(title: string) {
+        this.state.title = title;
+    }
 
-        return toTimeFormat(time);
+    get start(): string {
+        return toTimeFormat(new Date(this.state.start));
+    }
+
+    set start(start: string) {
+        this.state.start = Number(start);
     }
 
     get end(): string {
-        return toTimeFormat(new Date(this.state.time));
+        if (! this.state.end) {
+            return null;
+        }
+
+        return toTimeFormat(new Date(this.state.end));
+    }
+
+    set end(end: string) {
+        this.state.end = Number(end);
     }
 
     get duration(): string {
-        console.log(Number(this._intDuration / 60));
-        return Number(this._intDuration / 60).toFixed(2);
-    }
+        let endTime = this.state.end;
+        if (! endTime) {
+            endTime = new Date().getTime();
+        }
 
-    get intDuration(): number {
-        return this._intDuration;
-    }
-
-    set intDuration(intDuration: number) {
-        console.log('set intDuration', intDuration);
-        this._intDuration = intDuration || 0;
-    }
-
-    get time(): number {
-        return this.state.time;
-    }
-
-    get type(): number {
-        return this.state.type as TimeEntryType;
+        return Number((endTime - this.state.start) / 3600000)
+            .toFixed(2);
     }
 
     get created_at(): string {
-        return this.state.created_at;
+        return new Date(this.state.created_at).toISOString();
     }
 
     get updated_at(): string {
-        return this.state.updated_at;
+        return new Date(this.state.updated_at).toISOString();
     }
 
-    toJson(): ITimeEntry {
+    toJson(): ApiTimeEntry {
         return {
             id: this.id,
             title: this.title,
             start: this.start,
             end: this.end,
-            type: this.type,
             duration: this.duration,
         };
     }

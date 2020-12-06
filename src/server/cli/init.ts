@@ -16,8 +16,8 @@ function handler(args: yargs.Arguments<InitCommandArguments>): void {
         (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             title      TEXT,
-            type       INTEGER  NOT NULL,
-            time       DATETIME NOT NULL,
+            start      DATETIME NOT NULL,
+            end        DATETIME,
             created_at DATETIME NOT NULL,
             updated_at DATETIME NOT NULL
         );
@@ -39,11 +39,11 @@ async function addSampleData(db: DB) {
         start2.setHours(8, 15);
 
         db.runMany(`
-            INSERT INTO time_entries (title, type, time, created_at, updated_at)
+            INSERT INTO time_entries (title, start, end, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?)
         `, [
-            [null, 0, start1, new Date(), new Date()],
-            ['Reading E-Mails', 1, start2, new Date(), new Date()],
+            ['Reading E-Mails', start1, start2, new Date(), new Date()],
+            [null, start2, null, new Date(), new Date()],
         ]);
     }
 }

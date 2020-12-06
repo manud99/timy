@@ -16,39 +16,64 @@ router.get('/api/v1/times', wrap(async (req, res) => {
 router.post(
     '/api/v1/times',
     body('title')
-        .if(body('type').not().equals("0"))
-        .not().isEmpty(),
-    body('type')
-        .isIn([0, 1, 2]),
+        .optional(),
+    body('start')
+        .isISO8601(),
+    body('end')
+        .optional()
+        .isISO8601(),
     wrap(async (req, res) => {
         const errors = validationResult(req);
-        if (!errors.isEmpty()) {
+        if (! errors.isEmpty()) {
             return res.status(422).json({ errors: errors.array() });
         }
 
-        const timeEntry = await new TimeRepository().create(req.body.title, req.body.type);
+        const timeEntry = await new TimeRepository().create(req.body.title, req.body.start, req.body.end);
+
         res.json({
             data: timeEntry.toJson(),
         });
     }),
 );
 
-router.put('/api/v1/times/:id', wrap((req, res) => {
-    res.json({
-        data: {
-            id: req.params.id,
-            title: req.body.title,
-            start: '08:45',
-            duration: 15,
-        },
-    });
-}));
+router.put(
+    '/api/v1/times/:id',
+    [
+        body('title')
+            .not().isEmpty(),
+        body('start')
+            .isISO8601()
+            .withMessage('Invalid date.'),
+        body('end')
+            .isISO8601()
+            .withMessage('Invalid date.'),
+    ],
+    wrap(async (req, res) => {
+        const errors = validationResult(req);
+        if (! errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
+        const timeRepository = new TimeRepository();
+
+        const timeEntry = await timeRepository.find(Number(req.params.id));
+        if (! timeEntry) {
+            res.status(404).send('Time entry not found.');
+        }
+
+        const result = await new TimeRepository().update(timeEntry, req.body.title, req.body.start, req.body.end);
+
+        res.json({
+            status: result,
+        });
+    }),
+);
 
 router.delete('/api/v1/times/:id', wrap(async (req, res) => {
     const timeRepository = new TimeRepository();
 
     const timeEntry = await timeRepository.find(Number(req.params.id));
-    if (!timeEntry) {
+    if (! timeEntry) {
         res.status(404).send('Time entry not found.');
     }
 

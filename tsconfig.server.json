@@ -4,6 +4,7 @@
     "outDir": "dist"
   },
   "include": [
+    "src/config/app.json",
     "src/server/**/*",
     "src/@types/**/*"
   ]

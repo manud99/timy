@@ -2,12 +2,18 @@ interface IModel {
     id?: number,
 }
 
-interface ITimeEntry extends IModel {
+interface DbTimeEntry extends IModel {
     title?: string,
-    time?: number,
-    start?: string,
+    start: number,
+    end?: number,
+    created_at: number,
+    updated_at: number,
+}
+
+interface ApiTimeEntry extends IModel {
+    title?: string,
+    start: string,
     end?: string,
-    type?: number,
     duration?: string,
     created_at?: string,
     updated_at?: string,

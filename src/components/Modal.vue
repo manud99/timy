@@ -31,11 +31,35 @@
                                    type="text"
                                    id="title"
                                    name="title"
-                                   placeholder="Title">
+                                   placeholder="Title"
+                                   ref="title">
                         </div>
                     </div>
 
-                    <!--Footer-->
+                    <div class="mb-4">
+                        <div class="flex items-center py-4">
+                            <label for="start" class="w-full md:w-1/3 font-semibold text-lg pr-4">Start</label>
+                            <input v-model="start"
+                                   class="w-full md:w-2/3 border rounded px-4 py-2"
+                                   type="text"
+                                   id="start"
+                                   name="start"
+                                   placeholder="Start">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="flex items-center py-4">
+                            <label for="end" class="w-full md:w-1/3 font-semibold text-lg pr-4">End</label>
+                            <input v-model="end"
+                                   class="w-full md:w-2/3 border rounded px-4 py-2"
+                                   type="text"
+                                   id="end"
+                                   name="end"
+                                   placeholder="End">
+                        </div>
+                    </div>
+
                     <div class="flex flex-row-reverse">
                         <button
                             type="submit"
@@ -58,15 +82,15 @@
 </template>
 
 <script>
+import Axios from "axios";
+import {prepareDate, formatDate, calculateDuration} from "../client/dates";
+
 export default {
-    emits: ['submit', 'open', 'close'],
+    emits: ['open', 'close', 'add', 'update'],
 
     props: {
         entry: {
             type: Object,
-        },
-        type: {
-            type: Number,
         },
     },
 
@@ -74,18 +98,22 @@ export default {
         return {
             isOpen: false,
             title: '',
+            start: null,
+            end: null,
         };
     },
 
     watch: {
-        entry(entry) {
-            this.onEntryUpdate(entry);
+        entry() {
+            this.updateForm();
         },
     },
 
     methods: {
         open() {
+            this.updateForm();
             this.isOpen = true;
+            this.$refs.title.focus();
 
             this.$emit('open');
         },
@@ -97,25 +125,66 @@ export default {
         },
 
         onSubmit() {
-            this.$emit('submit', {
+            const entry = {
                 title: this.title,
-                type: this.type,
-            });
+                start: prepareDate(this.start),
+                end: prepareDate(this.end),
+            };
 
-            this.close();
+            if (this.entry && this.entry.id) {
+                this.updateEntry(entry, this.entry.id);
+            } else {
+                this.addEntry(entry);
+            }
         },
 
-        onEntryUpdate(entry) {
-            if (! entry) {
+        addEntry(entry) {
+            return Axios.post('/api/v1/times', entry)
+                .then((response) => {
+                    this.$emit('add', response.data.data);
+
+                    this.close();
+                })
+                .catch(this.handleErrors);
+        },
+
+        updateEntry(entry, id) {
+            Axios.put(`/api/v1/times/${id}`, entry)
+                .then((response) => {
+                    if (response.data?.status === true) {
+                        this.$emit('update', {
+                            ...this.entry,
+                            ...entry,
+                            start: formatDate(entry.start),
+                            end: formatDate(entry.end),
+                            duration: calculateDuration(entry.start, entry.end),
+                        }, id);
+                    }
+
+                    this.close();
+                })
+                .catch(this.handleErrors);
+        },
+
+        handleErrors(error) {
+            console.error(error.response.data.errors);
+        },
+
+        updateForm() {
+            if (! this.entry) {
                 this.resetForm();
                 return;
             }
 
-            this.title = entry.title;
+            this.title = this.entry.title;
+            this.start = this.entry.start;
+            this.end = this.entry.end;
         },
 
         resetForm() {
             this.title = '';
+            this.start = '';
+            this.end = null;
         },
     },
 };
