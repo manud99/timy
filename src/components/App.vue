@@ -6,45 +6,54 @@
             </h1>
 
             <div class="border-b border-gray-300 px-4 mb-6">
-                <PushButton v-model:running="running" @start="onStart" @add="onAdd"/>
+                <PushButton :running="running" @start="onStart" @add="onAdd"/>
             </div>
 
             <div class="px-4">
-                <h2 class="text-2xl text-indigo-600 font-semibold mb-6">Time Entries</h2>
+                <h2 class="text-2xl text-indigo-600 font-semibold mb-6">Your Time Entries</h2>
+                <!-- TODO: Select day box -->
 
                 <table class="w-full">
                     <thead class="text-left">
                     <tr>
-                        <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">Title</th>
-                        <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">Start</th>
-                        <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">End</th>
-                        <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3" style="width: 90px">
-                            Duration
-                        </th>
-                        <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">Action</th>
+                        <th class="w-full text-lg border-t border-b-2 border-gray-300 px-4 py-3">Title</th>
+                        <th class="text-lg border-t border-b-2 border-gray-300 px-4 py-3">Start</th>
+                        <th class="text-lg border-t border-b-2 border-gray-300 px-4 py-3">End</th>
+                        <th class="text-lg border-t border-b-2 border-gray-300 px-4 py-3">Duration</th>
+                        <th class="text-lg border-t border-b-2 border-gray-300 px-4 py-3">Action</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="(time, index) in times" :class="{'bg-gray-200': index % 2 === 0}">
-                        <td class="border-b border-gray-300 px-2 py-3">{{ time.title }}</td>
-                        <td class="border-b border-gray-300 px-2 py-3">{{ time.start }}</td>
-                        <td class="border-b border-gray-300 px-2 py-3">
-                            <span v-if="time.end">{{ time.end }}</span>
+                    <!-- TODO: Highlight overlapping entries -->
+                    <!-- TODO: Add highlighted row for breaks -->
+                    <tr v-for="(entry, index) in times" :class="{'bg-gray-200': index % 2 === 0}">
+                        <td class="border-b border-gray-300 px-4 py-3">
+                            <span v-if="entry.title">{{ entry.title }}</span>
+                            <span v-else class="text-gray-400">Currently working on ...</span>
+                        </td>
+                        <td class="border-b border-gray-300 px-4 py-3">
+                            {{ entry.start }}
+                        </td>
+                        <td class="border-b border-gray-300 px-4 py-3">
+                            <span v-if="entry.end">{{ entry.end }}</span>
                             <Spinner v-else/>
                         </td>
-                        <td class="border-b border-gray-300 text-right px-2 py-3">
-                            {{ formatDuration(time.duration) }}
+                        <td class="border-b border-gray-300 text-right px-4 py-3">
+                            {{ formatDuration(entry.duration) }}
                         </td>
-                        <td class="border-b border-gray-300 px-2 py-3">
+                        <td class="border-b border-gray-300 whitespace-nowrap px-4 py-3">
                             <button
                                 class="bg-indigo-600 text-white rounded px-2 py-1 mr-2"
-                                @click="onEdit(time)"
+                                type="button"
+                                @click="onEdit(entry)"
                             >
-                                Edit
+                                {{ entry.end ? 'Edit' : 'Stop' }}
                             </button>
+
                             <button
                                 class="bg-red-600 text-white rounded px-2 py-1"
-                                @click="onDelete(time, index)"
+                                type="button"
+                                @click="onDelete(entry, index)"
                             >
                                 Delete
                             </button>
@@ -56,7 +65,7 @@
         </div>
     </div>
 
-    <Modal ref="modal" :entry="activeEntry" @add="onAddEntry" @update="onUpdateEntry"/>
+    <Modal ref="modal" :entry="activeEntry" @update="updateEntry"/>
 </template>
 
 <script>
@@ -64,8 +73,9 @@ import Axios from 'axios';
 import PushButton from './PushButton';
 import Modal from './Modal';
 import Spinner from './Spinner';
-import { calculateDuration, formatDate, getRoundedTime, parseDate } from "../client/dates";
+import { calculateDuration, formatDate, getRoundedTime, minutesToParts, parseDate } from "../client/dates";
 
+// TODO: Structure component with new composition API
 export default {
     components: {
         PushButton,
@@ -75,13 +85,22 @@ export default {
 
     data() {
         return {
-            running: false,
             times: [],
-            modalOpen: false,
-            activeEntry: null,
-            isSplitting: true,
+            editedEntry: null,
+            runningEntry: null,
+            isSplitting: false,
             durationUpdater: null,
         };
+    },
+
+    computed: {
+        activeEntry() {
+            return this.editedEntry || this.runningEntry || null;
+        },
+
+        running() {
+            return !! this.runningEntry;
+        },
     },
 
     created() {
@@ -95,6 +114,7 @@ export default {
     },
 
     methods: {
+        // Data management
         async getData() {
             const response = await Axios.get('/api/v1/times');
             this.times = response.data.data;
@@ -105,10 +125,10 @@ export default {
         checkIfIsRunning() {
             if (this.times.length === 0) return;
 
-            this.activeEntry = this.times[this.times.length - 1];
-            this.running = this.activeEntry.end === null;
+            this.runningEntry = this.times.find((entry) => entry.end === null);
         },
 
+        // Header buttons
         async onStart() {
             const response = await Axios.post('/api/v1/times', {
                 title: null,
@@ -117,34 +137,21 @@ export default {
 
             const entry = response.data.data;
             this.times.push(entry);
-            this.activeEntry = entry;
+
+            this.runningEntry = entry;
         },
 
         onAdd(isSplitting = false) {
-            this.activeEntry.end = formatDate(getRoundedTime());
+            this.runningEntry.end = formatDate(getRoundedTime());
             this.isSplitting = isSplitting;
 
             this.openModal();
         },
 
+        // Table buttons
         onEdit(entry) {
-            this.activeEntry = entry;
+            this.editedEntry = entry;
             this.openModal();
-        },
-
-        onAddEntry(entry) {
-            this.times.push(entry);
-        },
-
-        onUpdateEntry(entry, id) {
-            const index = this.times.findIndex((time) => time.id === id);
-
-            this.times[index] = { ...this.activeEntry, ...entry };
-
-            if (this.isSplitting) {
-                this.onStart();
-                this.isSplitting = false;
-            }
         },
 
         async onDelete(entry, index) {
@@ -153,6 +160,7 @@ export default {
             this.times.splice(index, 1);
         },
 
+        // Modal actions and callbacks
         openModal() {
             this.$refs.modal.open();
         },
@@ -161,23 +169,35 @@ export default {
             this.$refs.modal.close();
         },
 
-        formatDuration(totalMinutes) {
-            const hours = Math.trunc(totalMinutes / 60);
-            const minutes = totalMinutes - (hours * 60);
+        // TODO: Distinguish between editing an existing and a running entry
+        updateEntry(newValues, id) {
+            const index = this.times.findIndex((time) => time.id === id);
 
-            if (hours === 0) {
-                return `${minutes}min`;
+            this.times[index] = { ...this.times[index], ...newValues };
+
+            if (this.isSplitting) {
+                this.onStart();
+                this.isSplitting = false;
             }
-
-            return `${hours}h ${minutes}min`;
         },
 
+        // Duration updater
         updateDurations() {
             this.times.forEach((entry) => {
                 if (entry.end) return;
 
                 entry.duration = calculateDuration(parseDate(entry.start), new Date());
             });
+        },
+
+        formatDuration(totalMinutes) {
+            const { hours, minutes } = minutesToParts(totalMinutes);
+
+            if (hours === 0) {
+                return `${minutes}min`;
+            }
+
+            return `${hours}h ${minutes}min`;
         },
     },
 };

@@ -21,7 +21,11 @@ export function formatDate(string) {
 
     const date = new Date(string);
 
-    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    return formatIntParts(date.getHours(), date.getMinutes());
+}
+
+export function formatIntParts(hours, minutes) {
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 }
 
 export function calculateDuration(start, end) {
@@ -36,4 +40,11 @@ export function getRoundedTime() {
     date.setMinutes(Math.floor(date.getMinutes() / app.roundingFactor) * app.roundingFactor);
 
     return date;
+}
+
+export function minutesToParts(totalMinutes) {
+    const hours = Math.trunc(totalMinutes / 60);
+    const minutes = totalMinutes - (hours * 60);
+
+    return { hours, minutes };
 }

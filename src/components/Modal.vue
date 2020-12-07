@@ -9,7 +9,7 @@
 
             <div class="modal-container bg-white w-2/3 lg:w-2/5 mx-auto rounded shadow-lg z-50 overflow-y-auto">
                 <form @submit.prevent="onSubmit" class="modal-content py-4 text-left px-6">
-                    <div class="flex justify-between items-center pb-3">
+                    <div class="flex justify-between items-center pb-3 mb-4">
                         <h2 class="text-2xl font-bold">Add time entry</h2>
 
                         <button class="modal-close cursor-pointer z-50" @click="close">
@@ -24,7 +24,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <div class="flex items-center py-4">
+                        <div class="flex items-center">
                             <label for="title" class="w-full md:w-1/3 font-semibold text-lg pr-4">Title</label>
                             <input v-model="title"
                                    class="w-full md:w-2/3 border rounded px-4 py-2"
@@ -37,27 +37,11 @@
                     </div>
 
                     <div class="mb-4">
-                        <div class="flex items-center py-4">
-                            <label for="start" class="w-full md:w-1/3 font-semibold text-lg pr-4">Start</label>
-                            <input v-model="start"
-                                   class="w-full md:w-2/3 border rounded px-4 py-2"
-                                   type="text"
-                                   id="start"
-                                   name="start"
-                                   placeholder="Start">
-                        </div>
+                        <TimeField v-model="start" label="Start" name="start"/>
                     </div>
 
                     <div class="mb-4">
-                        <div class="flex items-center py-4">
-                            <label for="end" class="w-full md:w-1/3 font-semibold text-lg pr-4">End</label>
-                            <input v-model="end"
-                                   class="w-full md:w-2/3 border rounded px-4 py-2"
-                                   type="text"
-                                   id="end"
-                                   name="end"
-                                   placeholder="End">
-                        </div>
+                        <TimeField v-model="end" label="End" name="end"/>
                     </div>
 
                     <div class="flex flex-row-reverse">
@@ -83,10 +67,11 @@
 
 <script>
 import Axios from "axios";
-import {prepareDate, formatDate, calculateDuration} from "../client/dates";
+import TimeField from "./TimeField";
+import { prepareDate, formatDate, calculateDuration } from "../client/dates";
 
 export default {
-    emits: ['open', 'close', 'add', 'update'],
+    components: { TimeField },
 
     props: {
         entry: {
@@ -94,12 +79,15 @@ export default {
         },
     },
 
+    emits: ['open', 'close', 'update'],
+
     data() {
         return {
             isOpen: false,
             title: '',
             start: null,
             end: null,
+            errors: {},
         };
     },
 
@@ -131,21 +119,12 @@ export default {
                 end: prepareDate(this.end),
             };
 
-            if (this.entry && this.entry.id) {
-                this.updateEntry(entry, this.entry.id);
-            } else {
-                this.addEntry(entry);
+            if (! this.entry || ! this.entry.id) {
+                console.error('Modal: There is no entry.');
+                return;
             }
-        },
 
-        addEntry(entry) {
-            return Axios.post('/api/v1/times', entry)
-                .then((response) => {
-                    this.$emit('add', response.data.data);
-
-                    this.close();
-                })
-                .catch(this.handleErrors);
+            this.updateEntry(entry, this.entry.id);
         },
 
         updateEntry(entry, id) {
@@ -167,7 +146,8 @@ export default {
         },
 
         handleErrors(error) {
-            console.error(error.response.data.errors);
+            this.errors = error.response.data.errors;
+            console.error(this.errors);
         },
 
         updateForm() {

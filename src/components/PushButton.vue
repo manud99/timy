@@ -49,26 +49,18 @@ export default {
 
     methods: {
         onStart() {
-            this.$emit('update:running', true);
-
             this.$emit('start');
         },
 
         onAdd() {
-            this.$emit('update:running', false);
-
             this.$emit('add', false);
         },
 
         onSplit() {
-            this.$emit('update:running', true);
-
             this.$emit('add', true);
         },
 
         onStop() {
-            this.$emit('update:running', false);
-
             this.$emit('add', false);
         },
     },

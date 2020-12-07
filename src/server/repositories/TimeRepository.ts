@@ -10,9 +10,8 @@ export default class TimeRepository {
     }
 
     async all(): Promise<Array<TimeEntry>> {
-        let timeEntries = parseDtoArray<TimeEntry>(TimeEntry, await this.db.all('SELECT * FROM time_entries ORDER BY start'));
-
-        return timeEntries;
+        // TODO: Get time entries from only one day.
+        return parseDtoArray<TimeEntry>(TimeEntry, await this.db.all('SELECT * FROM time_entries ORDER BY start'));
     }
 
     async find(id: number): Promise<TimeEntry> {
