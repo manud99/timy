@@ -18,7 +18,9 @@
                         <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">Title</th>
                         <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">Start</th>
                         <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">End</th>
-                        <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">Duration</th>
+                        <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3" style="width: 90px">
+                            Duration
+                        </th>
                         <th class="text-lg border-t border-b-2 border-gray-300 px-2 py-3">Action</th>
                     </tr>
                     </thead>
@@ -30,7 +32,9 @@
                             <span v-if="time.end">{{ time.end }}</span>
                             <Spinner v-else/>
                         </td>
-                        <td class="border-b border-gray-300 text-right px-2 py-3">{{ time.duration }}h</td>
+                        <td class="border-b border-gray-300 text-right px-2 py-3">
+                            {{ formatDuration(time.duration) }}
+                        </td>
                         <td class="border-b border-gray-300 px-2 py-3">
                             <button
                                 class="bg-indigo-600 text-white rounded px-2 py-1 mr-2"
@@ -155,6 +159,17 @@ export default {
 
         closeModal() {
             this.$refs.modal.close();
+        },
+
+        formatDuration(totalMinutes) {
+            const hours = Math.trunc(totalMinutes / 60);
+            const minutes = totalMinutes - (hours * 60);
+
+            if (hours === 0) {
+                return `${minutes}min`;
+            }
+
+            return `${hours}h ${minutes}min`;
         },
 
         updateDurations() {

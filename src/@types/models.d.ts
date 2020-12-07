@@ -14,7 +14,7 @@ interface ApiTimeEntry extends IModel {
     title?: string,
     start: string,
     end?: string,
-    duration?: string,
+    duration?: number,
     created_at?: string,
     updated_at?: string,
 }

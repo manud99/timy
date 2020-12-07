@@ -28,7 +28,7 @@ export function calculateDuration(start, end) {
     const dateStart = new Date(start);
     const dateEnd = new Date(end || null);
 
-    return Number((dateEnd.getTime() - dateStart.getTime()) / 3600000).toFixed(2);
+    return Math.trunc((dateEnd.getTime() - dateStart.getTime()) / 60000);
 }
 
 export function getRoundedTime() {

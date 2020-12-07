@@ -30,14 +30,13 @@ export class TimeEntry extends AbstractModel<DbTimeEntry, ApiTimeEntry> {
         this.state.end = Number(end);
     }
 
-    get duration(): string {
+    get duration(): number {
         let endTime = this.state.end;
         if (! endTime) {
             endTime = new Date().getTime();
         }
 
-        return Number((endTime - this.state.start) / 3600000)
-            .toFixed(2);
+        return Math.trunc((endTime - this.state.start) / 60000);
     }
 
     get created_at(): string {
