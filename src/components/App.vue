@@ -6,7 +6,7 @@
             </h1>
 
             <div class="border-b border-gray-300 px-4 mb-6">
-                <PushButton v-model:running="running" @start="onStart" @add="onAdd" />
+                <PushButton v-model:running="running" @start="onStart" @add="onAdd"/>
             </div>
 
             <div class="px-4">
@@ -28,9 +28,9 @@
                         <td class="border-b border-gray-300 px-2 py-3">{{ time.start }}</td>
                         <td class="border-b border-gray-300 px-2 py-3">
                             <span v-if="time.end">{{ time.end }}</span>
-                            <!-- <spinner v-else /> -->
+                            <Spinner v-else/>
                         </td>
-                        <td class="border-b border-gray-300 px-2 py-3">{{ time.duration }}h</td>
+                        <td class="border-b border-gray-300 text-right px-2 py-3">{{ time.duration }}h</td>
                         <td class="border-b border-gray-300 px-2 py-3">
                             <button
                                 class="bg-indigo-600 text-white rounded px-2 py-1 mr-2"
@@ -52,19 +52,21 @@
         </div>
     </div>
 
-    <Modal ref="modal" :entry="activeEntry" @add="onAddEntry" @update="onUpdateEntry" />
+    <Modal ref="modal" :entry="activeEntry" @add="onAddEntry" @update="onUpdateEntry"/>
 </template>
 
 <script>
 import Axios from 'axios';
 import PushButton from './PushButton';
 import Modal from './Modal';
-import { formatDate, getRoundedTime, prepareDate } from "../client/dates";
+import Spinner from './Spinner';
+import { calculateDuration, formatDate, getRoundedTime, parseDate } from "../client/dates";
 
 export default {
     components: {
         PushButton,
         Modal,
+        Spinner,
     },
 
     data() {
@@ -74,13 +76,18 @@ export default {
             modalOpen: false,
             activeEntry: null,
             isSplitting: true,
+            durationUpdater: null,
         };
     },
 
     created() {
         this.getData();
 
-        // TODO: Automatically update the duration of unfinished entries.
+        this.durationUpdater = setInterval(this.updateDurations, 15000);
+    },
+
+    unmounted() {
+        clearInterval(this.durationUpdater);
     },
 
     methods: {
@@ -148,6 +155,14 @@ export default {
 
         closeModal() {
             this.$refs.modal.close();
+        },
+
+        updateDurations() {
+            this.times.forEach((entry) => {
+                if (entry.end) return;
+
+                entry.duration = calculateDuration(parseDate(entry.start), new Date());
+            });
         },
     },
 };

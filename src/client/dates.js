@@ -1,6 +1,6 @@
 import app from "../config/app.json";
 
-export function prepareDate(string) {
+export function parseDate(string) {
     const parts = string ? string.split(':') : null;
     if (! parts || parts.length === 0) {
         return null;
@@ -9,7 +9,11 @@ export function prepareDate(string) {
     const date = new Date();
     date.setHours(parts[0], parts[1], 0, 0);
 
-    return date.toISOString();
+    return date;
+}
+
+export function prepareDate(date) {
+    return parseDate(date).toISOString();
 }
 
 export function formatDate(string) {
