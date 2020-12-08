@@ -18,15 +18,17 @@ Timy has a config value to set a rounding factor. All your times are rounded to 
 1. Clone the repository.
 2. Install all npm dependencies.
 3. Build the production files.
-4. Start the server.
+4. Setup the SQLite database file. 
+5. Start the server.
    
 ```bash
 npm install
 npm run prod
+npm run setup-db
 npm start
 ```
 
-5. Open the app on [http://localhost:8080/](http://localhost:8080/)
+6. Open the app on [http://localhost:8080/](http://localhost:8080/)
 
 ## ToDos
 

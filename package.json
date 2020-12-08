@@ -9,6 +9,8 @@
     "build": "tsc --build tsconfig.server.json && mix",
     "watch": "mix watch",
     "prod": "tsc --build tsconfig.server.json && mix --production",
+    "setup-db": "node dist/server/cli.js init",
+    "reset-db": "npm run setup-db -- --reset",
     "run-ts": "tsc --build tsconfig.server.json -w",
     "run-node": "nodemon --watch dist/server dist/server/server.js",
     "start": "concurrently --raw npm:run-*"
