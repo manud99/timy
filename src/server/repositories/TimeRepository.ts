@@ -21,8 +21,8 @@ export default class TimeRepository {
     async create(title: string, start: string, end: string | null = null): Promise<TimeEntry> {
         const result = await this.db.run("INSERT INTO time_entries (title, start, end, created_at, updated_at) VALUES ($title, $start, $end, $created_at, $updated_at)", {
             '$title': title,
-            '$start': this.formatDate(start),
-            '$end': this.formatDate(end),
+            '$start': TimeRepository.formatDate(start),
+            '$end': TimeRepository.formatDate(end),
             '$created_at': new Date(),
             '$updated_at': new Date(),
         });
@@ -31,11 +31,12 @@ export default class TimeRepository {
     }
 
     async update(timeEntry: TimeEntry, title: string, start: string, end: string) {
-        const result = await this.db.run("UPDATE time_entries SET title = $title, start = $start, end = $end WHERE id = $id", {
+        const result = await this.db.run("UPDATE time_entries SET title = $title, start = $start, end = $end, updated_at = $updated_at WHERE id = $id", {
             '$title': title,
-            '$start': this.formatDate(start),
-            '$end': this.formatDate(end),
+            '$start': TimeRepository.formatDate(start),
+            '$end': TimeRepository.formatDate(end),
             '$id': timeEntry.id,
+            '$updated_at': new Date(),
         });
 
         return result.changes === 1;
@@ -47,8 +48,8 @@ export default class TimeRepository {
         return result.changes === 1;
     }
 
-    private formatDate(strDate: string | null): Date | null {
-        if (!strDate) return null;
+    private static formatDate(strDate: string | null): Date | null {
+        if (! strDate) return null;
 
         return new Date(strDate);
     }
