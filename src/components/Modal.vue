@@ -79,7 +79,7 @@ export default {
         },
     },
 
-    emits: ['open', 'close', 'update'],
+    emits: ['open', 'close', 'add', 'update'],
 
     data() {
         return {
@@ -120,11 +120,20 @@ export default {
             };
 
             if (! this.entry || ! this.entry.id) {
-                console.error('Modal: There is no entry.');
-                return;
+                this.addEntry(entry);
+            } else {
+                this.updateEntry(entry, this.entry.id);
             }
+        },
 
-            this.updateEntry(entry, this.entry.id);
+        addEntry(entry) {
+            Axios.post('/api/v1/times', entry)
+                .then((response) => {
+                    this.$emit('add', response.data.data);
+
+                    this.close();
+                })
+                .catch(this.handleErrors);
         },
 
         updateEntry(entry, id) {

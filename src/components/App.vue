@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <Modal ref="modal" :entry="activeEntry" @update="updateEntry"/>
+    <Modal ref="modal" :entry="activeEntry" @add="addEntry" @update="updateEntry"/>
 </template>
 
 <script>
@@ -127,7 +127,7 @@ export default {
         sortEntries() {
             this.times.sort((a, b) => {
                 return a.start.localeCompare(b.start);
-            })
+            });
         },
 
         // Header buttons
@@ -138,12 +138,18 @@ export default {
             });
 
             const entry = response.data.data;
-            this.times.push(entry);
+            this.addEntry(entry);
 
             this.runningEntry = entry;
         },
 
         onAdd(isSplitting = false) {
+            if (! this.runningEntry) {
+                this.runningEntry = {
+                    start: formatDate(getRoundedTime(1)),
+                };
+            }
+
             this.runningEntry.end = formatDate(getRoundedTime());
             this.isSplitting = isSplitting;
 
@@ -174,6 +180,11 @@ export default {
 
         closeModal() {
             this.$refs.modal.close();
+        },
+
+        addEntry(entry) {
+            this.times.push(entry);
+            this.sortEntries();
         },
 
         updateEntry(id, newValues) {

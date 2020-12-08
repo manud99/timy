@@ -35,9 +35,14 @@ export function calculateDuration(start, end) {
     return Math.trunc((dateEnd.getTime() - dateStart.getTime()) / 60000);
 }
 
-export function getRoundedTime() {
+// TODO: Get config values via HTML from the server for updates via env vars.
+export function getRoundedTime(minusNumberOfTimesRoundingFactor = 0) {
     const date = new Date();
-    // TODO: Get config values via HTML from the server for updates via env vars.
+
+    if (minusNumberOfTimesRoundingFactor > 0) {
+        date.setMinutes(date.getMinutes() - (minusNumberOfTimesRoundingFactor * app.roundingFactor));
+    }
+
     date.setMinutes(Math.floor(date.getMinutes() / app.roundingFactor) * app.roundingFactor);
 
     return date;
