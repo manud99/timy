@@ -13,6 +13,21 @@ Just Start, Split and Stop. Timy does the rounding and calculations.
 The app lists all your entries in a simple overview table. A main feature is that you are able to round your time entires.
 Timy has a config value to set a rounding factor. All your times are rounded to the next value according to your factor.
 
+## Setup with npm
+
+1. Clone the repository.
+2. Install all npm dependencies.
+3. Build the production files.
+4. Start the server.
+   
+```bash
+npm install
+npm run prod
+npm start
+```
+
+5. Open the app on [http://localhost:8080/](http://localhost:8080/)
+
 ## ToDos
 
 - [ ] Add a Docker image for an easy installation.
