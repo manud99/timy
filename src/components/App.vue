@@ -24,41 +24,47 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <!-- TODO: Highlight overlapping entries -->
-                    <!-- TODO: Add highlighted row for breaks -->
-                    <tr v-for="(entry, index) in times" :class="{'bg-gray-200': index % 2 === 0}">
-                        <td class="border-b border-gray-300 px-4 py-3">
-                            <span v-if="entry.title">{{ entry.title }}</span>
-                            <span v-else class="text-gray-400">Currently working on ...</span>
-                        </td>
-                        <td class="border-b border-gray-300 px-4 py-3">
-                            {{ entry.start }}
-                        </td>
-                        <td class="border-b border-gray-300 px-4 py-3">
-                            <span v-if="entry.end">{{ entry.end }}</span>
-                            <Spinner v-else/>
-                        </td>
-                        <td class="border-b border-gray-300 text-right px-4 py-3">
-                            {{ formatDuration(entry.duration) }}
-                        </td>
-                        <td class="border-b border-gray-300 whitespace-nowrap px-4 py-3">
-                            <button
-                                class="bg-indigo-600 text-white rounded px-2 py-1 mr-2"
-                                type="button"
-                                @click="onEdit(entry)"
-                            >
-                                {{ entry.end ? 'Edit' : 'Stop' }}
-                            </button>
+                    <template v-for="(entry, index) in entries">
+                        <tr v-if="entry.breakBefore !== false">
+                            <td class="bg-green-800 font-semibold text-lg text-white text-center px-4 py-2" colspan="5">
+                                {{ `Break: ${entry.breakBefore}` }}
+                            </td>
+                        </tr>
 
-                            <button
-                                class="bg-red-600 text-white rounded px-2 py-1"
-                                type="button"
-                                @click="onDelete(entry, index)"
-                            >
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
+                        <tr :class="entry.backgroundColor">
+                            <td class="border-b border-gray-300 px-4 py-3">
+                                <span v-if="entry.title">{{ entry.title }}</span>
+                                <span v-else class="text-gray-400">Currently working on ...</span>
+                            </td>
+                            <td class="border-b border-gray-300 px-4 py-3">
+                                {{ entry.start }}
+                            </td>
+                            <td class="border-b border-gray-300 px-4 py-3">
+                                <span v-if="entry.end">{{ entry.end }}</span>
+                                <Spinner v-else/>
+                            </td>
+                            <td class="border-b border-gray-300 text-right px-4 py-3">
+                                {{ formatDuration(entry.duration) }}
+                            </td>
+                            <td class="border-b border-gray-300 whitespace-nowrap px-4 py-3">
+                                <button
+                                    class="bg-indigo-600 text-white rounded px-2 py-1 mr-2"
+                                    type="button"
+                                    @click="onEdit(entry)"
+                                >
+                                    {{ entry.end ? 'Edit' : 'Stop' }}
+                                </button>
+
+                                <button
+                                    class="bg-red-600 text-white rounded px-2 py-1"
+                                    type="button"
+                                    @click="onDelete(entry, index)"
+                                >
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
                     </tbody>
                 </table>
             </div>
@@ -85,7 +91,7 @@ export default {
 
     data() {
         return {
-            times: [],
+            entries: [],
             editedEntry: null,
             runningEntry: null,
             isSplitting: false,
@@ -117,16 +123,41 @@ export default {
         // Data management
         async getEntries() {
             const response = await Axios.get('/api/v1/times');
-            this.times = response.data.data;
+            this.entries = response.data.data;
 
-            if (this.times.length !== 0) {
-                this.runningEntry = this.times.find((entry) => entry.end === null);
+            if (this.entries.length !== 0) {
+                this.runningEntry = this.entries.find((entry) => entry.end === null);
             }
+
+            this.addBreaksAndBackgroundColors();
         },
 
         sortEntries() {
-            this.times.sort((a, b) => {
+            this.entries.sort((a, b) => {
                 return a.start.localeCompare(b.start);
+            });
+        },
+
+        addBreaksAndBackgroundColors() {
+            this.entries.forEach((entry, index, array) => {
+                entry.breakBefore = false;
+                entry.backgroundColor = index % 2 === 0 ? 'bg-gray-200' : '';
+
+                if (index === 0) return;
+                const previousEntry = array[index - 1];
+
+                if (entry.start > previousEntry.end) {
+                    entry.breakBefore = this.formatDuration(
+                        calculateDuration(
+                            parseDate(previousEntry.end),
+                            parseDate(entry.start),
+                        ),
+                    );
+                }
+
+                if (entry.start < previousEntry.end) {
+                    entry.backgroundColor = 'bg-yellow-400';
+                }
             });
         },
 
@@ -170,7 +201,7 @@ export default {
         async onDelete(entry, index) {
             await Axios.delete(`/api/v1/times/${entry.id}`);
 
-            this.times.splice(index, 1);
+            this.entries.splice(index, 1);
         },
 
         // Modal actions and callbacks
@@ -183,16 +214,18 @@ export default {
         },
 
         addEntry(entry) {
-            this.times.push(entry);
+            this.entries.push(entry);
             this.sortEntries();
+            this.addBreaksAndBackgroundColors();
         },
 
         updateEntry(id, newValues) {
-            const index = this.times.findIndex((time) => time.id === id);
+            const index = this.entries.findIndex((time) => time.id === id);
 
-            this.times[index] = { ...this.times[index], ...newValues };
+            this.entries[index] = { ...this.entries[index], ...newValues };
 
             this.sortEntries();
+            this.addBreaksAndBackgroundColors();
 
             this.editedEntry = null;
             this.runningEntry = null;
@@ -203,9 +236,9 @@ export default {
             }
         },
 
-        // Duration updater
+        // Duration handlers
         updateDurations() {
-            this.times.forEach((entry) => {
+            this.entries.forEach((entry) => {
                 if (entry.end) return;
 
                 entry.duration = calculateDuration(parseDate(entry.start), new Date());
