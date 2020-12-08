@@ -37,6 +37,7 @@ export function calculateDuration(start, end) {
 
 export function getRoundedTime() {
     const date = new Date();
+    // TODO: Get config values via HTML from the server for updates via env vars.
     date.setMinutes(Math.floor(date.getMinutes() / app.roundingFactor) * app.roundingFactor);
 
     return date;

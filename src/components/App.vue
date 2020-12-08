@@ -104,7 +104,7 @@ export default {
     },
 
     created() {
-        this.getData();
+        this.getEntries();
 
         this.durationUpdater = setInterval(this.updateDurations, 15000);
     },
@@ -115,17 +115,19 @@ export default {
 
     methods: {
         // Data management
-        async getData() {
+        async getEntries() {
             const response = await Axios.get('/api/v1/times');
             this.times = response.data.data;
 
-            this.checkIfIsRunning();
+            if (this.times.length !== 0) {
+                this.runningEntry = this.times.find((entry) => entry.end === null);
+            }
         },
 
-        checkIfIsRunning() {
-            if (this.times.length === 0) return;
-
-            this.runningEntry = this.times.find((entry) => entry.end === null);
+        sortEntries() {
+            this.times.sort((a, b) => {
+                return a.start.localeCompare(b.start);
+            })
         },
 
         // Header buttons
@@ -151,6 +153,11 @@ export default {
         // Table buttons
         onEdit(entry) {
             this.editedEntry = entry;
+
+            if (! this.editedEntry.end) {
+                this.editedEntry.end = formatDate(getRoundedTime());
+            }
+
             this.openModal();
         },
 
@@ -169,11 +176,15 @@ export default {
             this.$refs.modal.close();
         },
 
-        // TODO: Distinguish between editing an existing and a running entry
-        updateEntry(newValues, id) {
+        updateEntry(id, newValues) {
             const index = this.times.findIndex((time) => time.id === id);
 
             this.times[index] = { ...this.times[index], ...newValues };
+
+            this.sortEntries();
+
+            this.editedEntry = null;
+            this.runningEntry = null;
 
             if (this.isSplitting) {
                 this.onStart();

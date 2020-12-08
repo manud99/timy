@@ -131,13 +131,12 @@ export default {
             Axios.put(`/api/v1/times/${id}`, entry)
                 .then((response) => {
                     if (response.data?.status === true) {
-                        this.$emit('update', {
-                            ...this.entry,
-                            ...entry,
+                        this.$emit('update', id, {
+                            title: this.title,
                             start: formatDate(entry.start),
                             end: formatDate(entry.end),
                             duration: calculateDuration(entry.start, entry.end),
-                        }, id);
+                        });
                     }
 
                     this.close();
