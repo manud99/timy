@@ -43,7 +43,7 @@
                                 <span v-if="entry.end">{{ entry.end }}</span>
                                 <Spinner v-else/>
                             </td>
-                            <td class="border-b border-gray-300 text-right px-4 py-3">
+                            <td class="border-b border-gray-300 text-right whitespace-nowrap px-4 py-3">
                                 {{ formatDuration(entry.duration) }}
                             </td>
                             <td class="border-b border-gray-300 whitespace-nowrap px-4 py-3">
