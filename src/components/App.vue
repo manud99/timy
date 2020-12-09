@@ -1,19 +1,19 @@
 <template>
     <div class="container flex justify-center py-4">
-        <div class="lg:w-1/2 bg-white rounded-lg py-4">
+        <div class="lg:w-1/2 bg-white rounded-lg shadow py-4">
             <h1 class="text-4xl text-center uppercase text-indigo-600 font-bold border-b border-gray-300 px-4 pb-4 mb-6">
                 Timy
             </h1>
 
             <div class="border-b border-gray-300 px-4 mb-6">
-                <PushButton :running="running" @start="onStart" @add="onAdd"/>
+                <PushButtons :running="running" @start="onStart" @add="onAdd"/>
             </div>
 
             <div class="px-4">
                 <h2 class="text-2xl text-indigo-600 font-semibold mb-6">Your Time Entries</h2>
                 <!-- TODO: Select day box -->
 
-                <table class="w-full">
+                <table v-if="entries.length !== 0" class="w-full">
                     <thead class="text-left">
                     <tr>
                         <th class="w-full text-lg border-t border-b-2 border-gray-300 px-4 py-3">Title</th>
@@ -67,6 +67,10 @@
                     </template>
                     </tbody>
                 </table>
+
+                <div v-else class="text-gray-500">
+                    It's time to create your first entry of the day ...
+                </div>
             </div>
         </div>
     </div>
@@ -76,7 +80,7 @@
 
 <script>
 import Axios from 'axios';
-import PushButton from './PushButton';
+import PushButtons from './PushButtons';
 import Modal from './Modal';
 import Spinner from './Spinner';
 import { calculateDuration, formatDate, getRoundedTime, minutesToParts, parseDate } from "../client/dates";
@@ -84,7 +88,7 @@ import { calculateDuration, formatDate, getRoundedTime, minutesToParts, parseDat
 // TODO: Structure component with new composition API
 export default {
     components: {
-        PushButton,
+        PushButtons,
         Modal,
         Spinner,
     },
@@ -126,10 +130,18 @@ export default {
             this.entries = response.data.data;
 
             if (this.entries.length !== 0) {
-                this.runningEntry = this.entries.find((entry) => entry.end === null);
+                this.setRunningEntry(this.entries.find((entry) => entry.end === null));
             }
 
             this.addBreaksAndBackgroundColors();
+        },
+
+        setRunningEntry(entry) {
+            if (!entry) {
+                this.runningEntry = null;
+            }
+
+            this.runningEntry = { ...entry };
         },
 
         sortEntries() {
@@ -162,16 +174,16 @@ export default {
         },
 
         // Header buttons
-        async onStart() {
+        async onStart(startTime = null) {
             const response = await Axios.post('/api/v1/times', {
                 title: null,
-                start: getRoundedTime(),
+                start: startTime ? parseDate(startTime) : getRoundedTime(),
             });
 
             const entry = response.data.data;
             this.addEntry(entry);
 
-            this.runningEntry = entry;
+            this.setRunningEntry(entry);
         },
 
         onAdd(isSplitting = false) {
@@ -189,7 +201,7 @@ export default {
 
         // Table buttons
         onEdit(entry) {
-            this.editedEntry = entry;
+            this.editedEntry = { ...entry };
 
             if (! this.editedEntry.end) {
                 this.editedEntry.end = formatDate(getRoundedTime());
@@ -202,6 +214,10 @@ export default {
             await Axios.delete(`/api/v1/times/${entry.id}`);
 
             this.entries.splice(index, 1);
+
+            if (this.runningEntry.id === entry.id) {
+                this.runningEntry = null;
+            }
         },
 
         // Modal actions and callbacks
@@ -231,7 +247,7 @@ export default {
             this.runningEntry = null;
 
             if (this.isSplitting) {
-                this.onStart();
+                this.onStart(newValues.end);
                 this.isSplitting = false;
             }
         },

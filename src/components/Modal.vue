@@ -4,11 +4,13 @@
             class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center"
             :class="{'opacity-0': ! isOpen, 'pointer-events-none': ! isOpen}"
             style="transition: opacity 0.3s"
+            @keyup="onKeyup"
+            @click="close"
         >
             <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
 
             <div class="modal-container bg-white w-2/3 lg:w-2/5 mx-auto rounded shadow-lg z-50 overflow-y-auto">
-                <form @submit.prevent="onSubmit" class="modal-content py-4 text-left px-6">
+                <form class="modal-content py-4 text-left px-6" @submit.prevent="onSubmit" @click.stop="() => {}">
                     <div class="flex justify-between items-center pb-3 mb-4">
                         <h2 class="text-2xl font-bold">Add time entry</h2>
 
@@ -112,6 +114,12 @@ export default {
             this.$emit('close');
         },
 
+        onKeyup(event) {
+            if (event.key === 'Escape') {
+                this.close();
+            }
+        },
+
         onSubmit() {
             const entry = {
                 title: this.title,
@@ -153,6 +161,7 @@ export default {
                 .catch(this.handleErrors);
         },
 
+        // TODO: Show validation errors.
         handleErrors(error) {
             this.errors = error.response.data.errors;
             console.error(this.errors);
