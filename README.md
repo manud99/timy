@@ -1,6 +1,6 @@
 # Timy
 
-Manage your worktime locally on your computer. With Timy you have a simple app to track your activities.
+Manage your work time locally on your computer. With Timy you have a simple app to track your activities.
 Just Start, Split and Stop. Timy does the rounding and calculations.
 
 ## Process overview
@@ -12,6 +12,16 @@ Just Start, Split and Stop. Timy does the rounding and calculations.
 
 The app lists all your entries in a simple overview table. A main feature is that you are able to round your time entires.
 Timy has a config value to set a rounding factor. All your times are rounded to the next value according to your factor.
+
+## Getting started with docker
+
+Install the docker image and run it on your computer with the following command:
+
+```bash 
+docker run -d --name timy-app -p 8080:80 --restart always manud99/timy
+```
+
+Open the app on [http://localhost:8080/](http://localhost:8080/)
 
 ## Setup with npm
 
@@ -32,10 +42,9 @@ npm start
 
 ## ToDos
 
-- [ ] Add a Docker image for an easy installation.
 - [ ] Develop a Chrome extension.
+- [ ] Adjust config values with env vars.
 - [ ] APIs to export your entries to another format/tool. I'm open for ideas ...
-- [ ] Define a license.
 
 ## Copyright
 

@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import Times from './controllers/TimeController';
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 80;
 const app = express();
 
 app.set("port", port);
@@ -16,5 +16,5 @@ app.use(express.static(path.join(__dirname, '/../../web')));
 app.use(Times);
 
 const server = http.listen(port, function () {
-    console.log("Listening for connections ...");
+    console.log(`Listening for connections on port ${port} ...`);
 });
