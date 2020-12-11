@@ -73,7 +73,7 @@
                                 Total:
                             </td>
                             <td colspan="2"></td>
-                            <td class="font-semibold text-lg text-right px-4 py-2">
+                            <td class="font-semibold text-lg text-right whitespace-nowrap px-4 py-2">
                                 {{ formatDuration(total) }}
                             </td>
                         </tr>

@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { Request, Response, NextFunction } from 'express';
 
-export default function (fn: RequestHandler) {
+export default function (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
     return (req: Request, res: Response, next: NextFunction) => {
-        return fn(req, res, next).catch(next)
-    }
+        return fn(req, res, next).catch(next);
+    };
 }
