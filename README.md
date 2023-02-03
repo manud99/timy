@@ -1,51 +1,18 @@
-# Timy
+# Vue 3 + TypeScript + Vite
 
-Manage your work time locally on your computer. With Timy you have a simple app to track your activities.
-Just Start, Split and Stop. Timy does the rounding and calculations.
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## Process overview
+## Recommended IDE Setup
 
-- Start your work by clicking on the "Start" button.
-- Whenever you finished task and skip to next, click "Split", enter a title and adjust the times when needed.
-- Repeat ...
-- When it's time for a break just hit "Stop". 
+- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-The app lists all your entries in a simple overview table. A main feature is that you are able to round your time entires.
-Timy has a config value to set a rounding factor. All your times are rounded to the next value according to your factor.
+## Type Support For `.vue` Imports in TS
 
-## Getting started with docker
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
 
-Install the docker image and run it on your computer with the following command:
+If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
 
-```bash 
-docker run -d --name timy-app -p 8080:80 --restart always manud99/timy
-```
-
-Open the app on [http://localhost:8080/](http://localhost:8080/)
-
-## Setup with npm
-
-1. Clone the repository.
-2. Install all npm dependencies.
-3. Build the production files.
-4. Setup the SQLite database file. 
-5. Start the server.
-   
-```bash
-npm install
-npm run prod
-npm run setup-db
-npm start
-```
-
-6. Open the app on [http://localhost:8080/](http://localhost:8080/)
-
-## ToDos
-
-- [ ] Develop a Chrome extension.
-- [ ] Adjust config values with env vars.
-- [ ] APIs to export your entries to another format/tool. I'm open for ideas ...
-
-## Copyright
-
-This project is licensed under the terms of the GNU GPLv3 license.
+1. Disable the built-in TypeScript Extension
+   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
+   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
+2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
