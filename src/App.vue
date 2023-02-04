@@ -1,30 +1,26 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import Navbar from "./blocks/Navbar.vue";
+import Dashboard from "./pages/Dashboard.vue";
+import Subjects from "./pages/Subjects.vue";
+import Statistics from "./pages/Statistics.vue";
+import Settings from "./pages/Settings.vue";
+import NotFound from "./pages/404.vue";
+import { Component } from "vue";
+
+const active: { url: String; component: Component } = [
+    { url: "/", component: Dashboard },
+    { url: "/subjects", component: Subjects },
+    { url: "/statistics", component: Statistics },
+    { url: "/settings", component: Settings },
+].find((entry) => entry.url === window.location.pathname) || {
+    url: "*",
+    component: NotFound,
+};
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue + Me" />
+    <div class="flex flex-col flex-1 w-full">
+        <Navbar />
+        <component :is="active.component" />
+    </div>
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
