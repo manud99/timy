@@ -9,7 +9,8 @@
         "dev-server": "cross-env PORT=8080 nodemon --watch dist-server dist-server/main.js",
         "build": "vue-tsc && vite build && tsc --build tsconfig.server.json",
         "preview": "vite preview",
-        "check": "vue-tsc && prettier ."
+        "check": "vue-tsc && prettier .",
+        "prettier": "prettier --write ."
     },
     "dependencies": {
         "@prisma/client": "^4.9.0",

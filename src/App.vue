@@ -5,9 +5,8 @@ import Subjects from "./pages/Subjects.vue";
 import Statistics from "./pages/Statistics.vue";
 import Settings from "./pages/Settings.vue";
 import NotFound from "./pages/404.vue";
-import { Component } from "vue";
 
-const active: { url: String; component: Component } = [
+const active: { url: String; component: any } = [
     { url: "/", component: Dashboard },
     { url: "/subjects", component: Subjects },
     { url: "/statistics", component: Statistics },
