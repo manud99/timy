@@ -6,8 +6,9 @@
                 getSizeClasses(),
                 getColorClasses(),
             ]"
-            v-text="label"
-    />
+    >
+        <slot>{{ label }}</slot>
+    </button>
 </template>
 
 <script lang="ts">
@@ -15,6 +16,7 @@ import type {PropType} from "vue";
 import {defineComponent} from "vue";
 
 export enum ButtonSize {
+    SM = 'sm',
     MD = 'md',
     LG = 'lg',
     XL = 'xl',
@@ -34,6 +36,8 @@ export default defineComponent({
                     return 'px-10 py-4';
                 case ButtonSize.LG:
                     return 'px-5 py-3';
+                case ButtonSize.SM:
+                    return 'px-3 py-1 text-sm';
                 case ButtonSize.MD:
                 default:
                     return 'px-4 py-2 text-sm';

@@ -62,12 +62,12 @@ onMounted(async () => {
 
         <Section title="Einträge">
             <Table :fields="fields" :values="timeEntries">
-                <template #cell(subject)="row"> Fach {{ row.entry.subjectId }} </template>
+                <template #cell(subject)="row"> {{ row.entry.subjectId }} </template>
                 <template #cell(day)="row"> {{ getDate(row.entry.start) }} </template>
                 <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }} </template>
                 <template #cell(actions)>
-                    <button class="px-2">Edit</button>
-                    <button class="px-2">Delete</button>
+                    <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten" />
+                    <Button :size="ButtonSize.SM" label="Löschen" />
                 </template>
             </Table>
         </Section>
