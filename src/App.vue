@@ -19,7 +19,11 @@ const active: { url: String; component: any } = [
 
 <template>
     <div class="flex flex-col flex-1 w-full">
-        <Navbar />
-        <component :is="active.component" />
+        <header>
+            <Navbar />
+        </header>
+        <main class="h-full overflow-y-auto">
+            <component :is="active.component" />
+        </main>
     </div>
 </template>

@@ -4,7 +4,8 @@ CREATE TABLE "TimeEntry" (
     "description" TEXT NOT NULL,
     "subjectId" INTEGER NOT NULL,
     "start" DATETIME NOT NULL,
-    "end" DATETIME NOT NULL
+    "end" DATETIME NOT NULL,
+    CONSTRAINT "TimeEntry_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable

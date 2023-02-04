@@ -7,12 +7,13 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./database.db"
+  url      = "file:../database.db"
 }
 
 model TimeEntry {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   description String
+  subject     Subject  @relation(fields: [subjectId], references: [id])
   subjectId   Int
   start       DateTime
   end         DateTime
@@ -21,4 +22,5 @@ model TimeEntry {
 model Subject {
   id          Int    @id @default(autoincrement())
   name        String
+  timeEntries TimeEntry[]
 }

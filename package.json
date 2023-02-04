@@ -2,7 +2,7 @@
     "name": "timy",
     "private": true,
     "version": "0.0.0",
-    "type": "module",
+    "main": "dist-server/main.js",
     "scripts": {
         "dev": "concurrently --raw npm:dev-*",
         "dev-ts": "tsc --build tsconfig.server.json -w --preserveWatchOutput",
@@ -12,8 +12,12 @@
         "check": "vue-tsc && prettier .",
         "prettier": "prettier --write ."
     },
+    "prisma": {
+        "seed": "node prisma/seed.js"
+    },
     "dependencies": {
         "@prisma/client": "^4.9.0",
+        "axios": "^1.3.2",
         "concurrently": "^7.6.0",
         "cross-env": "^7.0.3",
         "express": "^4.18.2",
