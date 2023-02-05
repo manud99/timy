@@ -3,10 +3,10 @@
 <template>
     <header class="z-10 py-4 bg-white shadow-md">
         <div class="container grid grid-cols-3 items-center h-full px-4 mx-auto">
-            <a class="text-xl font-bold text-gray-800" href="/"> TIMY </a>
+            <div><a class="text-xl font-bold text-gray-800 px-2 py-1" href="/"> TIMY </a></div>
             <ul class="flex justify-center">
                 <li
-                    class="px-4 mx-4"
+                    class="px-2 mx-4"
                     v-for="page in [
                         { url: '/', label: 'Dashboard' },
                         { url: '/subjects', label: 'Fächer' },
@@ -14,16 +14,16 @@
                     ]"
                 >
                     <a
-                        class="font-semibold transition-colors duration-150 hover:text-blue-800"
+                        class="font-semibold transition-colors duration-150 hover:text-blue-800 px-2 py-1"
                         :href="page.url"
                         v-text="page.label"
                     />
                 </li>
             </ul>
             <ul class="flex justify-end">
-                <li class="px-4 mx-4" v-for="page in [{ url: '/settings', label: 'Einstellungen' }]">
+                <li class="px-2 mx-4" v-for="page in [{ url: '/settings', label: 'Einstellungen' }]">
                     <a
-                        class="font-semibold transition-colors duration-150 hover:text-blue-800"
+                        class="font-semibold transition-colors duration-150 hover:text-blue-800 px-2 py-1"
                         :href="page.url"
                         v-text="page.label"
                     />

@@ -1,4 +1,4 @@
-import express, {Request, Response} from "express";
+import express, { Request, Response } from "express";
 import timeEntriesRouter from "./routes/timeEntries";
 import subjectsRouter from "./routes/subjects";
 

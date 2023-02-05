@@ -1,11 +1,53 @@
 import { NextFunction, Request, Response } from "express";
-import { all as getSubjects } from "../db/subjects";
+import {
+    all as getSubjects,
+    create as createSubject,
+    update as updateSubject,
+    remove as deleteSubject,
+} from "../db/subjects";
 
 export async function get(req: Request, res: Response, next: NextFunction) {
     try {
         const subjects = await getSubjects();
-
         return res.json(subjects);
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export async function create(req: Request, res: Response, next: NextFunction) {
+    const id = parseInt(req.params.subjectId, 10);
+    const { name } = req.body;
+
+    try {
+        const subject = await createSubject(id, { name });
+
+        return res.status(200).json({ subject });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export async function update(req: Request, res: Response, next: NextFunction) {
+    const id = parseInt(req.params.subjectId, 10);
+    const { name } = req.body;
+
+    try {
+        const subject = await updateSubject(id, { name });
+
+        return res.status(200).json({ subject });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export async function remove(req: Request, res: Response, next: NextFunction) {
+    const id = parseInt(req.params.subjectId, 10);
+
+    try {
+        await deleteSubject(id);
+
+        return res.sendStatus(204);
     } catch (error) {
         return next(error);
     }

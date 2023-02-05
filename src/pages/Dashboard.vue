@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type {Ref} from "vue";
-import {onMounted, ref} from "vue";
+import type { Ref } from "vue";
+import { onMounted, ref } from "vue";
 import Axios from "axios";
 import Page from "../components/Page.vue";
 import Section from "../components/Section.vue";
-import Button, {ButtonSize} from "../components/Button.vue";
+import Button, { ButtonSize } from "../components/Button.vue";
 import Table from "../components/Table.vue";
-import type {TimeEntry} from "../../node_modules/.prisma/client";
+import type { TimeEntry } from "../../@types/models";
 
 const fields = [
     {
@@ -42,13 +42,13 @@ async function getTimeEntries(): Promise<Array<TimeEntry>> {
 }
 
 function getDate(date: string): string {
-    return new Date(date).toLocaleString('de-CH', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(date).toLocaleString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
 }
 
 function getTime(start: string, end: string): string {
-    const startTime = new Date(start).toLocaleString('de-CH', {'timeStyle': 'short'});
-    const endTime = new Date(end).toLocaleString('de-CH', {'timeStyle': 'short'});
-    return `${startTime} – ${endTime}`
+    const startTime = new Date(start).toLocaleString("de-CH", { timeStyle: "short" });
+    const endTime = new Date(end).toLocaleString("de-CH", { timeStyle: "short" });
+    return `${startTime} – ${endTime}`;
 }
 
 onMounted(async () => {

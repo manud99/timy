@@ -1,22 +1,45 @@
 <script setup lang="ts">
-import Button from './Button.vue';
+import Button from "./Button.vue";
+import { nextTick, ref, toRefs, watch } from "vue";
 
-const {title, show} = defineProps<{ title: string, show: boolean }>();
-
-defineEmits<{
-    (e: 'close'): void
-    (e: 'submit'): void
+const props = defineProps<{ title: string; show: boolean }>();
+const { title, show } = toRefs(props);
+const modal = ref<HTMLInputElement | null>(null);
+const emit = defineEmits<{
+    (e: "close"): void;
+    (e: "submit"): void;
 }>();
+
+watch(show, async (val) => {
+    if (!val) return;
+    await nextTick();
+    modal.value?.focus();
+});
+
+function onEsc() {
+    emit("close");
+}
 </script>
 
 <template>
     <Teleport to="body">
         <Transition name="modal">
-            <div v-if="show" class="flex fixed z-50 inset-0 bg-black/50 transition-opacity duration-300">
-                <form class="modal-container w-[600px] m-auto bg-white border rounded shadow-lg transition-all duration-300" @submit.prevent="$emit('submit')">
+            <div
+                v-if="show"
+                class="flex fixed z-50 inset-0 bg-black/50 transition-opacity duration-300"
+                ref="modal"
+                tabindex="0"
+                @keydown.esc="onEsc"
+            >
+                <form
+                    class="modal-container w-[600px] m-auto bg-white border rounded shadow-lg transition-all duration-300"
+                    @submit.prevent="$emit('submit')"
+                >
                     <div class="flex justify-between border-b px-4 py-3">
                         <h2 class="text-xl font-bold" v-text="title" />
-                        <button class="leading-none text-3xl p-0 m-0" title="Schliessen" @click="$emit('close')">&times;</button>
+                        <button class="leading-none text-3xl p-0 m-0" title="Schliessen" @click="$emit('close')">
+                            &times;
+                        </button>
                     </div>
 
                     <div class="px-4 py-3">
@@ -24,10 +47,7 @@ defineEmits<{
                     </div>
 
                     <footer class="flex justify-end border-t px-4 py-3">
-                        <Button
-                            type="submit"
-                            label="Speichern"
-                        />
+                        <Button type="submit" label="Speichern" />
                     </footer>
                 </form>
             </div>
