@@ -1,0 +1,10 @@
+_id: ut_ecf6a0bebcf544d1b87caff3230020ea
+type: UnitTest
+parentId: uts_fa46d3b00b5f4dc4984c03890b88f401
+modified: 1675783070590
+created: 1675783056617
+requestId: req_a9e97c3ce80043509e505285f507c5e4
+name: "Create: Validate Name"
+code: |-
+  const response1 = await insomnia.send();
+  expect(response1.status).to.equal(422);

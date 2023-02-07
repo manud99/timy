@@ -1,0 +1,28 @@
+_id: req_55bcc51e80194dd29243c2e0cc79f93a
+type: Request
+parentId: wrk_661cd9135393458c879224c5bbea5eae
+modified: 1675783375893
+created: 1675783365322
+url: http://localhost:8080/api/subjects/1
+name: Update Subject
+description: ""
+method: PUT
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"name": "Gugus"
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication: {}
+metaSortKey: -1675782903649.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global

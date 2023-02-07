@@ -1,0 +1,28 @@
+_id: req_34bc7becc4bf42acbcbc56b9d9fa4527
+type: Request
+parentId: wrk_661cd9135393458c879224c5bbea5eae
+modified: 1675783023670
+created: 1675782948680
+url: http://localhost:8080/api/subjects
+name: Create Subject
+description: ""
+method: POST
+body:
+  mimeType: application/json
+  text: |-
+    {
+    	"name": "Gugus"
+    }
+parameters: []
+headers:
+  - name: Content-Type
+    value: application/json
+authentication: {}
+metaSortKey: -1675782903749.5
+isPrivate: false
+settingStoreCookies: true
+settingSendCookies: true
+settingDisableRenderRequestBody: false
+settingEncodeUrl: true
+settingRebuildPath: true
+settingFollowRedirects: global
