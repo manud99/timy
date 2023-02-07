@@ -37,3 +37,13 @@ export async function remove(subjectId: number) {
         where: { id: subjectId },
     });
 }
+
+export async function exists(subjectId: number): Promise<boolean> {
+    return (
+        (await prisma.subject.findFirst({
+            where: {
+                id: subjectId,
+            },
+        })) !== null
+    );
+}

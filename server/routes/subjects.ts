@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { get, create, update, remove } from "../controllers/subjects";
+import * as subjectController from "../controllers/subjects";
+import { validateCreateRequest, validateUpdateRequest, validateDeleteRequest } from "../validators/subjects";
 
 const router = Router();
 
-router.get("/", get);
-router.post("/", create);
-router.put("/:subjectId", update);
-router.delete("/:subjectId", remove);
+router.get("/", subjectController.get);
+router.post("/", validateCreateRequest, subjectController.create);
+router.put("/:subjectId", validateUpdateRequest, subjectController.update);
+router.delete("/:subjectId", validateDeleteRequest, subjectController.remove);
 
 export default router;

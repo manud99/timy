@@ -4,6 +4,7 @@ import {
     create as createSubject,
     update as updateSubject,
     remove as deleteSubject,
+    exists as doesSubjectExist,
 } from "../db/subjects";
 
 export async function get(req: Request, res: Response, next: NextFunction) {
@@ -33,6 +34,10 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     const { name } = req.body;
 
     try {
+        if (!(await doesSubjectExist(id))) {
+            return res.status(404).json("Subject not found");
+        }
+
         const subject = await updateSubject(id, { name });
 
         return res.status(200).json({ subject });
