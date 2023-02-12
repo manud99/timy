@@ -6,5 +6,5 @@ created: 1675783326695
 requestId: req_55bcc51e80194dd29243c2e0cc79f93a
 name: Update Subject
 code: |-
-  const response1 = await insomnia.send();
-  expect(response1.status).to.equal(200);
+    const response1 = await insomnia.send();
+    expect(response1.status).to.equal(200);

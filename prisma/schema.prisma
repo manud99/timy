@@ -22,5 +22,6 @@ model TimeEntry {
 model Subject {
   id          Int    @id @default(autoincrement())
   name        String
+  color       Int
   timeEntries TimeEntry[]
 }

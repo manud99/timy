@@ -6,5 +6,5 @@ created: 1675783353336
 requestId: req_a9e97c3ce80043509e505285f507c5e4
 name: "Update: Validate Name"
 code: |-
-  const response1 = await insomnia.send();
-  expect(response1.status).to.equal(422);
+    const response1 = await insomnia.send();
+    expect(response1.status).to.equal(422);

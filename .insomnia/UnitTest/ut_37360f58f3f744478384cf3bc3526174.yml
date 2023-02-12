@@ -6,5 +6,5 @@ created: 1675782972031
 requestId: req_34bc7becc4bf42acbcbc56b9d9fa4527
 name: Create
 code: |-
-  const response1 = await insomnia.send();
-  expect(response1.status).to.equal(200);
+    const response1 = await insomnia.send();
+    expect(response1.status).to.equal(200);

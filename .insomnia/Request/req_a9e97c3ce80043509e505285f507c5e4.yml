@@ -8,15 +8,15 @@ name: Create Subject Validate Name
 description: ""
 method: POST
 body:
-  mimeType: application/json
-  text: |-
-    {
-    	"name": ""
-    }
+    mimeType: application/json
+    text: |-
+        {
+        	"name": ""
+        }
 parameters: []
 headers:
-  - name: Content-Type
-    value: application/json
+    - name: Content-Type
+      value: application/json
 authentication: {}
 metaSortKey: -1675782903699.5
 isPrivate: false

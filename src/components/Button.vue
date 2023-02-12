@@ -1,7 +1,7 @@
 <template>
     <button
         class="font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg focus:outline-none focus:ring-2"
-        :class="[fullWidth ? 'w-full' : '', getSizeClasses(), getColorClasses()]"
+        :class="[getSizeClasses(), getColorClasses()]"
     >
         <slot>{{ label }}</slot>
     </button>

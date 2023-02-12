@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ValidationError } from "../../@types/ValidationErrors";
+import { COLOR } from "../enums/colors";
 
 export async function validateCreateRequest(request: Request, response: Response, next: NextFunction) {
     const errors: ValidationError[] = [];
@@ -7,6 +8,13 @@ export async function validateCreateRequest(request: Request, response: Response
     // name: required
     if (!request.body.name) {
         errors.push({ message: "Name darf nicht leer sein." });
+    }
+
+    // color: required|in:Enum:Color
+    if (!request.body.color) {
+        errors.push({ message: "Farbe darf nicht leer sein." });
+    } else if (!Object.keys(COLOR).includes(request.body.color)) {
+        errors.push({ message: "Farbe ist ungültig." });
     }
 
     if (errors.length > 0) {
@@ -21,13 +29,24 @@ export async function validateUpdateRequest(request: Request, response: Response
 
     // id: required
     const subjectId = request.params.subjectId;
-    if (!subjectId || !Number.isInteger(subjectId)) {
-        return response.status(404).json("Subject not found");
+    if (!subjectId || !/^\d+$/.test(subjectId)) {
+        console.error(subjectId, "is invalid");
+        return response.status(404).json("Subject ID hat kein gültiges Format");
     }
 
     // name: required
     if (!request.body.name) {
         errors.push({ message: "Name darf nicht leer sein." });
+    }
+
+    // color: required|number|in:Enum:Color
+    if (!request.body.color) {
+        errors.push({ message: "Farbe darf nicht leer sein." });
+    } else if (!/^\d+$/.test(request.body.color)) {
+        errors.push({ message: "Farbe muss eine Zahl sein" });
+    } else if (!Object.values(COLOR).includes(parseInt(request.body.color, 10))) {
+        console.log(Object.values(COLOR), request.body.color, Object.values(COLOR).includes(request.body.color));
+        errors.push({ message: "Farbe ist ungültig." });
     }
 
     if (errors.length > 0) {

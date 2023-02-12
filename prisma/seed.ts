@@ -6,6 +6,7 @@ async function main() {
     const subject1 = await prisma.subject.create({
         data: {
             name: "Subject One",
+            color: 1,
             timeEntries: {
                 create: [
                     {
@@ -20,6 +21,7 @@ async function main() {
     const subject2 = await prisma.subject.create({
         data: {
             name: "Subject Two",
+            color: 2,
             timeEntries: {
                 create: [
                     {

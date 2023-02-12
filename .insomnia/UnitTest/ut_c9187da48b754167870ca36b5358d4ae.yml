@@ -6,5 +6,5 @@ created: 1675783343732
 requestId: req_f2b06db0f4364efda6218ffe447ccd48
 name: "Update: Not Found"
 code: |-
-  const response1 = await insomnia.send();
-  expect(response1.status).to.equal(404);
+    const response1 = await insomnia.send();
+    expect(response1.status).to.equal(404);

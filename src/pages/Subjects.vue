@@ -6,13 +6,19 @@ import type { Subject } from "../../@types/models";
 import Page from "../components/Page.vue";
 import Section from "../components/Section.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
+import ColorTag from "../components/ColorTag.vue";
 import UpdateSubjectModal from "../modals/UpdateSubjectModal.vue";
 import Table from "../components/Table.vue";
+import IconPlus from "../icons/Plus.vue";
 
 const fields = [
     {
         id: "name",
         label: "Name",
+    },
+    {
+        id: "color",
+        label: "Farbe",
     },
     {
         id: "actions",
@@ -71,16 +77,25 @@ onMounted(async () => {
 
 <template>
     <Page title="Fächer">
-        <Button
-            class="mb-6"
-            label="Neues Fach erstellen"
-            :size="ButtonSize.XL"
-            color="green"
-            fullWidth
-            @click="showCreateModal"
-        />
-        <Section title="Einträge">
+        <Section class="flex justify-between items-center p-4 bg-white">
+            <div class="font-semibold text-lg">{{ subjects.length }} Fächer gefunden</div>
+            <Button
+                class="flex items-center"
+                label="Neues Fach erstellen"
+                :size="ButtonSize.LG"
+                color="blue"
+                @click="showCreateModal"
+            >
+                <IconPlus class="mr-2" :size="12" />
+                <span>Neues Fach erstellen</span>
+            </Button>
+        </Section>
+        <Section>
             <Table :fields="fields" :values="subjects">
+                <template #cell(color)="{ entry, index }">
+                    <ColorTag :color="entry.color" :text="entry.name" />
+                </template>
+
                 <template #cell(actions)="{ entry, index }">
                     <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten" @click="showUpdateModal(entry)" />
                     <Button :size="ButtonSize.SM" label="Löschen" @click="deleteSubject(index)" />

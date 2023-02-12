@@ -8,12 +8,14 @@ import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
 
 const name: Ref<string> = ref("");
+const color: Ref<number> = ref(0);
 
 const props = defineProps<{
     show: boolean;
     subject: {
         id: number;
         name: string;
+        color: number;
     } | null;
 }>();
 const { show, subject } = toRefs(props);
@@ -25,12 +27,18 @@ const emit = defineEmits<{
 }>();
 
 watch(show, async (val) => {
-    if (!val || !subject.value) return;
-    name.value = subject.value?.name!;
+    if (!val) return;
+    if (subject.value) {
+        name.value = subject.value?.name!;
+        color.value = subject.value?.color!;
+    } else {
+        name.value = "";
+        color.value = 0;
+    }
 });
 
 async function submitSubject() {
-    const data = { name: name.value };
+    const data = { name: name.value, color: color.value };
 
     try {
         if (!subject.value) {
@@ -52,6 +60,9 @@ async function submitSubject() {
     <Modal title="Fach bearbeiten" :show="show" @close="$emit('close')" @submit="submitSubject">
         <FormGroup label="Name" name="name">
             <InputField v-model:value="name" name="name" />
+        </FormGroup>
+        <FormGroup label="Farbe" name="color">
+            <InputField v-model:value="color" name="color" />
         </FormGroup>
     </Modal>
 </template>

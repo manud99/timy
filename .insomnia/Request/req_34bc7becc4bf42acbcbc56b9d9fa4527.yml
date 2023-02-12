@@ -8,15 +8,15 @@ name: Create Subject
 description: ""
 method: POST
 body:
-  mimeType: application/json
-  text: |-
-    {
-    	"name": "Gugus"
-    }
+    mimeType: application/json
+    text: |-
+        {
+        	"name": "Gugus"
+        }
 parameters: []
 headers:
-  - name: Content-Type
-    value: application/json
+    - name: Content-Type
+      value: application/json
 authentication: {}
 metaSortKey: -1675782903749.5
 isPrivate: false

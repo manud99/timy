@@ -144,6 +144,7 @@ function main() {
                         prisma.subject.create({
                             data: {
                                 name: "Subject One",
+                                color: 1,
                                 timeEntries: {
                                     create: [
                                         {
@@ -163,6 +164,7 @@ function main() {
                         prisma.subject.create({
                             data: {
                                 name: "Subject Two",
+                                color: 2,
                                 timeEntries: {
                                     create: [
                                         {
