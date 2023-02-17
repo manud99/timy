@@ -4,6 +4,7 @@ export async function getTimeEntries(limit: number = 20) {
     return await prisma.timeEntry.findMany({
         take: limit,
         orderBy: { start: "desc" },
+        include: { subject: true },
     });
 }
 

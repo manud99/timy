@@ -1,4 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import InternalLink from "../components/InternalLink.vue";
+import { locationKey } from "../keys";
+import { inject } from "vue";
+import type { Ref } from "vue";
+
+const location = inject<Ref<string>>(locationKey);
+
+function isActive(href: string) {
+    return location?.value === href;
+}
+</script>
 
 <template>
     <header class="z-10 py-4 bg-white shadow-md">
@@ -13,8 +24,9 @@
                         { url: '/statistics', label: 'Statistik' },
                     ]"
                 >
-                    <a
-                        class="font-semibold transition-colors duration-150 hover:text-blue-800 px-2 py-1"
+                    <InternalLink
+                        class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-2 py-1"
+                        :class="isActive(page.url) ? 'text-blue-700 border-b-2 border-blue-700' : ''"
                         :href="page.url"
                         v-text="page.label"
                     />
@@ -22,8 +34,9 @@
             </ul>
             <ul class="flex justify-end">
                 <li class="px-2 mx-4" v-for="page in [{ url: '/settings', label: 'Einstellungen' }]">
-                    <a
-                        class="font-semibold transition-colors duration-150 hover:text-blue-800 px-2 py-1"
+                    <InternalLink
+                        class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-2 py-1"
+                        :class="isActive(page.url) ? 'text-blue-700 border-b-2 border-blue-700' : ''"
                         :href="page.url"
                         v-text="page.label"
                     />

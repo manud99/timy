@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Page from "../components/Page.vue";
+import Page from "../blocks/Page.vue";
 </script>
 
 <template>

@@ -2,7 +2,7 @@
     <button
         class="inline-flex items-center font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg focus:outline-none focus:ring-2"
         :class="[getSizeClasses(), getColorClasses()]"
-        :aria-title="label"
+        :aria-label="label"
     >
         <slot>{{ label }}</slot>
     </button>

@@ -24,7 +24,7 @@ const { fields } = withDefaults(defineProps<Props>(), { emptyText: "Keine Eintr√
             <tbody class="bg-white divide-y">
                 <template v-if="values.length > 0">
                     <tr v-for="(row, index) in values" class="text-gray-700">
-                        <td v-for="field in fields" class="px-4 py-8">
+                        <td v-for="field in fields" class="px-4 py-6">
                             <slot :name="`cell(${field.id})`" :entry="row" :field="field" :index="index">{{
                                 row[field.id]
                             }}</slot>

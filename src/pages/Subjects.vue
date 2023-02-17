@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import {computed, onMounted, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 import Axios from "axios";
 import type { Subject } from "../../@types/models";
-import Page from "../components/Page.vue";
-import Section from "../components/Section.vue";
+import Page from "../blocks/Page.vue";
+import Section from "../blocks/Section.vue";
+import SubjectTag from "../blocks/SubjectTag.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
-import ColorTag from "../components/ColorTag.vue";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import Table from "../components/Table.vue";
 import IconPlus from "../icons/Plus.vue";
@@ -80,7 +80,9 @@ onMounted(async () => {
 <template>
     <Page title="Fächer">
         <Section class="flex justify-between items-center p-4 bg-white">
-            <div class="font-semibold text-gray-600 text-lg">{{ subjects.length }} Fächer gefunden, {{ numActiveSujects }} davon sind aktiv</div>
+            <div class="font-semibold text-gray-600 text-lg">
+                {{ subjects.length }} Fächer gefunden, {{ numActiveSujects }} davon sind aktiv
+            </div>
             <Button
                 class="flex items-center"
                 label="Neues Fach erstellen"
@@ -94,18 +96,18 @@ onMounted(async () => {
         </Section>
         <Section>
             <Table :fields="fields" :values="subjects">
-                <template #cell(name)="{ entry, index }">
-                    <ColorTag :color="entry.color" :text="entry.name" :isActive="entry.isActive" />
+                <template #cell(name)="{ entry }">
+                    <SubjectTag :subject="entry as Subject" />
                 </template>
 
                 <template #cell(actions)="{ entry, index }">
                     <div class="flex">
                         <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten" @click="showUpdateModal(entry)">
-                            <IconPencil class="mr-2" :size="16"/>
+                            <IconPencil class="mr-2" :size="16" />
                             <span>Bearbeiten</span>
                         </Button>
                         <Button :size="ButtonSize.SM" label="Löschen" @click="deleteSubject(index)">
-                            <IconGarbage class="mr-2" :size="12"/>
+                            <IconGarbage class="mr-2" :size="12" />
                             <span>Löschen</span>
                         </Button>
                     </div>

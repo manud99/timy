@@ -2,11 +2,15 @@
 import type { Ref } from "vue";
 import { onMounted, ref } from "vue";
 import Axios from "axios";
-import Page from "../components/Page.vue";
-import Section from "../components/Section.vue";
+import type { TimeEntry } from "../../@types/models";
+import Page from "../blocks/Page.vue";
+import Section from "../blocks/Section.vue";
+import SubjectTag from "../blocks/SubjectTag.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
 import Table from "../components/Table.vue";
-import type { TimeEntry } from "../../@types/models";
+import IconPlus from "../icons/Plus.vue";
+import IconPencil from "../icons/Pencil.vue";
+import IconGarbage from "../icons/Garbage.vue";
 
 const fields = [
     {
@@ -57,17 +61,33 @@ onMounted(async () => {
 </script>
 
 <template>
-    <Page title="Dashboard">
-        <Button class="mb-6" label="Neuer Eintrag" :size="ButtonSize.XL" color="green" fullWidth />
+    <Page title="Übersicht">
+        <Section class="flex justify-between items-center p-4 bg-white">
+            <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes draus!</div>
+            <Button class="flex items-center" label="Neues Eintrag erstellen" :size="ButtonSize.LG" color="blue">
+                <IconPlus class="mr-2" :size="12" />
+                <span>Neuer Eintrag erstellen</span>
+            </Button>
+        </Section>
 
         <Section title="Einträge">
             <Table :fields="fields" :values="timeEntries">
-                <template #cell(subject)="row"> {{ row.entry.subjectId }} </template>
+                <template #cell(subject)="{ entry }">
+                    <SubjectTag :subject="entry.subject" />
+                </template>
                 <template #cell(day)="row"> {{ getDate(row.entry.start) }} </template>
                 <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }} </template>
                 <template #cell(actions)>
-                    <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten" />
-                    <Button :size="ButtonSize.SM" label="Löschen" />
+                    <div class="flex">
+                        <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten">
+                            <IconPencil class="mr-2" :size="16" />
+                            <span>Bearbeiten</span>
+                        </Button>
+                        <Button :size="ButtonSize.SM" label="Löschen">
+                            <IconGarbage class="mr-2" :size="12" />
+                            <span>Löschen</span>
+                        </Button>
+                    </div>
                 </template>
             </Table>
         </Section>

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-const props = defineProps<{
-    color: number;
-    text: string;
-    isActive: boolean;
+import { computed } from "vue";
+import type { Subject } from "../../@types/models";
+
+const { subject } = defineProps<{
+    subject: Subject;
 }>();
 
-function getColor() {
-    switch (props.color) {
+const color = computed(() => {
+    switch (subject.color) {
         case 1: // Yellow
             return {
                 backgroundColor: "hsl(50deg 92% 56%)",
@@ -58,12 +59,12 @@ function getColor() {
                 color: "white",
             };
     }
-}
+});
 </script>
 
 <template>
-    <div class="inline-flex items-center rounded-lg text-sm py-2 pl-2 pr-4" :style="getColor()">
-        <div class="rounded w-2 h-2 mr-2" :class="isActive ? 'bg-white/80' : 'bg-black/80'" />
-        <span v-text="text" />
+    <div class="inline-flex items-center rounded-lg text-sm py-2 pl-2 pr-4" :style="color">
+        <div class="rounded w-2 h-2 mr-2" :class="subject.isActive ? 'bg-white/80' : 'bg-black/80'" />
+        <span v-text="subject.name" />
     </div>
 </template>

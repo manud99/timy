@@ -6,7 +6,7 @@ const { size } = defineProps<{ size: number }>();
     <svg
         :width="size"
         :height="size"
-        class="fill-current"    
+        class="fill-current"
         clip-rule="evenodd"
         fill-rule="evenodd"
         stroke-linejoin="round"
