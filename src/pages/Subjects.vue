@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import { onMounted, ref } from "vue";
+import {computed, onMounted, ref} from "vue";
 import Axios from "axios";
 import type { Subject } from "../../@types/models";
 import Page from "../components/Page.vue";
@@ -10,11 +10,13 @@ import ColorTag from "../components/ColorTag.vue";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import Table from "../components/Table.vue";
 import IconPlus from "../icons/Plus.vue";
+import IconPencil from "../icons/Pencil.vue";
+import IconGarbage from "../icons/Garbage.vue";
 
 const fields = [
     {
         id: "name",
-        label: "Name",
+        label: "Markierung",
     },
     {
         id: "actions",
@@ -24,6 +26,10 @@ const fields = [
 const subjects: Ref<Subject[]> = ref([]);
 const showModal: Ref<boolean> = ref(false);
 const activeSubject: Ref<Subject | null> = ref(null);
+
+const numActiveSujects = computed(() => {
+    return subjects.value.filter((subject) => subject.isActive).length;
+});
 
 async function getSubjects() {
     try {
@@ -74,7 +80,7 @@ onMounted(async () => {
 <template>
     <Page title="Fächer">
         <Section class="flex justify-between items-center p-4 bg-white">
-            <div class="font-semibold text-lg">{{ subjects.length }} Fächer gefunden</div>
+            <div class="font-semibold text-gray-600 text-lg">{{ subjects.length }} Fächer gefunden, {{ numActiveSujects }} davon sind aktiv</div>
             <Button
                 class="flex items-center"
                 label="Neues Fach erstellen"
@@ -89,12 +95,20 @@ onMounted(async () => {
         <Section>
             <Table :fields="fields" :values="subjects">
                 <template #cell(name)="{ entry, index }">
-                    <ColorTag :color="entry.color" :text="entry.name" />
+                    <ColorTag :color="entry.color" :text="entry.name" :isActive="entry.isActive" />
                 </template>
 
                 <template #cell(actions)="{ entry, index }">
-                    <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten" @click="showUpdateModal(entry)" />
-                    <Button :size="ButtonSize.SM" label="Löschen" @click="deleteSubject(index)" />
+                    <div class="flex">
+                        <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten" @click="showUpdateModal(entry)">
+                            <IconPencil class="mr-2" :size="16"/>
+                            <span>Bearbeiten</span>
+                        </Button>
+                        <Button :size="ButtonSize.SM" label="Löschen" @click="deleteSubject(index)">
+                            <IconGarbage class="mr-2" :size="12"/>
+                            <span>Löschen</span>
+                        </Button>
+                    </div>
                 </template>
             </Table>
         </Section>

@@ -10,6 +10,7 @@ export async function all(limit: number = 20) {
 interface CreateFields {
     name: string;
     color: number;
+    isActive: boolean;
 }
 
 export async function create(subject: number, data: CreateFields) {
@@ -23,6 +24,7 @@ export async function create(subject: number, data: CreateFields) {
 interface UpdateFields {
     name: string;
     color: number;
+    isActive: boolean;
 }
 
 export async function update(subjectId: number, data: UpdateFields) {

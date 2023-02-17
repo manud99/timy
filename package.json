@@ -11,7 +11,8 @@
         "build": "vue-tsc && vite build && tsc --build tsconfig.server.json",
         "preview": "vite preview",
         "check": "vue-tsc && prettier .",
-        "prettier": "prettier --write ."
+        "prettier": "prettier --write .",
+        "seed": "tsc prisma/seed.ts --target es2021 --module es2022 --moduleResolution node --esModuleInterop --strict && prisma db seed"
     },
     "prisma": {
         "seed": "node prisma/seed.js"

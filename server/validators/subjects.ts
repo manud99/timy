@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import type { ValidationError } from "../../@types/ValidationErrors";
-import { validateRequired, validateNumber, validateInArray } from "./base.js";
+import { validateRequired, validateNumber, validateInArray, validateBoolean } from "./base.js";
 
 function validateSubject(request: Request, errors: ValidationError[]) {
     // name
@@ -16,6 +16,10 @@ function validateSubject(request: Request, errors: ValidationError[]) {
         "color",
         "Farbe muss eine Zahl zwischen 1 und 8 sein."
     );
+
+    // isActive
+    validateRequired(request.body.isActive, errors, "isActive", "Aktiv? darf nicht leer sein");
+    validateBoolean(request.body.isActive, errors, "isActive", "Aktiv? muss entweder true oder false sein");
 }
 
 function isValidSubjectId(request: Request) {

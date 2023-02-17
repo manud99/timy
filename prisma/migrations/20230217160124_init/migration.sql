@@ -11,5 +11,7 @@ CREATE TABLE "TimeEntry" (
 -- CreateTable
 CREATE TABLE "Subject" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT NOT NULL
+    "name" TEXT NOT NULL,
+    "color" INTEGER NOT NULL,
+    "isActive" BOOLEAN NOT NULL
 );

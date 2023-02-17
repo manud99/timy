@@ -2,7 +2,7 @@
 
 <template>
     <header class="z-10 py-4 bg-white shadow-md">
-        <div class="container grid grid-cols-3 items-center h-full px-4 mx-auto">
+        <nav class="container grid grid-cols-3 items-center h-full px-4 mx-auto">
             <div><a class="text-xl font-bold text-gray-800 px-2 py-1" href="/"> TIMY </a></div>
             <ul class="flex justify-center">
                 <li
@@ -29,6 +29,6 @@
                     />
                 </li>
             </ul>
-        </div>
+        </nav>
     </header>
 </template>

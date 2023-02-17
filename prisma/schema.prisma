@@ -23,5 +23,6 @@ model Subject {
   id          Int    @id @default(autoincrement())
   name        String
   color       Int
+  isActive    Boolean
   timeEntries TimeEntry[]
 }

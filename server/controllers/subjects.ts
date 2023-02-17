@@ -20,9 +20,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     const id = parseInt(req.params.subjectId, 10);
     const { name } = req.body;
     const color = parseInt(req.body.color);
+    const isActive = req.body.isActive;
 
     try {
-        const subject = await createSubject(id, { name, color });
+        const subject = await createSubject(id, { name, color, isActive });
 
         return res.status(200).json({ subject });
     } catch (error) {
@@ -34,13 +35,14 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     const id = parseInt(req.params.subjectId, 10);
     const { name } = req.body;
     const color = parseInt(req.body.color);
+    const isActive = req.body.isActive;
 
     try {
         if (!(await doesSubjectExist(id))) {
             return res.status(404).json("Subject not found");
         }
 
-        const subject = await updateSubject(id, { name, color });
+        const subject = await updateSubject(id, { name, color, isActive });
 
         return res.status(200).json({ subject });
     } catch (error) {

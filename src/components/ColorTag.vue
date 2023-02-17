@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
-
 const props = defineProps<{
     color: number;
     text: string;
+    isActive: boolean;
 }>();
 
 function getColor() {
@@ -63,7 +62,8 @@ function getColor() {
 </script>
 
 <template>
-    <div class="inline rounded-lg text-sm py-2 px-4" :style="getColor()">
+    <div class="inline-flex items-center rounded-lg text-sm py-2 pl-2 pr-4" :style="getColor()">
+        <div class="rounded w-2 h-2 mr-2" :class="isActive ? 'bg-white/80' : 'bg-black/80'" />
         <span v-text="text" />
     </div>
 </template>

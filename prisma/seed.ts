@@ -3,10 +3,11 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-    const subject1 = await prisma.subject.create({
+    await prisma.subject.create({
         data: {
-            name: "Subject One",
+            name: "Gelb",
             color: 1,
+            isActive: true,
             timeEntries: {
                 create: [
                     {
@@ -18,10 +19,11 @@ async function main() {
             },
         },
     });
-    const subject2 = await prisma.subject.create({
+    await prisma.subject.create({
         data: {
-            name: "Subject Two",
+            name: "Rot",
             color: 2,
+            isActive: false,
             timeEntries: {
                 create: [
                     {
@@ -36,6 +38,48 @@ async function main() {
                     },
                 ],
             },
+        },
+    });
+    await prisma.subject.create({
+        data: {
+            name: "Pink",
+            color: 3,
+            isActive: false,
+        },
+    });
+    await prisma.subject.create({
+        data: {
+            name: "Violett",
+            color: 4,
+            isActive: false,
+        },
+    });
+    await prisma.subject.create({
+        data: {
+            name: "Türkis",
+            color: 5,
+            isActive: false,
+        },
+    });
+    await prisma.subject.create({
+        data: {
+            name: "Hellgelb",
+            color: 6,
+            isActive: false,
+        },
+    });
+    await prisma.subject.create({
+        data: {
+            name: "Dunkelgrün",
+            color: 7,
+            isActive: false,
+        },
+    });
+    await prisma.subject.create({
+        data: {
+            name: "Hellgrün",
+            color: 8,
+            isActive: false,
         },
     });
 }

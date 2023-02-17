@@ -14,6 +14,10 @@ interface Option {
 const emit = defineEmits<{
     (e: "update:value", value: string): void;
 }>();
+
+function onInputUpdate(event: Event) {
+    emit("update:value", (event.target as HTMLInputElement).value);
+}
 </script>
 
 <template>
@@ -22,7 +26,7 @@ const emit = defineEmits<{
         :name="name"
         :id="`input-${name}`"
         :value="value"
-        @change="emit('update:value', $event.target.value)"
+        @change="onInputUpdate"
     >
         <option disabled value="" v-text="label"></option>
         <option v-for="option in options" :value="option.value" v-text="option.label" />

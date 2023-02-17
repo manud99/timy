@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from "./Button.vue";
 import { nextTick, ref, toRefs, watch } from "vue";
+import IconCross from "../icons/Cross.vue";
 
 const props = defineProps<{ title: string; show: boolean }>();
 const { title, show } = toRefs(props);
@@ -32,17 +33,17 @@ function onEsc() {
                 @keydown.esc="onEsc"
             >
                 <form
-                    class="modal-container w-[600px] m-auto bg-white border rounded shadow-lg transition-all duration-300"
+                    class="modal-container w-[600px] m-auto bg-gray-100 border rounded shadow-lg transition-all duration-300"
                     @submit.prevent="$emit('submit')"
                 >
                     <div class="flex justify-between border-b px-4 py-3">
-                        <h2 class="text-xl font-bold" v-text="title" />
+                        <h2 class="text-xl font-semibold text-gray-700" v-text="title" />
                         <button class="leading-none text-3xl p-0 m-0" title="Schliessen" @click="$emit('close')">
-                            &times;
+                            <IconCross :size="24" />
                         </button>
                     </div>
 
-                    <div class="px-4 py-3">
+                    <div class="px-4 py-3 bg-white">
                         <slot></slot>
                     </div>
 
