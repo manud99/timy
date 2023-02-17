@@ -63,7 +63,7 @@ function getColor() {
 </script>
 
 <template>
-    <div class="inline rounded-lg text-sm py-2 px-3" :style="getColor()">
+    <div class="inline rounded-lg text-sm py-2 px-4" :style="getColor()">
         <span v-text="text" />
     </div>
 </template>

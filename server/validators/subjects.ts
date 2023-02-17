@@ -1,21 +1,32 @@
 import { NextFunction, Request, Response } from "express";
 import type { ValidationError } from "../../@types/ValidationErrors";
-import { COLOR } from "../enums/colors.js";
+import { validateRequired, validateNumber, validateInArray } from "./base.js";
+
+function validateSubject(request: Request, errors: ValidationError[]) {
+    // name
+    validateRequired(request.body.name, errors, "name", "Name darf nicht leer sein");
+
+    // color
+    validateRequired(request.body.color, errors, "color", "Farbe darf nicht leer sein");
+    if (!validateNumber(request.body.color, errors, "color", "Farbe muss eine Zahl sein")) return;
+    validateInArray(
+        parseInt(request.body.color, 10),
+        [...Array(8).keys()].map((i) => i + 1),
+        errors,
+        "color",
+        "Farbe muss eine Zahl zwischen 1 und 8 sein."
+    );
+}
+
+function isValidSubjectId(request: Request) {
+    const subjectId = request.params.subjectId;
+    return subjectId && /^\d+$/.test(subjectId);
+}
 
 export async function validateCreateRequest(request: Request, response: Response, next: NextFunction) {
     const errors: ValidationError[] = [];
 
-    // name: required
-    if (!request.body.name) {
-        errors.push({ message: "Name darf nicht leer sein." });
-    }
-
-    // color: required|in:Enum:Color
-    if (!request.body.color) {
-        errors.push({ message: "Farbe darf nicht leer sein." });
-    } else if (!Object.keys(COLOR).includes(request.body.color)) {
-        errors.push({ message: "Farbe ist ungültig." });
-    }
+    validateSubject(request, errors);
 
     if (errors.length > 0) {
         return response.status(422).json({ errors });
@@ -27,27 +38,11 @@ export async function validateCreateRequest(request: Request, response: Response
 export async function validateUpdateRequest(request: Request, response: Response, next: NextFunction) {
     const errors: ValidationError[] = [];
 
-    // id: required
-    const subjectId = request.params.subjectId;
-    if (!subjectId || !/^\d+$/.test(subjectId)) {
-        console.error(subjectId, "is invalid");
+    if (!isValidSubjectId(request)) {
         return response.status(404).json("Subject ID hat kein gültiges Format");
     }
 
-    // name: required
-    if (!request.body.name) {
-        errors.push({ message: "Name darf nicht leer sein." });
-    }
-
-    // color: required|number|in:Enum:Color
-    if (!request.body.color) {
-        errors.push({ message: "Farbe darf nicht leer sein." });
-    } else if (!/^\d+$/.test(request.body.color)) {
-        errors.push({ message: "Farbe muss eine Zahl sein" });
-    } else if (!Object.values(COLOR).includes(parseInt(request.body.color, 10))) {
-        console.log(Object.values(COLOR), request.body.color, Object.values(COLOR).includes(request.body.color));
-        errors.push({ message: "Farbe ist ungültig." });
-    }
+    validateSubject(request, errors);
 
     if (errors.length > 0) {
         return response.status(422).json({ errors });
@@ -57,10 +52,8 @@ export async function validateUpdateRequest(request: Request, response: Response
 }
 
 export async function validateDeleteRequest(request: Request, response: Response, next: NextFunction) {
-    // id: required
-    const subjectId = request.params.subjectId;
-    if (!subjectId || !Number.isInteger(subjectId)) {
-        return response.status(404).json("Subject not found");
+    if (!isValidSubjectId(request)) {
+        return response.status(404).json("Subject ID hat kein gültiges Format");
     }
 
     next();

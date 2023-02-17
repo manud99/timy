@@ -7,7 +7,7 @@ import Page from "../components/Page.vue";
 import Section from "../components/Section.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
 import ColorTag from "../components/ColorTag.vue";
-import UpdateSubjectModal from "../modals/UpdateSubjectModal.vue";
+import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import Table from "../components/Table.vue";
 import IconPlus from "../icons/Plus.vue";
 
@@ -15,10 +15,6 @@ const fields = [
     {
         id: "name",
         label: "Name",
-    },
-    {
-        id: "color",
-        label: "Farbe",
     },
     {
         id: "actions",
@@ -92,7 +88,7 @@ onMounted(async () => {
         </Section>
         <Section>
             <Table :fields="fields" :values="subjects">
-                <template #cell(color)="{ entry, index }">
+                <template #cell(name)="{ entry, index }">
                     <ColorTag :color="entry.color" :text="entry.name" />
                 </template>
 
@@ -103,7 +99,7 @@ onMounted(async () => {
             </Table>
         </Section>
     </Page>
-    <UpdateSubjectModal
+    <EditSubjectModal
         :subject="activeSubject"
         :show="showModal"
         @close="showModal = false"

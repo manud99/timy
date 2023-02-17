@@ -1,7 +1,8 @@
 <script setup lang="ts">
-const { value, name } = defineProps<{
+const { value, name, label } = defineProps<{
     value: string;
     name: string;
+    label: string;
 }>();
 
 const emit = defineEmits<{
@@ -15,8 +16,10 @@ function onInputUpdate(event: Event) {
 
 <template>
     <input
-        class="block w-full mt-1 text-sm rounded focus:border-purple-400 focus:outline-none focus:ring-2 ring-blue-700"
+        class="block w-full mt-1 text-sm rounded border-gray-400 focus:outline-none focus:ring-2 ring-blue-700"
+        :id="`input-${name}`"
         type="text"
+        :placeholder="label"
         :value="value"
         @input="onInputUpdate"
     />

@@ -1,5 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+    customForms: (theme) => ({
+        default: {
+            "input, textarea": {
+                "&::placeholder": {
+                    color: theme("colors.gray.400"),
+                },
+            },
+        },
+    }),
     content: ["./index.html", "./src/**/*.{vue,js,ts}"],
     theme: {
         screens: {
