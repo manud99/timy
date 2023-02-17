@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { ValidationError } from "../../@types/ValidationErrors";
-import { COLOR } from "../enums/colors";
+import type { ValidationError } from "../../@types/ValidationErrors";
+import { COLOR } from "../enums/colors.js";
 
 export async function validateCreateRequest(request: Request, response: Response, next: NextFunction) {
     const errors: ValidationError[] = [];

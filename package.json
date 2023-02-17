@@ -3,6 +3,7 @@
     "private": true,
     "version": "0.0.0",
     "main": "dist-server/main.js",
+    "type": "module",
     "scripts": {
         "dev": "concurrently --raw npm:dev-*",
         "dev-ts": "tsc --build tsconfig.server.json -w --preserveWatchOutput",

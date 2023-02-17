@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getTimeEntries } from "../db/timeEntries";
+import { getTimeEntries } from "../db/timeEntries.js";
 
 export async function get(req: Request, res: Response, next: NextFunction) {
     try {

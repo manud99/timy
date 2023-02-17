@@ -1,5 +1,5 @@
 import ViteExpress from "vite-express";
-import app from "./app";
+import app from "./app.js";
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 

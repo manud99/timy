@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
-import timeEntriesRouter from "./routes/timeEntries";
-import subjectsRouter from "./routes/subjects";
+import timeEntriesRouter from "./routes/timeEntries.js";
+import subjectsRouter from "./routes/subjects.js";
 
 const app = express();
 

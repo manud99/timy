@@ -1,4 +1,4 @@
-import prisma from "./prisma";
+import prisma from "./prisma.js";
 
 export async function getTimeEntries(limit: number = 20) {
     return await prisma.timeEntry.findMany({

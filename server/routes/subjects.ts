@@ -1,6 +1,6 @@
 import { Router } from "express";
-import * as subjectController from "../controllers/subjects";
-import { validateCreateRequest, validateUpdateRequest, validateDeleteRequest } from "../validators/subjects";
+import * as subjectController from "../controllers/subjects.js";
+import { validateCreateRequest, validateUpdateRequest, validateDeleteRequest } from "../validators/subjects.js";
 
 const router = Router();
 

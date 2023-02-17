@@ -5,7 +5,7 @@ import {
     update as updateSubject,
     remove as deleteSubject,
     exists as doesSubjectExist,
-} from "../db/subjects";
+} from "../db/subjects.js";
 
 export async function get(req: Request, res: Response, next: NextFunction) {
     try {
