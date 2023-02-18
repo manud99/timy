@@ -1,85 +1,48 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 async function main() {
-    await prisma.subject.create({
-        data: {
-            name: "Gelb",
-            color: 1,
-            isActive: true,
-            timeEntries: {
-                create: [
-                    {
-                        description: "Lecture",
-                        start: new Date("2023-02-04T10:15:00"),
-                        end: new Date("2023-02-04T12:00:00"),
-                    },
-                ],
+    const data = {
+        subjects: [
+            { name: "Deutsch", color: 1 },
+            { name: "Englisch", color: 2 },
+            { name: "Französisch", color: 3 },
+            { name: "Mathematik", color: 4 },
+            { name: "Physik", color: 5 },
+            { name: "Chemie", color: 6 },
+            { name: "Biologie", color: 6 },
+            { name: "Geografie", color: 7 },
+            { name: "Geschichte", color: 8 },
+        ],
+    };
+    const subjects = await Promise.all(data.subjects.map(async (subject, index) => {
+        return await prisma.subject.create({
+            data: {
+                ...subject,
+                isActive: index % 2 == 0,
             },
-        },
-    });
-    await prisma.subject.create({
-        data: {
-            name: "Rot",
-            color: 2,
-            isActive: false,
-            timeEntries: {
-                create: [
-                    {
-                        description: "Lecture",
-                        start: new Date("2023-02-04T08:15:00"),
-                        end: new Date("2023-02-04T10:00:00"),
-                    },
-                    {
-                        description: "Exercise Session",
-                        start: new Date("2023-02-04T14:15:00"),
-                        end: new Date("2023-02-04T16:00:00"),
-                    },
-                ],
-            },
-        },
-    });
-    await prisma.subject.create({
-        data: {
-            name: "Pink",
-            color: 3,
-            isActive: false,
-        },
-    });
-    await prisma.subject.create({
-        data: {
-            name: "Violett",
-            color: 4,
-            isActive: false,
-        },
-    });
-    await prisma.subject.create({
-        data: {
-            name: "Türkis",
-            color: 5,
-            isActive: false,
-        },
-    });
-    await prisma.subject.create({
-        data: {
-            name: "Hellgelb",
-            color: 6,
-            isActive: false,
-        },
-    });
-    await prisma.subject.create({
-        data: {
-            name: "Dunkelgrün",
-            color: 7,
-            isActive: false,
-        },
-    });
-    await prisma.subject.create({
-        data: {
-            name: "Hellgrün",
-            color: 8,
-            isActive: false,
-        },
-    });
+        });
+    }));
+    let date = new Date();
+    const now = new Date();
+    date.setDate(date.getDate() - date.getDay() + 1 - 7); // Monday of the last week
+    const descriptions = ["Vorlesung", "Übungsstunde", "Hausaufgaben", "Lernen", "Projekt"];
+    while (date.getDate() < now.getDate()) {
+        await Promise.all([8, 10, 14, 16].map(async (num) => {
+            const start = new Date(date);
+            const end = new Date(date);
+            start.setHours(num, 15, 0, 0);
+            end.setHours(num + 2, 0, 0, 0);
+            return await prisma.timeEntry.create({
+                data: {
+                    subjectId: subjects[Math.floor(Math.random() * subjects.length)].id,
+                    description: descriptions[Math.floor(Math.random() * descriptions.length)],
+                    start,
+                    end,
+                },
+            });
+        }));
+        date.setDate(date.getDate() + 1);
+    }
 }
 main()
     .then(async () => {

@@ -1,9 +1,16 @@
 import prisma from "./prisma.js";
 
-export async function getTimeEntries(limit: number = 20) {
+export async function getTimeEntries(start: Date, limit: number = 200) {
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+
     return await prisma.timeEntry.findMany({
         take: limit,
-        orderBy: { start: "desc" },
+        where: {
+            start: { gte: start },
+            end: { lt: end },
+        },
+        orderBy: { start: "asc" },
         include: { subject: true },
     });
 }
