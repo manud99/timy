@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import type { ValidationError } from "../../@types/ValidationErrors";
-import { validateRequired, validateNumber, validateInArray, validateBoolean } from "./base.js";
+import {validateRequired, validateNumber, validateInArray, validateBoolean, validate} from "./base.js";
 
 function validateSubject(request: Request, errors: ValidationError[]) {
     // name
@@ -27,32 +27,20 @@ function isValidSubjectId(request: Request) {
     return subjectId && /^\d+$/.test(subjectId);
 }
 
-export async function validateCreateRequest(request: Request, response: Response, next: NextFunction) {
-    const errors: ValidationError[] = [];
-
-    validateSubject(request, errors);
-
-    if (errors.length > 0) {
-        return response.status(422).json({ errors });
-    }
-
-    next();
+export async function validateCreateRequest(req: Request, res: Response, next: NextFunction) {
+    validate(req, res, next, (errors) => {
+        validateSubject(req, errors);
+    });
 }
 
-export async function validateUpdateRequest(request: Request, response: Response, next: NextFunction) {
-    const errors: ValidationError[] = [];
-
-    if (!isValidSubjectId(request)) {
-        return response.status(404).json("Subject ID hat kein gültiges Format");
+export async function validateUpdateRequest(req: Request, res: Response, next: NextFunction) {
+    if (!isValidSubjectId(req)) {
+        return res.status(404).json("Subject ID hat kein gültiges Format");
     }
 
-    validateSubject(request, errors);
-
-    if (errors.length > 0) {
-        return response.status(422).json({ errors });
-    }
-
-    next();
+    validate(req, res, next, (errors) => {
+        validateSubject(req, errors);
+    });
 }
 
 export async function validateDeleteRequest(request: Request, response: Response, next: NextFunction) {

@@ -3,7 +3,6 @@ import { getTimeEntries } from "../db/timeEntries.js";
 
 export async function get(req: Request, res: Response, next: NextFunction) {
     const date = new Date(req.query.date as string);
-    console.log("get time entries", date, req);
 
     try {
         const timeEntries = await getTimeEntries(date);

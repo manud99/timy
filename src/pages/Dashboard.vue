@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import type {Ref} from "vue";
-import {computed, onMounted, reactive, ref} from "vue";
+import type { Ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import Axios from "axios";
-import type {TimeEntry} from "../../@types/models";
+import type { TimeEntry } from "../../@types/models";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
 import SubjectTag from "../blocks/SubjectTag.vue";
-import Button, {ButtonSize} from "../components/Button.vue";
+import Button, { ButtonSize } from "../components/Button.vue";
 import Table from "../components/Table.vue";
+import type { Field } from "../components/Table.vue";
 import IconPlus from "../icons/Plus.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconGarbage from "../icons/Garbage.vue";
 import IconArrowLeft from "../icons/ArrowLeft.vue";
 import IconArrowRight from "../icons/ArrowRight.vue";
+import Tabs from "../components/Tabs.vue";
+import type { Tab } from "../components/Tabs.vue";
 
-const fields = [
+const fields: Field[] = [
     {
         id: "day",
         label: "Datum",
@@ -37,57 +40,69 @@ const fields = [
     },
 ];
 
+const tabs: Tab[] = [
+    { id: "list", label: "Liste" },
+    { id: "day", label: "Tag" },
+    { id: "week", label: "Woche" },
+];
+
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
-const activeWeek: Date = reactive(new Date());
+const activeTab: Ref<string> = ref("list");
+const activeWeek: Ref<string> = ref(new Date().toISOString());
 
 // Source: https://weeknumber.com/how-to/javascript
 const weekNumber = computed(() => {
-    const date = new Date(activeWeek);
+    const date = new Date(activeWeek.value);
     date.setHours(0, 0, 0, 0);
     // Thursday in current week decides the year.
-    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
     // January 4 is always in week 1.
     const week1 = new Date(date.getFullYear(), 0, 4);
     // Adjust to Thursday in week 1 and count number of weeks from date to week1.
-    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
 });
 
 const weekStart = computed(() => {
-    const date = new Date(activeWeek);
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - date.getDay() + 1);
-    return getDate(date.toISOString());
+    const date = getWeekStart();
+    return date.toISOString();
 });
 
 const weekEnd = computed(() => {
-    const date = new Date(activeWeek);
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - date.getDay() + 8);
-    return getDate(date.toISOString());
+    const date = getWeekStart();
+    date.setDate(date.getDate() + 7);
+    return date.toISOString();
 });
 
-function getDate(date: string): string {
-    return new Date(date).toLocaleString("de-CH", {day: "2-digit", month: "long", year: "numeric"});
+function getWeekStart(): Date {
+    const date = new Date(activeWeek.value);
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - ((((date.getDay() - 1) % 7) + 7) % 7));
+    return date;
+}
+
+function getDate(date: string | Date): string {
+    return new Date(date).toLocaleString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
 }
 
 function getTime(start: string, end: string): string {
-    const startTime = new Date(start).toLocaleString("de-CH", {timeStyle: "short"});
-    const endTime = new Date(end).toLocaleString("de-CH", {timeStyle: "short"});
+    const startTime = new Date(start).toLocaleString("de-CH", { timeStyle: "short" });
+    const endTime = new Date(end).toLocaleString("de-CH", { timeStyle: "short" });
     return `${startTime} – ${endTime}`;
 }
 
 function changeWeek(addDays: number) {
-    activeWeek.setDate(activeWeek.getDate() + addDays);
+    const date = new Date(activeWeek.value);
+    date.setDate(date.getDate() + addDays);
+    activeWeek.value = date.toISOString();
     getTimeEntries();
 }
 
 async function getTimeEntries() {
     loading.value = true;
-    const date = activeWeek.toISOString();
 
     try {
-        timeEntries.value = (await Axios.get(`/api/time-entries?date=${date}`)).data;
+        timeEntries.value = (await Axios.get(`/api/time-entries?date=${activeWeek.value}`)).data;
         loading.value = false;
     } catch (error) {
         loading.value = false;
@@ -96,8 +111,7 @@ async function getTimeEntries() {
 }
 
 onMounted(() => {
-    activeWeek.setHours(0, 0, 0, 0);
-    activeWeek.setDate(activeWeek.getDate() - activeWeek.getDay() + 1);
+    activeWeek.value = getWeekStart().toISOString();
     getTimeEntries();
 });
 </script>
@@ -107,47 +121,61 @@ onMounted(() => {
         <Section class="flex justify-between items-center p-4 bg-white">
             <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes draus!</div>
             <Button class="flex items-center" label="Neues Eintrag erstellen" :size="ButtonSize.LG" color="blue">
-                <IconPlus class="mr-2" :size="12"/>
+                <IconPlus class="mr-2" :size="12" />
                 <span>Neuer Eintrag erstellen</span>
             </Button>
         </Section>
 
         <Section>
-            <div class="grid md:grid-cols-4 gap-4 items-center bg-white text-gray-600 font-semibold border-b px-4 py-3">
-                <div>
-                    <Button class="" :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(-7)">
-                        <IconArrowLeft class="mr-2" :size="12" />
-                        <span>Woche {{ (weekNumber - 1) % 53 }}</span>
-                    </Button>
-                </div>
-                <div class="md:col-span-2 md:text-center">Woche {{ weekNumber }} – vom {{ weekStart }} bis {{ weekEnd }}</div>
-                <div class="md:text-right">
-                    <Button class="" :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(7)">
-                        <span>Woche {{ (weekNumber + 1) % 53 }}</span>
-                        <IconArrowRight class="ml-2" :size="12" />
-                    </Button>
-                </div>
-            </div>
+            <Tabs v-model="activeTab" :tabs="tabs" />
 
-            <Table :fields="fields" :values="timeEntries">
-                <template #cell(subject)="{ entry }">
-                    <SubjectTag :subject="entry.subject"/>
-                </template>
-                <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
-                <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }}</template>
-                <template #cell(actions)>
-                    <div class="flex">
-                        <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten">
-                            <IconPencil class="mr-2" :size="16"/>
-                            <span>Bearbeiten</span>
-                        </Button>
-                        <Button :size="ButtonSize.SM" label="Löschen">
-                            <IconGarbage class="mr-2" :size="12"/>
-                            <span>Löschen</span>
+            <template v-if="activeTab === 'list'">
+                <div class="grid md:grid-cols-4 gap-4 items-center bg-white text-gray-600 font-semibold border-b px-4 py-3">
+                    <div>
+                        <Button class="" :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(-7)">
+                            <IconArrowLeft class="mr-2" :size="12" />
+                            <span>Woche {{ (weekNumber - 1) % 53 }}</span>
                         </Button>
                     </div>
-                </template>
-            </Table>
+                    <div class="md:col-span-2 md:text-center">
+                        Woche {{ weekNumber }} – vom {{ getDate(weekStart) }} bis {{ getDate(weekEnd) }}
+                    </div>
+                    <div class="md:text-right">
+                        <Button class="" :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(7)">
+                            <span>Woche {{ (weekNumber + 1) % 53 }}</span>
+                            <IconArrowRight class="ml-2" :size="12" />
+                        </Button>
+                    </div>
+                </div>
+
+                <Table :fields="fields" :values="timeEntries">
+                    <template #cell(subject)="{ entry }">
+                        <SubjectTag :subject="entry.subject" />
+                    </template>
+                    <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
+                    <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }}</template>
+                    <template #cell(actions)>
+                        <div class="flex">
+                            <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten">
+                                <IconPencil class="mr-2" :size="16" />
+                                <span>Bearbeiten</span>
+                            </Button>
+                            <Button :size="ButtonSize.SM" label="Löschen">
+                                <IconGarbage class="mr-2" :size="12" />
+                                <span>Löschen</span>
+                            </Button>
+                        </div>
+                    </template>
+                </Table>
+            </template>
+
+            <div v-else-if="activeTab === 'day'" class="bg-white px-4 py-6 text-xl font-semibold text-center">
+                Tages-Ansicht
+            </div>
+
+            <div v-else-if="activeTab === 'week'" class="bg-white px-4 py-6 text-xl font-semibold text-center">
+                Wochen-Ansicht
+            </div>
         </Section>
     </Page>
 </template>
