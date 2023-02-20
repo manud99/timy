@@ -28,12 +28,7 @@ const colorOptions = [
 
 const props = defineProps<{
     show: boolean;
-    subject: {
-        id: number;
-        name: string;
-        color: number;
-        isActive: boolean;
-    } | null;
+    subject: Subject | null;
 }>();
 const { show, subject } = toRefs(props);
 

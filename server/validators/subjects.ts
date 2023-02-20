@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import type { ValidationError } from "../../@types/ValidationErrors";
-import {validateRequired, validateNumber, validateInArray, validateBoolean, validate} from "./base.js";
+import { validateRequired, validateNumber, validateInArray, validateBoolean, validate } from "./base.js";
 
 function validateSubject(request: Request, errors: ValidationError[]) {
     // name

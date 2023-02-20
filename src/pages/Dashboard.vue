@@ -5,6 +5,7 @@ import Axios from "axios";
 import type { TimeEntry } from "../../@types/models";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
+import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
 import SubjectTag from "../blocks/SubjectTag.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
 import Table from "../components/Table.vue";
@@ -48,8 +49,10 @@ const tabs: Tab[] = [
 
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
+const showModal: Ref<boolean> = ref(false);
 const activeTab: Ref<string> = ref("list");
 const activeWeek: Ref<string> = ref(new Date().toISOString());
+const activeTimeEntry: Ref<TimeEntry | null> = ref(null);
 
 // Source: https://weeknumber.com/how-to/javascript
 const weekNumber = computed(() => {
@@ -110,6 +113,37 @@ async function getTimeEntries() {
     }
 }
 
+function showCreateModal() {
+    activeTimeEntry.value = null;
+    showModal.value = true;
+}
+
+function showUpdateModal(timeEntry: TimeEntry) {
+    activeTimeEntry.value = timeEntry;
+    showModal.value = true;
+}
+
+function createTimeEntry(timeEntry: TimeEntry) {
+    showModal.value = false;
+    timeEntries.value.push(timeEntry);
+}
+
+function updateTimeEntry(timeEntry: TimeEntry) {
+    showModal.value = false;
+    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
+    timeEntries.value.splice(index, 1, timeEntry);
+}
+
+function deleteTimeEntry(index: number) {
+    const id = timeEntries.value[index]?.id;
+    try {
+        // await Axios.delete(`/api/time-entries/${id}`);
+        timeEntries.value.splice(index, 1);
+    } catch (err) {
+        console.error("Could not delete subject", err);
+    }
+}
+
 onMounted(() => {
     activeWeek.value = getWeekStart().toISOString();
     getTimeEntries();
@@ -120,7 +154,13 @@ onMounted(() => {
     <Page title="Übersicht">
         <Section class="flex justify-between items-center p-4 bg-white">
             <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes draus!</div>
-            <Button class="flex items-center" label="Neues Eintrag erstellen" :size="ButtonSize.LG" color="blue">
+            <Button
+                class="flex items-center"
+                label="Neues Eintrag erstellen"
+                :size="ButtonSize.LG"
+                color="blue"
+                @click="showCreateModal"
+            >
                 <IconPlus class="mr-2" :size="12" />
                 <span>Neuer Eintrag erstellen</span>
             </Button>
@@ -130,17 +170,19 @@ onMounted(() => {
             <Tabs v-model="activeTab" :tabs="tabs" />
 
             <template v-if="activeTab === 'list'">
-                <div class="grid md:grid-cols-4 gap-4 items-center bg-white text-gray-600 font-semibold border-b px-4 py-3">
-                    <div>
-                        <Button class="" :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(-7)">
+                <div
+                    class="flex flex-wrap justify-between gap-4 items-center bg-white text-gray-600 font-semibold border-b px-4 py-3"
+                >
+                    <div class="md:order-1 md:col-span-2 grow text-center">
+                        Woche {{ weekNumber }} vom {{ getDate(weekStart) }} – {{ getDate(weekEnd) }}
+                    </div>
+                    <div class="md:order-0">
+                        <Button :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(-7)">
                             <IconArrowLeft class="mr-2" :size="12" />
                             <span>Woche {{ (weekNumber - 1) % 53 }}</span>
                         </Button>
                     </div>
-                    <div class="md:col-span-2 md:text-center">
-                        Woche {{ weekNumber }} – vom {{ getDate(weekStart) }} bis {{ getDate(weekEnd) }}
-                    </div>
-                    <div class="md:text-right">
+                    <div class="order-2 md:text-right">
                         <Button class="" :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(7)">
                             <span>Woche {{ (weekNumber + 1) % 53 }}</span>
                             <IconArrowRight class="ml-2" :size="12" />
@@ -154,15 +196,20 @@ onMounted(() => {
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
                     <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }}</template>
-                    <template #cell(actions)>
+                    <template #cell(actions)="{ entry, index }">
                         <div class="flex">
-                            <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten">
-                                <IconPencil class="mr-2" :size="16" />
-                                <span>Bearbeiten</span>
+                            <Button
+                                class="mr-2"
+                                :size="ButtonSize.SM"
+                                label="Bearbeiten"
+                                @click="showUpdateModal(entry as TimeEntry)"
+                            >
+                                <IconPencil class="lg:mr-2" :size="16" />
+                                <span class="hidden lg:inline">Bearbeiten</span>
                             </Button>
-                            <Button :size="ButtonSize.SM" label="Löschen">
-                                <IconGarbage class="mr-2" :size="12" />
-                                <span>Löschen</span>
+                            <Button :size="ButtonSize.SM" label="Löschen" @click="deleteTimeEntry(index)">
+                                <IconGarbage class="lg:mr-2" :size="12" />
+                                <span class="hidden lg:inline">Löschen</span>
                             </Button>
                         </div>
                     </template>
@@ -178,4 +225,12 @@ onMounted(() => {
             </div>
         </Section>
     </Page>
+
+    <EditTimeEntryModal
+        :timeEntry="activeTimeEntry"
+        :show="showModal"
+        @close="showModal = false"
+        @create="createTimeEntry"
+        @update="updateTimeEntry"
+    />
 </template>

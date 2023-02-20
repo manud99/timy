@@ -30,14 +30,14 @@ export default defineComponent({
         getSizeClasses(): string {
             switch (this.size) {
                 case ButtonSize.XL:
-                    return "px-10 py-4";
+                    return "px-4 md:px-10 py-4";
                 case ButtonSize.LG:
-                    return "px-5 py-3";
+                    return "px-3 md:px-5 py-3";
                 case ButtonSize.SM:
-                    return "px-3 py-1 text-sm";
+                    return "px-2 md:px-3 py-1 text-sm";
                 case ButtonSize.MD:
                 default:
-                    return "px-4 py-2 text-sm";
+                    return "px-2 md:px-4 py-2 text-sm";
             }
         },
         getColorClasses(): string {

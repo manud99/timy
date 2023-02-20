@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { get } from "../controllers/timeEntries.js";
-import {validateGetRequest} from "../validators/timeEntries.js";
+import { validateGetRequest } from "../validators/timeEntries.js";
 
 const router = Router();
 

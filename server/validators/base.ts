@@ -1,8 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { ValidationError } from "../../@types/ValidationErrors";
 
-
-export function validate(req: Request, res: Response, next: NextFunction, callback: (errors: ValidationError[]) => void) {
+export function validate(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    callback: (errors: ValidationError[]) => void
+) {
     const errors: ValidationError[] = [];
 
     callback(errors);
@@ -39,7 +43,10 @@ export function validateBoolean(data: any, errors: ValidationError[], field: str
 }
 
 export function validateDate(data: any, errors: ValidationError[], field: string, message: string) {
-    if (typeof data !== 'string' || !/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/.test(data as string)) {
+    if (
+        typeof data !== "string" ||
+        !/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/.test(data as string)
+    ) {
         errors.push({ field, message });
         return false;
     }

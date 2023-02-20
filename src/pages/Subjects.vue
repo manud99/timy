@@ -66,7 +66,6 @@ async function deleteSubject(index: number) {
     try {
         await Axios.delete(`/api/subjects/${id}`);
         subjects.value.splice(index, 1);
-        console.log("subject deleted", index, id);
     } catch (err) {
         console.error("Could not delete subject", err);
     }
