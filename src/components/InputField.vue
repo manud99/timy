@@ -16,7 +16,7 @@ function onInputUpdate(event: Event) {
 
 <template>
     <input
-        class="block w-full mt-1 text-sm rounded border-gray-400 focus:outline-none focus:ring-2 ring-blue-700"
+        class="block w-full text-sm rounded-lg border-gray-400 focus:outline-none focus:ring-2 ring-blue-700"
         :id="`input-${name}`"
         type="text"
         :placeholder="label"

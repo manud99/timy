@@ -24,7 +24,7 @@ const errorMessages = computed(() => {
 </script>
 
 <template>
-    <div class="grid items-baseline lg:grid-cols-5 gap-4 mb-4">
+    <div class="grid items-baseline lg:grid-cols-5 gap-4 mb-5">
         <div>
             <label
                 class="text-xs font-semibold tracking-wide text-gray-500 uppercase"
