@@ -27,13 +27,13 @@ function onEsc() {
         <Transition name="modal">
             <div
                 v-if="show"
-                class="flex fixed z-50 inset-0 bg-black/50 transition-opacity duration-300"
+                class="flex fixed z-50 inset-0 bg-black/50 transition-opacity duration-300 p-2 overflow-y-auto"
                 ref="modal"
                 tabindex="0"
                 @keydown.esc="onEsc"
             >
                 <form
-                    class="modal-container w-[600px] m-auto bg-gray-100 border rounded shadow-lg transition-all duration-300"
+                    class="modal-container w-full max-w-[800px] m-auto bg-gray-100 border rounded shadow-lg transition-all duration-300"
                     @submit.prevent="$emit('submit')"
                 >
                     <div class="flex justify-between border-b px-4 py-3">

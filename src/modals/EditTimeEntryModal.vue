@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {ref, toRefs, watch} from "vue";
-import type {Ref} from "vue";
-import Axios, {AxiosError} from "axios";
-import type {TimeEntry} from "../../@types/models";
+import { ref, toRefs, watch, computed } from "vue";
+import type { Ref } from "vue";
+import Axios, { AxiosError } from "axios";
+import type { TimeEntry } from "../../@types/models";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
-import {ValidationError} from "../../@types/ValidationErrors";
+import { ValidationError } from "../../@types/ValidationErrors";
 import DateField from "../components/DateField.vue";
 import TimeField from "../components/TimeField.vue";
 import ArrowUp from "../icons/ArrowUp.vue";
@@ -25,7 +25,7 @@ const props = defineProps<{
     show: boolean;
     timeEntry: TimeEntry | null;
 }>();
-const {show, timeEntry} = toRefs(props);
+const { show, timeEntry } = toRefs(props);
 
 const emit = defineEmits<{
     (e: "close"): void;
@@ -99,34 +99,19 @@ async function submitTimeEntry() {
 <template>
     <Modal title="Zeiteintrag bearbeiten" :show="show" @close="$emit('close')" @submit="submitTimeEntry">
         <FormGroup label="Beschreibung" name="description" :errors="errors">
-            <InputField v-model:value="description" name="description" label="Beschreibung"/>
+            <InputField v-model:value="description" name="description" label="Beschreibung" />
         </FormGroup>
         <FormGroup label="Datum" name="date" :errors="errors">
-            <div class="flex items-stretch">
-                <DateField v-model:value="date" name="date" label="Datum"/>
-                <div class="flex flex-col justify-center h-full ml-2">
-                    <button class="border border-gray-400 rounded-t-lg px-4 py-1">
-                        <ArrowUp :size="8"/>
-                    </button>
-                    <button class="border border-gray-400 rounded-b-lg px-4 py-1">
-                        <ArrowDown :size="8"/>
-                    </button>
-                </div>
-            </div>
-            <div class="flex mt-1 -mx-2">
-                <button class="px-2 text-blue-800" v-text="'Heute'"/>
-                <button class="px-2 text-blue-600" v-text="'Gestern'"/>
-                <button class="px-2 text-blue-600" v-text="'Vor 2 Tagen'"/>
-            </div>
+            <DateField v-model:value="date" name="date" label="Datum" />
         </FormGroup>
         <FormGroup label="Start" name="start" :errors="errors">
-            <TimeField v-model:value="start" name="start" label="Startzeit"/>
+            <TimeField v-model:value="start" name="start" label="Startzeit" />
         </FormGroup>
         <FormGroup label="Ende" name="end" :errors="errors">
-            <TimeField v-model:value="end" name="end" label="Ende"/>
+            <TimeField v-model:value="end" name="end" label="Ende" />
         </FormGroup>
         <FormGroup label="Fach" name="subjectId" :errors="errors">
-            <InputField v-model:value="subjectId" name="subjectId" label="Fach"/>
+            <InputField v-model:value="subjectId" name="subjectId" label="Fach" />
         </FormGroup>
     </Modal>
 </template>

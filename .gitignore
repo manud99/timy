@@ -12,6 +12,7 @@ dist
 dist-ssr
 dist-server
 *.local
+database.db
 
 # Editor directories and files
 .vscode/*

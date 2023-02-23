@@ -173,7 +173,7 @@ onMounted(() => {
                 <div
                     class="flex flex-wrap justify-between gap-4 items-center bg-white text-gray-600 font-semibold border-b px-4 py-3"
                 >
-                    <div class="md:order-1 md:col-span-2 grow text-center">
+                    <div class="md:order-1 grow text-center">
                         Woche {{ weekNumber }} vom {{ getDate(weekStart) }} – {{ getDate(weekEnd) }}
                     </div>
                     <div class="md:order-0">

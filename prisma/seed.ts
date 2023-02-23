@@ -44,7 +44,7 @@ async function main() {
 
                 return await prisma.timeEntry.create({
                     data: {
-                        subjectId: subjects[Math.floor(Math.random() * subjects.length)].id,
+                        subjectId: subjects[Math.floor((Math.random() * subjects.length) / 2) * 2].id,
                         description: descriptions[Math.floor(Math.random() * descriptions.length)],
                         start,
                         end,
