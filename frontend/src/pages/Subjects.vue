@@ -2,7 +2,7 @@
 import type { Ref } from "vue";
 import { computed, onMounted, ref } from "vue";
 import Axios from "axios";
-import type { Subject } from "../../@types/models";
+import type { Subject } from "../../types/Subject";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
 import SubjectTag from "../blocks/SubjectTag.vue";

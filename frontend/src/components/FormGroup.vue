@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ValidationError } from "../../@types/ValidationErrors";
+import { ValidationError } from "../../types/ValidationErrors";
 import { computed } from "vue";
 
 const { label, name, hint, errors } = defineProps({

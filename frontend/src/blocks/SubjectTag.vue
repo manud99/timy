@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Subject } from "../../@types/models";
+import type { Subject } from "../../types/Subject";
 
 const { subject } = defineProps<{
     subject: Subject;

@@ -2,11 +2,11 @@
 import { ref, toRefs, watch, computed } from "vue";
 import type { Ref } from "vue";
 import Axios, { AxiosError } from "axios";
-import type { TimeEntry } from "../../@types/models";
+import type { TimeEntry } from "../../types/TimeEntry";
+import { ValidationError } from "../../types/ValidationErrors";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
-import { ValidationError } from "../../@types/ValidationErrors";
 import DateField from "../components/DateField.vue";
 import TimeField from "../components/TimeField.vue";
 import ArrowUp from "../icons/ArrowUp.vue";

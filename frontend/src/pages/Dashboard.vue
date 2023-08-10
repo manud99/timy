@@ -2,7 +2,7 @@
 import type { Ref } from "vue";
 import { computed, onMounted, ref } from "vue";
 import Axios from "axios";
-import type { TimeEntry } from "../../@types/models";
+import type { TimeEntry } from "../../types/TimeEntry";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
