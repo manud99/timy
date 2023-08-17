@@ -53,7 +53,8 @@ function setDateFromToday(dayDifference: number) {
             class="block text-sm rounded-r-lg border-2 focus:outline-none focus:ring-2"
             :class="[
                 numDaysFromToday !== null && (numDaysFromToday > 0 || numDaysFromToday < -2)
-                    ? 'border-blue-600' : 'border-gray-400'
+                    ? 'border-blue-600'
+                    : 'border-gray-400',
             ]"
             :id="`input-${name}`"
             type="date"

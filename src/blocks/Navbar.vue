@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InternalLink from "../components/InternalLink.vue";
+import SignInButton from "../components/SignInButton.vue";
 import { locationKey } from "../keys";
 import { inject } from "vue";
 import type { Ref } from "vue";
@@ -34,6 +35,7 @@ function isActive(href: string) {
             </ul>
             <ul class="flex justify-end">
                 <li class="px-2 mx-4" v-for="page in [{ url: '/settings', label: 'Einstellungen' }]">
+                    <SignInButton />
                     <InternalLink
                         class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-2 py-1"
                         :class="isActive(page.url) ? 'text-blue-700 border-b-2 border-blue-700' : ''"

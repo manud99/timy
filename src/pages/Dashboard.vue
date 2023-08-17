@@ -105,7 +105,7 @@ async function getTimeEntries() {
     loading.value = true;
 
     try {
-        timeEntries.value = (await Axios.get(`/api/time-entries?date=${activeWeek.value}`)).data;
+        // timeEntries.value = (await Axios.get(`/api/time-entries?date=${activeWeek.value}`)).data;
         loading.value = false;
     } catch (error) {
         loading.value = false;
