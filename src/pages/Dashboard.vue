@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import Axios from "axios";
-import type { TimeEntry } from "../../@types/models";
+import { computed, onMounted, ref, watch } from "vue";
+import { TimeEntry } from "../@types/models";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
@@ -17,10 +16,10 @@ import IconArrowLeft from "../icons/ArrowLeft.vue";
 import IconArrowRight from "../icons/ArrowRight.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
-import { useMsalAuthentication } from "../microsoft/useMsal";
-import { graphConfig, loginRequest } from "../microsoft/auth";
-import { InteractionType } from "@azure/msal-browser";
+import { useMsalAuthentication } from "../microsoft/utils";
 import { queryMsGraph } from "../microsoft/query";
+import { getCalendarId } from "../settings";
+import { getSubject } from "../subjects";
 
 const fields: Field[] = [
     {
@@ -50,13 +49,8 @@ const tabs: Tab[] = [
     { id: "day", label: "Tag" },
     { id: "week", label: "Woche" },
 ];
-
-const timeEntries: Ref<TimeEntry[]> = ref([]);
-const loading: Ref<boolean> = ref(false);
-const showModal: Ref<boolean> = ref(false);
 const activeTab: Ref<string> = ref("list");
 const activeWeek: Ref<string> = ref(new Date().toISOString());
-const activeTimeEntry: Ref<TimeEntry | null> = ref(null);
 
 // Source: https://weeknumber.com/how-to/javascript
 const weekNumber = computed(() => {
@@ -105,17 +99,9 @@ function changeWeek(addDays: number) {
     getTimeEntries();
 }
 
-async function getTimeEntries() {
-    loading.value = true;
-
-    try {
-        // timeEntries.value = (await Axios.get(`/api/time-entries?date=${activeWeek.value}`)).data;
-        loading.value = false;
-    } catch (error) {
-        loading.value = false;
-        console.error(error);
-    }
-}
+// Show various modals
+const showModal: Ref<boolean> = ref(false);
+const activeTimeEntry: Ref<TimeEntry | null> = ref(null);
 
 function showCreateModal() {
     activeTimeEntry.value = null;
@@ -125,6 +111,52 @@ function showCreateModal() {
 function showUpdateModal(timeEntry: TimeEntry) {
     activeTimeEntry.value = timeEntry;
     showModal.value = true;
+}
+
+function loadSubject(subject: string) {
+    const matches = subject.match(/^\[([A-z0-0-_ ]+)\] (.*)$/);
+    if (!matches) {
+        return { subject: null, description: subject };
+    }
+    return { subject: getSubject(matches[1]), description: matches[2] };
+}
+
+// Call the API
+const { authResult, acquireToken } = useMsalAuthentication();
+const timeEntries: Ref<TimeEntry[]> = ref([]);
+const loading: Ref<boolean> = ref(false);
+
+async function getTimeEntries() {
+    if (!authResult.value) return;
+
+    loading.value = true;
+    const calendarId = getCalendarId();
+    const start = weekStart.value;
+    const end = weekEnd.value;
+
+    try {
+        const graphData = await queryMsGraph(
+            `calendars/${calendarId}/events`,
+            {
+                $filter: `start/dateTime ge '${start}' and end/dateTime le '${end}'`,
+            },
+            authResult.value.accessToken
+        );
+        timeEntries.value = graphData.value.map((graphItem: any): TimeEntry => {
+            const { subject, description } = loadSubject(graphItem.subject);
+            return {
+                description,
+                subject,
+                id: graphItem.id,
+                start: graphItem.start.dateTime + "Z",
+                end: graphItem.end.dateTime + "Z",
+            };
+        });
+        loading.value = false;
+    } catch (error) {
+        loading.value = false;
+        console.error(error);
+    }
 }
 
 function createTimeEntry(timeEntry: TimeEntry) {
@@ -148,28 +180,13 @@ function deleteTimeEntry(index: number) {
     }
 }
 
-const { result, acquireToken } = useMsalAuthentication(InteractionType.Popup, loginRequest);
-const state = reactive({
-	resolved: false,
-	data: {} as object
-});
-
-async function getGraphData() {
-    if (result.value) {
-		const graphData = await queryMsGraph(result.value.accessToken, 'calendars').catch(() => acquireToken());
-		state.data = graphData.data;
-		state.resolved = true;
-	}
-}
-
 onMounted(() => {
     activeWeek.value = getWeekStart().toISOString();
-    // getTimeEntries();
-    getGraphData();
+    getTimeEntries();
 });
 
-watch(result, () => {
-	getGraphData();
+watch(authResult, () => {
+    getTimeEntries();
 });
 </script>
 

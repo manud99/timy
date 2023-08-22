@@ -2,10 +2,10 @@
  * Model TimeEntry
  *
  */
-export type TimeEntry = {
-    id: number;
+export interface TimeEntry {
+    id: string;
     description: string;
-    subjectId: number;
+    subject: Subject | null;
     start: Date | string;
     end: Date | string;
 };
@@ -14,9 +14,8 @@ export type TimeEntry = {
  * Model Subject
  *
  */
-export type Subject = {
-    id: number;
+export interface Subject {
     name: string;
     color: number;
     isActive: boolean;
-};
+}

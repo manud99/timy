@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
 import { computed, onMounted, ref } from "vue";
-import Axios from "axios";
-import type { Subject } from "../../@types/models";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
 import SubjectTag from "../blocks/SubjectTag.vue";
@@ -12,6 +10,8 @@ import Table from "../components/Table.vue";
 import IconPlus from "../icons/Plus.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconGarbage from "../icons/Garbage.vue";
+import { Subject } from "../@types/models";
+import { subjects, getSubjects, createSubject, updateSubject, deleteSubject } from "../subjects";
 
 const fields = [
     {
@@ -23,22 +23,12 @@ const fields = [
         label: "Aktionen",
     },
 ];
-const subjects: Ref<Subject[]> = ref([]);
 const showModal: Ref<boolean> = ref(false);
 const activeSubject: Ref<Subject | null> = ref(null);
 
 const numActiveSujects = computed(() => {
     return subjects.value.filter((subject) => subject.isActive).length;
 });
-
-async function getSubjects() {
-    try {
-        return (await Axios.get("/api/subjects")).data;
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
 
 function showCreateModal() {
     activeSubject.value = null;
@@ -50,29 +40,21 @@ function showUpdateModal(entry: Object) {
     showModal.value = true;
 }
 
-function createSubject(subject: Subject) {
+function updateItem(subject: Subject) {
     showModal.value = false;
-    subjects.value.push(subject);
-}
-
-function updateSubject(subject: Subject) {
-    showModal.value = false;
-    const index = subjects.value.findIndex((el: Subject) => el.id === subject.id);
-    subjects.value.splice(index, 1, subject);
-}
-
-async function deleteSubject(index: number) {
-    const id = subjects.value[index]?.id;
-    try {
-        await Axios.delete(`/api/subjects/${id}`);
-        subjects.value.splice(index, 1);
-    } catch (err) {
-        console.error("Could not delete subject", err);
+    if (activeSubject.value === null) {
+        createSubject(subject);
+    } else {
+        updateSubject(subject);
     }
 }
 
+function deleteItem(index: number) {
+    deleteSubject(index);
+}
+
 onMounted(async () => {
-    subjects.value = await getSubjects();
+    getSubjects();
 });
 </script>
 
@@ -105,7 +87,7 @@ onMounted(async () => {
                             <IconPencil class="mr-2" :size="16" />
                             <span>Bearbeiten</span>
                         </Button>
-                        <Button :size="ButtonSize.SM" label="Löschen" @click="deleteSubject(index)">
+                        <Button :size="ButtonSize.SM" label="Löschen" @click="deleteItem(index)">
                             <IconGarbage class="mr-2" :size="12" />
                             <span>Löschen</span>
                         </Button>
@@ -118,7 +100,6 @@ onMounted(async () => {
         :subject="activeSubject"
         :show="showModal"
         @close="showModal = false"
-        @create="createSubject"
-        @update="updateSubject"
+        @update="updateItem"
     />
 </template>

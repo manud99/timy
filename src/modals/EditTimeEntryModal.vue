@@ -2,7 +2,7 @@
 import { ref, toRefs, watch, computed } from "vue";
 import type { Ref } from "vue";
 import Axios, { AxiosError } from "axios";
-import type { TimeEntry } from "../../@types/models";
+import { TimeEntry } from "../@types/models";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
@@ -37,7 +37,7 @@ watch(show, async (val) => {
     if (!val) return;
     if (timeEntry.value) {
         description.value = timeEntry.value?.description!;
-        subjectId.value = timeEntry.value?.subjectId!.toString(10);
+        subjectId.value = timeEntry.value?.subject!.name;
         setDateFields(timeEntry.value?.start! as string, timeEntry.value?.end! as string);
     } else {
         description.value = "";

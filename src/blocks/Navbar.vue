@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import InternalLink from "../components/InternalLink.vue";
 import SignInButton from "../components/SignInButton.vue";
+import SignOutButton from "../components/SignOutButton.vue";
 import { locationKey } from "../keys";
 import { inject } from "vue";
 import type { Ref } from "vue";
+import { isAuthenticated as getIsAuthenticated } from "../microsoft/utils";
 
 const location = inject<Ref<string>>(locationKey);
+
+const isAuthenticated = getIsAuthenticated();
 
 function isActive(href: string) {
     return location?.value === href;
@@ -34,15 +38,17 @@ function isActive(href: string) {
                 </li>
             </ul>
             <ul class="flex justify-end">
-                <li class="px-2 mx-4" v-for="page in [{ url: '/settings', label: 'Einstellungen' }]">
+                <li v-if="isAuthenticated" class="px-2 ml-4" v-for="page in [{ url: '/settings', label: 'Einstellungen' }]">
                     <InternalLink
                         class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-2 py-1"
                         :class="isActive(page.url) ? 'text-blue-700 border-b-2 border-blue-700' : ''"
                         :href="page.url"
                         v-text="page.label"
                     />
+                </li>
+                <li v-else class="px-2 ml-4">
                     <SignInButton
-                        class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-2 py-1"
+                        class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-4 py-1"
                     />
                 </li>
             </ul>

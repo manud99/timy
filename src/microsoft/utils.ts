@@ -1,5 +1,6 @@
 import { AccountInfo, AuthError, AuthenticationResult, InteractionStatus, InteractionType, PopupRequest, PublicClientApplication, RedirectRequest, SilentRequest } from "@azure/msal-browser";
 import { getCurrentInstance, ref, Ref, toRefs, watch } from "vue";
+import { graphConfig, loginRequest } from "./auth";
 
 export type MsalContext = {
     instance: PublicClientApplication,
@@ -9,7 +10,7 @@ export type MsalContext = {
 
 export type MsalAuthenticationResult = {
     acquireToken: (requestOverride?: PopupRequest|RedirectRequest|SilentRequest) => Promise<void>;
-    result: Ref<AuthenticationResult|null>;
+    authResult: Ref<AuthenticationResult|null>;
     error: Ref<AuthError|null>;
     inProgress: Ref<boolean>;
 }
@@ -39,11 +40,13 @@ export function useMsal(): MsalContext {
     }
 }
 
-export function useMsalAuthentication(interactionType: InteractionType, request: PopupRequest|RedirectRequest|SilentRequest): MsalAuthenticationResult {
+export function useMsalAuthentication(): MsalAuthenticationResult {
     const { instance, inProgress } = useMsal();
+    const interactionType = InteractionType.Popup;
+    const request: PopupRequest|RedirectRequest|SilentRequest = loginRequest;
 
     const localInProgress = ref<boolean>(false);
-    const result = ref<AuthenticationResult|null>(null);
+    const authResult = ref<AuthenticationResult|null>(null);
     const error = ref<AuthError|null>(null);
 
     const acquireToken = async (requestOverride?: PopupRequest|RedirectRequest|SilentRequest) => {
@@ -55,12 +58,12 @@ export function useMsalAuthentication(interactionType: InteractionType, request:
                 try {
                     const response = await instance.handleRedirectPromise()
                     if (response) {
-                        result.value = response;
+                        authResult.value = response;
                         error.value = null;
                         return;
                     }
                 } catch (e) {
-                    result.value = null;
+                    authResult.value = null;
                     error.value = e as AuthError;
                     return;
                 };
@@ -68,7 +71,7 @@ export function useMsalAuthentication(interactionType: InteractionType, request:
 
             try {
                 const response = await instance.acquireTokenSilent(tokenRequest);
-                result.value = response;
+                authResult.value = response;
                 error.value = null;
             } catch(e) {
                 if (inProgress.value !== InteractionStatus.None) {
@@ -77,16 +80,16 @@ export function useMsalAuthentication(interactionType: InteractionType, request:
 
                 if (interactionType === InteractionType.Popup) {
                     instance.loginPopup(tokenRequest).then((response) => {
-                        result.value = response;
+                        authResult.value = response;
                         error.value = null;
                     }).catch((e) => {
                         error.value = e;
-                        result.value = null;
+                        authResult.value = null;
                     });
                 } else if (interactionType === InteractionType.Redirect) {
                     await instance.loginRedirect(tokenRequest).catch((e) => {
                         error.value = e;
-                        result.value = null;
+                        authResult.value = null;
                     });
                 }
             };
@@ -95,7 +98,7 @@ export function useMsalAuthentication(interactionType: InteractionType, request:
     }
 
     const stopWatcher = watch(inProgress, () => {
-        if (!result.value && !error.value) {
+        if (!authResult.value && !error.value) {
             acquireToken();
         } else {
             stopWatcher();
@@ -106,8 +109,19 @@ export function useMsalAuthentication(interactionType: InteractionType, request:
 
     return {
         acquireToken,
-        result,
+        authResult,
         error,
         inProgress: localInProgress
     }
+}
+
+export function isAuthenticated(): Ref<boolean> {
+    const { accounts } = useMsal();
+    const isAuthenticated = ref(accounts.value.length > 0);
+
+    watch(accounts, () => {
+        isAuthenticated.value = accounts.value.length > 0;
+    });
+
+    return isAuthenticated;
 }

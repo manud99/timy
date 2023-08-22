@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import { useMsal } from "../microsoft/utils";
-import { loginRequest } from "../microsoft/auth";
 
 const { instance } = useMsal();
 
 const signIn = async () => {
-    instance.loginPopup(loginRequest);
+    instance.logoutPopup();
 };
 </script>
 
 <template>
-    <button @click="signIn">Anmelden</button>
+    <button @click="signIn">Abmelden</button>
 </template>

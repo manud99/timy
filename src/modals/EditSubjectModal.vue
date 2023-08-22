@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, toRefs, watch } from "vue";
 import type { Ref } from "vue";
-import Axios, { AxiosError } from "axios";
-import type { Subject } from "../../@types/models";
+import type { Subject } from "../@types/models";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
@@ -34,7 +33,6 @@ const { show, subject } = toRefs(props);
 
 const emit = defineEmits<{
     (e: "close"): void;
-    (e: "create", subject: Subject): void;
     (e: "update", subject: Subject): void;
 }>();
 
@@ -45,27 +43,9 @@ watch(show, async (val) => {
     isActive.value = subject.value ? subject.value?.isActive! : false;
 });
 
-async function submitSubject() {
-    const data = { name: name.value, color: color.value, isActive: isActive.value };
-
-    try {
-        if (!subject.value) {
-            // Create
-            const response = await Axios.post("/api/subjects", data);
-            emit("create", response.data.subject);
-        } else {
-            // Update
-            const response = await Axios.put(`/api/subjects/${subject.value?.id!}`, data);
-            emit("update", response.data.subject);
-        }
-    } catch (err) {
-        const error = err as AxiosError<{ errors: ValidationError[] }>;
-        if (error.response?.status !== 422) {
-            console.error(error);
-            return;
-        }
-        errors.value = error.response?.data.errors;
-    }
+function submitSubject() {
+    const subject: Subject = { name: name.value, color: parseInt(color.value, 10), isActive: isActive.value };
+    emit("update", subject);
 }
 </script>
 
