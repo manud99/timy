@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import Axios from "axios";
 import type { TimeEntry } from "../../@types/models";
 import Page from "../blocks/Page.vue";
@@ -17,6 +17,10 @@ import IconArrowLeft from "../icons/ArrowLeft.vue";
 import IconArrowRight from "../icons/ArrowRight.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
+import { useMsalAuthentication } from "../microsoft/useMsal";
+import { graphConfig, loginRequest } from "../microsoft/auth";
+import { InteractionType } from "@azure/msal-browser";
+import { queryMsGraph } from "../microsoft/query";
 
 const fields: Field[] = [
     {
@@ -144,9 +148,28 @@ function deleteTimeEntry(index: number) {
     }
 }
 
+const { result, acquireToken } = useMsalAuthentication(InteractionType.Popup, loginRequest);
+const state = reactive({
+	resolved: false,
+	data: {} as object
+});
+
+async function getGraphData() {
+    if (result.value) {
+		const graphData = await queryMsGraph(result.value.accessToken, 'calendars').catch(() => acquireToken());
+		state.data = graphData.data;
+		state.resolved = true;
+	}
+}
+
 onMounted(() => {
     activeWeek.value = getWeekStart().toISOString();
-    getTimeEntries();
+    // getTimeEntries();
+    getGraphData();
+});
+
+watch(result, () => {
+	getGraphData();
 });
 </script>
 

@@ -26,16 +26,16 @@ const msalConfig = {
                 }
                 switch (level) {
                     case LogLevel.Error:
-                        console.error("[MSAL]", message);
+                        console.error(message);
                         return;
                     case LogLevel.Info:
-                        console.info("[MSAL]", message);
+                        console.info(message);
                         return;
                     case LogLevel.Verbose:
-                        console.debug("[MSAL]", message);
+                        console.debug(message);
                         return;
                     case LogLevel.Warning:
-                        console.warn("[MSAL]", message);
+                        console.warn(message);
                         return;
                     default:
                         return;
@@ -46,9 +46,6 @@ const msalConfig = {
     },
 };
 
-console.log(msalConfig);
-
-
 export const msalInstance = new PublicClientApplication(msalConfig);
 
 /**
@@ -58,7 +55,7 @@ export const msalInstance = new PublicClientApplication(msalConfig);
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: ["User.Read"],
+    scopes: ["User.Read", "Calendars.ReadWrite"],
 };
 
 /**

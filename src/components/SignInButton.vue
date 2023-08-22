@@ -4,11 +4,11 @@ import { loginRequest } from "../microsoft/auth";
 
 const { instance } = useMsal();
 
-const signIn = () => {
+const signIn = async () => {
     instance.loginPopup(loginRequest);
 };
 </script>
 
 <template>
-    <button @click="signIn">Sign In</button>
+    <button @click="signIn">Anmelden</button>
 </template>
