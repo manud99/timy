@@ -8,7 +8,7 @@ export interface TimeEntry {
     subject: Subject | null;
     start: Date | string;
     end: Date | string;
-};
+}
 
 /**
  * Model Subject

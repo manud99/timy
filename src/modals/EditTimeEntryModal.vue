@@ -6,7 +6,7 @@ import { TimeEntry } from "../@types/models";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
-import { ValidationError } from "../../@types/ValidationErrors";
+import { ValidationError } from "../@types/ValidationErrors";
 import DateField from "../components/DateField.vue";
 import TimeField from "../components/TimeField.vue";
 import ArrowUp from "../icons/ArrowUp.vue";

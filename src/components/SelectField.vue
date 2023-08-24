@@ -6,7 +6,7 @@ const { value, name, label, options } = defineProps<{
     options: Option[];
 }>();
 
-interface Option {
+export interface Option {
     label: string;
     value: any;
 }

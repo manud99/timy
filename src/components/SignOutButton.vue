@@ -1,11 +1,5 @@
 <script lang="ts" setup>
-import { useMsal } from "../microsoft/utils";
-
-const { instance } = useMsal();
-
-const signIn = async () => {
-    instance.logoutPopup();
-};
+const signIn = async () => {};
 </script>
 
 <template>

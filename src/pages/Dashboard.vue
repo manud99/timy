@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, inject, onMounted, ref, watch } from "vue";
 import { TimeEntry } from "../@types/models";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
@@ -16,8 +16,8 @@ import IconArrowLeft from "../icons/ArrowLeft.vue";
 import IconArrowRight from "../icons/ArrowRight.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
-import { useMsalAuthentication } from "../microsoft/utils";
-import { queryMsGraph } from "../microsoft/query";
+// import { useMsalAuthentication } from "../microsoft/utils";
+// import { queryMsGraph } from "../microsoft/query";
 import { getCalendarId } from "../settings";
 import { getSubject } from "../subjects";
 
@@ -122,34 +122,35 @@ function loadSubject(subject: string) {
 }
 
 // Call the API
-const { authResult, acquireToken } = useMsalAuthentication();
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
+const ready: Ref<boolean> = <Ref<boolean>>inject("googleReady");
 
 async function getTimeEntries() {
-    if (!authResult.value) return;
+    if (!ready.value) return;
 
     loading.value = true;
     const calendarId = getCalendarId();
     const start = weekStart.value;
     const end = weekEnd.value;
-
     try {
-        const graphData = await queryMsGraph(
-            `calendars/${calendarId}/events`,
-            {
-                $filter: `start/dateTime ge '${start}' and end/dateTime le '${end}'`,
-            },
-            authResult.value.accessToken
-        );
-        timeEntries.value = graphData.value.map((graphItem: any): TimeEntry => {
-            const { subject, description } = loadSubject(graphItem.subject);
+        const res = await window.gapi.client.calendar.events.list({
+            calendarId: calendarId,
+            timeMin: start,
+            timeMax: end,
+            timeZone: "UTC",
+            singleEvents: true,
+            orderBy: "startTime",
+        });
+        const body = JSON.parse(res.body);
+        timeEntries.value = body.items.map((graphItem: any): TimeEntry => {
+            const { subject, description } = loadSubject(graphItem.summary);
             return {
                 description,
                 subject,
                 id: graphItem.id,
-                start: graphItem.start.dateTime + "Z",
-                end: graphItem.end.dateTime + "Z",
+                start: graphItem.start.dateTime,
+                end: graphItem.end.dateTime,
             };
         });
         loading.value = false;
@@ -185,7 +186,7 @@ onMounted(() => {
     getTimeEntries();
 });
 
-watch(authResult, () => {
+watch(ready, () => {
     getTimeEntries();
 });
 </script>
@@ -232,7 +233,7 @@ watch(authResult, () => {
 
                 <Table :fields="fields" :values="timeEntries">
                     <template #cell(subject)="{ entry }">
-                        <SubjectTag :subject="entry.subject" />
+                        <SubjectTag v-if="entry.subject" :subject="entry.subject" />
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
                     <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }}</template>

@@ -26,7 +26,7 @@ export function getSubject(name: string): Subject {
     loadSubjects();
     const subject = subjects.value.find((record) => record.name === name);
     if (subject) return subject;
-    return {name, color: 0, isActive: true};
+    return { name, color: 0, isActive: true };
 }
 
 export function getSubjects(): Ref<Subject[]> {

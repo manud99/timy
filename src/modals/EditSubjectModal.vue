@@ -7,7 +7,7 @@ import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
 import SelectField from "../components/SelectField.vue";
 import CheckboxField from "../components/CheckboxField.vue";
-import { ValidationError } from "../../@types/ValidationErrors";
+import { ValidationError } from "../@types/ValidationErrors";
 
 const name: Ref<string> = ref("");
 const color: Ref<string> = ref("");

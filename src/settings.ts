@@ -1,18 +1,18 @@
 import { Ref, ref } from "vue";
 
 interface Settings {
-    calendarId: string,
+    calendarId: string;
 }
 
-const STORAGE_KEY: string = 'timy_settings';
-const settings: Ref<Settings> = ref({calendarId: ''});
+const STORAGE_KEY: string = "timy_settings";
+const settings: Ref<Settings> = ref({ calendarId: "" });
 let loaded: boolean = false;
 
 function loadSettings(): void {
     if (loaded) {
         return;
     }
-    
+
     const storageItem = window.localStorage.getItem(STORAGE_KEY);
     loaded = true;
     if (!storageItem) {
@@ -20,7 +20,7 @@ function loadSettings(): void {
     }
 
     const content = JSON.parse(storageItem);
-    settings.value.calendarId = content.calendarId || '';
+    settings.value.calendarId = content.calendarId || "";
 }
 
 function storeSettings(): void {
@@ -30,7 +30,7 @@ function storeSettings(): void {
 export function getCalendarId(): string {
     loadSettings();
 
-    return settings?.value.calendarId || '';
+    return settings?.value.calendarId || "";
 }
 
 export function setCalendarId(calendarId: string): void {

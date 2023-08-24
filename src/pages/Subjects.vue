@@ -96,10 +96,5 @@ onMounted(async () => {
             </Table>
         </Section>
     </Page>
-    <EditSubjectModal
-        :subject="activeSubject"
-        :show="showModal"
-        @close="showModal = false"
-        @update="updateItem"
-    />
+    <EditSubjectModal :subject="activeSubject" :show="showModal" @close="showModal = false" @update="updateItem" />
 </template>
