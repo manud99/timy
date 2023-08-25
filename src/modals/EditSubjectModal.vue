@@ -20,7 +20,7 @@ const colorOptions = [
     { value: 3, label: "Pink" },
     { value: 4, label: "Violett" },
     { value: 5, label: "Türkis" },
-    { value: 6, label: "Hellgelb" },
+    { value: 6, label: "Hellblau" },
     { value: 7, label: "Dunkelgrün" },
     { value: 8, label: "Hellgrün" },
 ];

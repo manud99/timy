@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import InternalLink from "../components/InternalLink.vue";
-import SignInButton from "../components/SignInButton.vue";
-import SignOutButton from "../components/SignOutButton.vue";
 import { locationKey } from "../keys";
 import { inject } from "vue";
 import type { Ref } from "vue";
+import { signIn } from "../google/utils";
 
 const location = inject<Ref<string>>(locationKey);
 
@@ -17,7 +16,7 @@ function isActive(href: string) {
 </script>
 
 <template>
-    <header class="z-10 py-4 bg-white shadow-md">
+    <header class="z-10 py-2 bg-white shadow-md">
         <nav class="container grid grid-cols-3 items-center h-full px-4 mx-auto">
             <div><a class="text-xl font-bold text-gray-800 px-2 py-1" href="/"> TIMY </a></div>
             <ul class="flex justify-center">
@@ -47,9 +46,12 @@ function isActive(href: string) {
                     />
                 </li>
                 <li class="px-2 ml-4">
-                    <SignInButton
+                    <button
                         class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-4 py-1"
-                    />
+                        @click="signIn"
+                    >
+                        Anmelden
+                    </button>
                 </li>
             </ul>
         </nav>

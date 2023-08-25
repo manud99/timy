@@ -16,7 +16,7 @@ function changeTab(id: string) {
 </script>
 
 <template>
-    <nav class="grid md:grid-cols-3 text-gray-600">
+    <nav class="grid md:grid-cols-2 text-gray-600">
         <button
             v-for="tab in tabs"
             :class="[

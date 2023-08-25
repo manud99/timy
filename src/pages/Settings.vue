@@ -5,14 +5,15 @@ import SignOutButton from "../components/SignOutButton.vue";
 import Section from "../blocks/Section.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import { getCalendarId, setCalendarId } from "../settings";
+import { googleReadyKey } from "../keys";
 
 const calendars: Ref<Option[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const calendar: Ref<string> = ref("");
-const ready: Ref<boolean> = <Ref<boolean>>inject("googleReady");
+const ready = inject<Ref<boolean>>(googleReadyKey);
 
 async function getCalendars() {
-    if (!ready.value) return;
+    if (!ready || !ready.value) return;
 
     const res = await window.gapi.client.calendar.calendarList.list();
     const json = JSON.parse(res.body);
@@ -30,9 +31,11 @@ onMounted(() => {
     getCalendars();
 });
 
-const stopWatcher = watch(ready, () => {
-    getCalendars();
-});
+if (ready) {
+    const stopWatcher = watch(ready, () => {
+        getCalendars();
+    });
+}
 </script>
 
 <template>

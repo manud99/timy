@@ -3,18 +3,20 @@ import Button from "./Button.vue";
 import { nextTick, ref, toRefs, watch } from "vue";
 import IconCross from "../icons/Cross.vue";
 
-const props = defineProps<{ title: string; show: boolean }>();
+const props = withDefaults(defineProps<{ title: string; show: boolean; noFooter?: boolean }>(), { noFooter: false });
 const { title, show } = toRefs(props);
-const modal = ref<HTMLInputElement | null>(null);
 const emit = defineEmits<{
     (e: "close"): void;
     (e: "submit"): void;
 }>();
 
+const modalBody = ref<HTMLElement | null>(null);
+
 watch(show, async (val) => {
     if (!val) return;
     await nextTick();
-    modal.value?.focus();
+
+    modalBody.value?.querySelector("input")?.focus();
 });
 
 function onEsc() {
@@ -28,7 +30,6 @@ function onEsc() {
             <div
                 v-if="show"
                 class="flex fixed z-50 inset-0 bg-black/50 transition-opacity duration-300 p-2 overflow-y-auto"
-                ref="modal"
                 tabindex="0"
                 @keydown.esc="onEsc"
             >
@@ -43,11 +44,11 @@ function onEsc() {
                         </button>
                     </div>
 
-                    <div class="px-4 py-3 bg-white">
+                    <div class="px-4 py-3 bg-white" id="modal-body" ref="modalBody">
                         <slot></slot>
                     </div>
 
-                    <footer class="flex justify-end border-t px-4 py-3">
+                    <footer v-if="!noFooter" class="flex justify-end border-t px-4 py-3">
                         <Button type="submit" label="Speichern" />
                     </footer>
                 </form>

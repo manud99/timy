@@ -2,17 +2,17 @@ import { apiConfig, tokenConfig } from "./config";
 
 let gapiLoaded = false;
 let gsiLoaded = false;
-let codeClient: any = null;
+let tokenClient: google.accounts.oauth2.TokenClient | null = null;
 
 export function loadGoogleLibraries(
     handleCodeResponse: (tokenResponse: google.accounts.oauth2.TokenResponse) => void
-): Promise<[any, google.accounts.oauth2.TokenClient]> {
+): Promise<google.accounts.oauth2.TokenClient> {
     return new Promise((resolve) => {
         const element = document.getElementsByTagName("script")[0];
 
         function maybeResolve() {
-            if (!gapiLoaded || !gsiLoaded) return;
-            resolve([window.gapi, codeClient]);
+            if (!gapiLoaded || !gsiLoaded || !tokenClient) return;
+            resolve(tokenClient);
         }
 
         async function initializeGapiClient() {
@@ -39,7 +39,7 @@ export function loadGoogleLibraries(
         element.parentNode?.insertBefore(gsiScript, element);
         gsiScript.onload = () => {
             tokenConfig.callback = handleCodeResponse;
-            codeClient = window.google.accounts.oauth2.initTokenClient(tokenConfig);
+            tokenClient = window.google.accounts.oauth2.initTokenClient(tokenConfig);
             gsiLoaded = true;
             maybeResolve();
         };

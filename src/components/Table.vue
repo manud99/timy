@@ -14,10 +14,10 @@ const { fields } = withDefaults(defineProps<Props>(), { emptyText: "Keine Eintr√
 </script>
 
 <template>
-    <div class="w-full overflow-x-auto">
+    <div class="w-full overflow-x-auto border-t">
         <table class="w-full whitespace-no-wrap">
             <thead>
-                <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
+                <tr class="text-xs font-bold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
                     <th v-for="field in fields" class="px-4 py-3" v-text="field.label" />
                 </tr>
             </thead>

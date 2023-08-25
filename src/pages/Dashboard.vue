@@ -12,14 +12,14 @@ import type { Field } from "../components/Table.vue";
 import IconPlus from "../icons/Plus.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconGarbage from "../icons/Garbage.vue";
-import IconArrowLeft from "../icons/ArrowLeft.vue";
-import IconArrowRight from "../icons/ArrowRight.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
-// import { useMsalAuthentication } from "../microsoft/utils";
-// import { queryMsGraph } from "../microsoft/query";
 import { getCalendarId } from "../settings";
 import { getSubject } from "../subjects";
+import { googleReadyKey, showLoginModalKey } from "../keys";
+import { getDate, getTime, getWeekStart } from "../utils/date";
+import WeekSlider from "../components/WeekSlider.vue";
+import Calendar from "../components/Calendar.vue";
 
 const fields: Field[] = [
     {
@@ -46,56 +46,45 @@ const fields: Field[] = [
 
 const tabs: Tab[] = [
     { id: "list", label: "Liste" },
-    { id: "day", label: "Tag" },
     { id: "week", label: "Woche" },
 ];
 const activeTab: Ref<string> = ref("list");
 const activeWeek: Ref<string> = ref(new Date().toISOString());
 
-// Source: https://weeknumber.com/how-to/javascript
-const weekNumber = computed(() => {
-    const date = new Date(activeWeek.value);
-    date.setHours(0, 0, 0, 0);
-    // Thursday in current week decides the year.
-    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
-    // January 4 is always in week 1.
-    const week1 = new Date(date.getFullYear(), 0, 4);
-    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
-    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
-});
-
 const weekStart = computed(() => {
-    const date = getWeekStart();
+    const date = getWeekStart(activeWeek.value);
     return date.toISOString();
 });
 
 const weekEnd = computed(() => {
-    const date = getWeekStart();
+    const date = getWeekStart(activeWeek.value);
     date.setDate(date.getDate() + 7);
     return date.toISOString();
 });
 
-function getWeekStart(): Date {
-    const date = new Date(activeWeek.value);
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - ((((date.getDay() - 1) % 7) + 7) % 7));
-    return date;
+function getQueryParam(key: string) {
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get(key);
 }
 
-function getDate(date: string | Date): string {
-    return new Date(date).toLocaleString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
+function updateQueryParam(key: string, value: string) {
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set(key, value);
+    window.history.replaceState(null, "", window.location.pathname + "?" + searchParams.toString());
 }
 
-function getTime(start: string, end: string): string {
-    const startTime = new Date(start).toLocaleString("de-CH", { timeStyle: "short" });
-    const endTime = new Date(end).toLocaleString("de-CH", { timeStyle: "short" });
-    return `${startTime} – ${endTime}`;
+function toLocalDate(date: Date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
 }
 
 function changeWeek(addDays: number) {
     const date = new Date(activeWeek.value);
     date.setDate(date.getDate() + addDays);
     activeWeek.value = date.toISOString();
+    updateQueryParam("weekStart", toLocalDate(date));
     getTimeEntries();
 }
 
@@ -124,10 +113,11 @@ function loadSubject(subject: string) {
 // Call the API
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
-const ready: Ref<boolean> = <Ref<boolean>>inject("googleReady");
+const ready = inject<Ref<boolean>>(googleReadyKey);
+const showLoginModal = inject<Ref<boolean>>(showLoginModalKey);
 
 async function getTimeEntries() {
-    if (!ready.value) return;
+    if (!ready || !ready.value) return;
 
     loading.value = true;
     const calendarId = getCalendarId();
@@ -154,9 +144,14 @@ async function getTimeEntries() {
             };
         });
         loading.value = false;
-    } catch (error) {
+    } catch (error: any) {
         loading.value = false;
-        console.error(error);
+        if (error?.status === 401) {
+            console.error("[GAPI]", error?.result?.error?.message);
+            if (showLoginModal) showLoginModal.value = true;
+            return;
+        }
+        console.error("Dashboard error while loading time entries", error);
     }
 }
 
@@ -182,13 +177,21 @@ function deleteTimeEntry(index: number) {
 }
 
 onMounted(() => {
-    activeWeek.value = getWeekStart().toISOString();
+    activeTab.value = getQueryParam("tab") || activeTab.value;
+    const weekStart = getQueryParam("weekStart");
+    if (weekStart) {
+        activeWeek.value = new Date(weekStart).toISOString();
+    }
+    // Set activeWeek to a Monday.
+    activeWeek.value = getWeekStart(activeWeek.value).toISOString();
     getTimeEntries();
 });
 
-watch(ready, () => {
-    getTimeEntries();
-});
+if (ready) {
+    watch(ready, () => {
+        getTimeEntries();
+    });
+}
 </script>
 
 <template>
@@ -208,28 +211,19 @@ watch(ready, () => {
         </Section>
 
         <Section>
-            <Tabs v-model="activeTab" :tabs="tabs" />
+            <Tabs
+                v-model="activeTab"
+                @update:modelValue="(value: string) => updateQueryParam('tab', value)"
+                :tabs="tabs"
+            />
 
             <template v-if="activeTab === 'list'">
-                <div
-                    class="flex flex-wrap justify-between gap-4 items-center bg-white text-gray-600 font-semibold border-b px-4 py-3"
-                >
-                    <div class="md:order-1 grow text-center">
-                        Woche {{ weekNumber }} vom {{ getDate(weekStart) }} – {{ getDate(weekEnd) }}
-                    </div>
-                    <div class="md:order-0">
-                        <Button :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(-7)">
-                            <IconArrowLeft class="mr-2" :size="12" />
-                            <span>Woche {{ (weekNumber - 1) % 53 }}</span>
-                        </Button>
-                    </div>
-                    <div class="order-2 md:text-right">
-                        <Button class="" :size="ButtonSize.MD" label="Woche zurück" @click="changeWeek(7)">
-                            <span>Woche {{ (weekNumber + 1) % 53 }}</span>
-                            <IconArrowRight class="ml-2" :size="12" />
-                        </Button>
-                    </div>
-                </div>
+                <WeekSlider
+                    :active-week="activeWeek"
+                    :week-start="weekStart"
+                    :week-end="weekEnd"
+                    @update="(val) => changeWeek(val)"
+                />
 
                 <Table :fields="fields" :values="timeEntries">
                     <template #cell(subject)="{ entry }">
@@ -257,12 +251,15 @@ watch(ready, () => {
                 </Table>
             </template>
 
-            <div v-else-if="activeTab === 'day'" class="bg-white px-4 py-6 text-xl font-semibold text-center">
-                Tages-Ansicht
-            </div>
+            <div v-else-if="activeTab === 'week'">
+                <WeekSlider
+                    :active-week="activeWeek"
+                    :week-start="weekStart"
+                    :week-end="weekEnd"
+                    @update="(val) => changeWeek(val)"
+                />
 
-            <div v-else-if="activeTab === 'week'" class="bg-white px-4 py-6 text-xl font-semibold text-center">
-                Wochen-Ansicht
+                <Calendar :values="timeEntries" :week-start="weekStart" />
             </div>
         </Section>
     </Page>

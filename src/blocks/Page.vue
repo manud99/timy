@@ -1,8 +1,8 @@
 <template>
-    <div class="container mx-auto px-4">
-        <h2 class="my-6 text-2xl font-semibold text-gray-700">
+    <div class="container mx-auto pt-4 px-4">
+        <h1 class="hidden">
             {{ title }}
-        </h2>
+        </h1>
         <slot></slot>
     </div>
 </template>

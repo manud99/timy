@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Ref, computed, provide, ref } from "vue";
 import Navbar from "./blocks/Navbar.vue";
 import Dashboard from "./pages/Dashboard.vue";
 import Subjects from "./pages/Subjects.vue";
@@ -6,7 +7,8 @@ import Statistics from "./pages/Statistics.vue";
 import Settings from "./pages/Settings.vue";
 import NotFound from "./pages/404.vue";
 import { locationKey } from "./keys";
-import { computed, provide, ref } from "vue";
+import LoginModal from "./modals/LoginModal.vue";
+import { showLoginModalKey } from "./keys";
 
 interface ComponentOption {
     url: String;
@@ -31,6 +33,9 @@ provide(locationKey, location);
 window.addEventListener("popstate", (event) => {
     location.value = window.location.pathname;
 });
+
+const showLoginModal: Ref<boolean> = ref(false);
+provide(showLoginModalKey, showLoginModal);
 </script>
 
 <template>
@@ -40,4 +45,6 @@ window.addEventListener("popstate", (event) => {
             <component :is="active.component" />
         </main>
     </div>
+
+    <LoginModal :show="showLoginModal" />
 </template>

@@ -25,6 +25,7 @@ const fields = [
 ];
 const showModal: Ref<boolean> = ref(false);
 const activeSubject: Ref<Subject | null> = ref(null);
+const activeId: Ref<number> = ref(0);
 
 const numActiveSujects = computed(() => {
     return subjects.value.filter((subject) => subject.isActive).length;
@@ -35,7 +36,8 @@ function showCreateModal() {
     showModal.value = true;
 }
 
-function showUpdateModal(entry: Object) {
+function showUpdateModal(entry: Object, index: number) {
+    activeId.value = index;
     activeSubject.value = entry as Subject;
     showModal.value = true;
 }
@@ -45,7 +47,7 @@ function updateItem(subject: Subject) {
     if (activeSubject.value === null) {
         createSubject(subject);
     } else {
-        updateSubject(subject);
+        updateSubject(subject, activeId.value);
     }
 }
 
@@ -83,7 +85,12 @@ onMounted(async () => {
 
                 <template #cell(actions)="{ entry, index }">
                     <div class="flex">
-                        <Button class="mr-2" :size="ButtonSize.SM" label="Bearbeiten" @click="showUpdateModal(entry)">
+                        <Button
+                            class="mr-2"
+                            :size="ButtonSize.SM"
+                            label="Bearbeiten"
+                            @click="showUpdateModal(entry, index)"
+                        >
                             <IconPencil class="mr-2" :size="16" />
                             <span>Bearbeiten</span>
                         </Button>
