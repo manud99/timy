@@ -46,5 +46,5 @@ provide(showLoginModalKey, showLoginModal);
         </main>
     </div>
 
-    <LoginModal :show="showLoginModal" />
+    <LoginModal :show="showLoginModal" @close="showLoginModal = false" />
 </template>

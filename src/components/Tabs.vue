@@ -21,12 +21,11 @@ function changeTab(id: string) {
             v-for="tab in tabs"
             :class="[
                 'px-4 py-3 font-semibold rounded-t-lg',
-                'border-4 border-b border-transparent hover:border-b-transparent',
+                'border-4 border-b hover:border-b-transparent',
                 'focus:outline-none ring-black ring-inset focus-visible:ring-2',
-                'transition-colors duration-300',
                 modelValue === tab.id
-                    ? 'border-4 border-b border-b-transparent bg-white text-gray-800 border-blue-600'
-                    : 'border-b-gray-200 hover:bg-white hover:border-gray-200',
+                    ? 'border-4-b border-b border-b-transparent border-t border-x bg-white text-gray-800'
+                    : 'border-transparent border-b-gray-200 hover:bg-white hover:border-gray-200 transition-colors duration-300',
             ]"
             @click="changeTab(tab.id)"
             v-text="tab.label"

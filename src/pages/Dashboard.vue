@@ -103,7 +103,7 @@ function showUpdateModal(timeEntry: TimeEntry) {
 }
 
 function loadSubject(subject: string) {
-    const matches = subject.match(/^\[([A-z0-0-_ ]+)\] (.*)$/);
+    const matches = subject.match(/^\[([A-Za-zÀ-ž0-9-_ ]+)\] (.*)$/);
     if (!matches) {
         return { subject: null, description: subject };
     }
@@ -158,18 +158,22 @@ async function getTimeEntries() {
 function createTimeEntry(timeEntry: TimeEntry) {
     showModal.value = false;
     timeEntries.value.push(timeEntry);
+
+    // TODO: Send new time entry to API
 }
 
 function updateTimeEntry(timeEntry: TimeEntry) {
     showModal.value = false;
     const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
     timeEntries.value.splice(index, 1, timeEntry);
+
+    // TODO: Send updated time entry to API
 }
 
-function deleteTimeEntry(index: number) {
-    const id = timeEntries.value[index]?.id;
+function deleteTimeEntry(timeEntry: TimeEntry) {
+    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
     try {
-        // await Axios.delete(`/api/time-entries/${id}`);
+        // TODO: Send delete time entry request to API
         timeEntries.value.splice(index, 1);
     } catch (err) {
         console.error("Could not delete subject", err);
@@ -231,7 +235,7 @@ if (ready) {
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
                     <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }}</template>
-                    <template #cell(actions)="{ entry, index }">
+                    <template #cell(actions)="{ entry }">
                         <div class="flex">
                             <Button
                                 class="mr-2"
@@ -242,7 +246,7 @@ if (ready) {
                                 <IconPencil class="lg:mr-2" :size="16" />
                                 <span class="hidden lg:inline">Bearbeiten</span>
                             </Button>
-                            <Button :size="ButtonSize.SM" label="Löschen" @click="deleteTimeEntry(index)">
+                            <Button :size="ButtonSize.SM" label="Löschen" @click="deleteTimeEntry(entry as TimeEntry)">
                                 <IconGarbage class="lg:mr-2" :size="12" />
                                 <span class="hidden lg:inline">Löschen</span>
                             </Button>
@@ -259,7 +263,12 @@ if (ready) {
                     @update="(val) => changeWeek(val)"
                 />
 
-                <Calendar :values="timeEntries" :week-start="weekStart" />
+                <Calendar
+                    :values="timeEntries"
+                    :week-start="weekStart"
+                    @update="updateTimeEntry"
+                    @delete="deleteTimeEntry"
+                />
             </div>
         </Section>
     </Page>

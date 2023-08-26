@@ -27,7 +27,7 @@ watch(show, (val: boolean) => {
 
 if (ready) {
     watch(ready, (val: boolean) => {
-        if (ready) {
+        if (ready.value) {
             emit("close");
         }
     });

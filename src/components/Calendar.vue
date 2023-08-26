@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ComputedRef, StyleValue, computed, watch } from "vue";
+import { ComputedRef, Ref, StyleValue, computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { getWeekday, isOnSameDay } from "../utils/date";
 import { getSubjectColor } from "../subjects";
 import { TimeEntry } from "../@types/models";
@@ -9,14 +9,16 @@ const props = defineProps<{
     values: Array<TimeEntry>;
 }>();
 
+const emit = defineEmits<{
+    (e: "update", timeEntry: TimeEntry): void;
+    (e: "delete", timeEntry: TimeEntry): void;
+}>();
+
 interface Day {
     date: string;
     weekday: string;
     day: number;
 }
-
-// const days: Day[] = []; // ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
-const hours = [...Array(24).keys()];
 
 const days: ComputedRef<Day[]> = computed(() => {
     const date = new Date(props.weekStart);
@@ -31,6 +33,7 @@ const days: ComputedRef<Day[]> = computed(() => {
     }
     return days;
 });
+const hours = [...Array(24).keys()];
 
 function getEntries(day: string) {
     return props.values.filter((entry) => isOnSameDay(entry.start, day));
@@ -43,11 +46,131 @@ function getTop(entry: TimeEntry): number {
     return date.getHours() * HEIGHT_PER_HOUR + (date.getMinutes() / 60) * HEIGHT_PER_HOUR;
 }
 
-function getHeight(entry: TimeEntry): number {
+function getDurationInMs(entry: TimeEntry): number {
     const end = new Date(entry.end);
     const start = new Date(entry.start);
-    return ((end.valueOf() - start.valueOf()) / 3600000) * HEIGHT_PER_HOUR;
+    return end.valueOf() - start.valueOf();
 }
+
+function getHeight(entry: TimeEntry): number {
+    return (getDurationInMs(entry) / 3_600_000) * HEIGHT_PER_HOUR;
+}
+
+let hourBoxes: HTMLElement[] | null = [];
+const scrollArea = ref<HTMLElement | null>();
+const draggedTimeEntry: Ref<TimeEntry | null> = ref(null);
+let mouseOffsetX = 0;
+let mouseOffsetY = 0;
+let clone: HTMLElement | null = null;
+let ghost: HTMLElement | null = null;
+let dragTarget: HTMLElement | null = null;
+
+function onDragStart(event: DragEvent, timeEntry: TimeEntry) {
+    if (!event.target || !scrollArea.value) return;
+
+    dragTarget = <HTMLElement>(<HTMLElement>event.target).childNodes[0];
+    const rect = dragTarget.getBoundingClientRect();
+    draggedTimeEntry.value = timeEntry;
+    mouseOffsetX = event.offsetX;
+    mouseOffsetY = event.offsetY;
+
+    clone = <HTMLElement>dragTarget.cloneNode(true);
+    clone.id = "calendar-clone";
+    clone.classList.add("absolute", "-top-[50px]");
+    clone.style.width = rect.width + "px";
+    clone.style.height = rect.height + "px";
+    scrollArea.value.appendChild(clone);
+
+    ghost = <HTMLElement>dragTarget.cloneNode(true);
+    ghost.id = "calendar-ghost";
+    ghost.classList.add("absolute", "pointer-events-none", "opacity-50", "ml-1.5");
+    ghost.style.width = rect.width + "px";
+    ghost.style.height = rect.height + "px";
+    ghost.style.left = rect.left + "px";
+    ghost.style.top = rect.top + "px";
+    scrollArea.value.appendChild(ghost);
+
+    event.dataTransfer?.setDragImage(clone, event.offsetX, event.offsetY);
+    dragTarget.style.visibility = "hidden";
+}
+
+function findClosestHourBox(x: number, y: number) {
+    if (!hourBoxes) return { minx: 0, miny: 0, el: null };
+
+    let el = hourBoxes[0];
+    let { left: minx, top: miny } = el.getBoundingClientRect();
+    hourBoxes.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        if (Math.abs(rect.left - x) < Math.abs(minx - x) || Math.abs(rect.top - y) < Math.abs(miny - y)) {
+            minx = rect.left;
+            miny = rect.top;
+            el = element;
+        }
+    });
+
+    return { minx, miny, el };
+}
+
+function onDrag(event: DragEvent) {
+    if (!ghost || !hourBoxes) return;
+
+    const x = event.clientX - mouseOffsetX;
+    const y = event.clientY - mouseOffsetY;
+
+    const { minx, miny } = findClosestHourBox(x, y);
+
+    ghost.style.left = minx + "px";
+    ghost.style.top = miny + "px";
+}
+
+function onDragOver(event: DragEvent) {
+    event.preventDefault();
+}
+
+function getElementIndexInContainer(element: HTMLElement | null): number {
+    if (!element || !element.parentElement) return 0;
+    return [...Array.from(element.parentElement.childNodes).filter((el) => el.nodeType === 1)].indexOf(element);
+}
+
+function onDrop(event: DragEvent) {
+    if (!ghost || !clone || !dragTarget || !draggedTimeEntry.value) return;
+
+    event.preventDefault();
+
+    const rect = ghost.getBoundingClientRect();
+    const { el: hourBox } = findClosestHourBox(rect.left, rect.top);
+    if (!hourBox || !hourBox.parentElement || !hourBox.parentElement) return;
+
+    const indexQuarterHour = getElementIndexInContainer(hourBox);
+    const indexHour = getElementIndexInContainer(hourBox.parentElement);
+    const indexDay = getElementIndexInContainer(hourBox.parentElement.parentElement) - 1;
+
+    const start = new Date(props.weekStart);
+    start.setDate(start.getDate() + indexDay);
+    start.setHours(start.getHours() + indexHour);
+    start.setMinutes(start.getMinutes() + indexQuarterHour * 15);
+    const end = new Date(start.valueOf() + getDurationInMs(draggedTimeEntry.value));
+    new Date(draggedTimeEntry.value.end);
+
+    draggedTimeEntry.value.start = start.toISOString();
+    draggedTimeEntry.value.end = end.toISOString();
+    emit("update", draggedTimeEntry.value);
+    draggedTimeEntry.value = null;
+
+    clone.parentElement?.removeChild(clone);
+    clone = null;
+    ghost.parentElement?.removeChild(ghost);
+    ghost = null;
+
+    dragTarget.style.visibility = "";
+}
+
+onMounted(() => {
+    if (scrollArea.value) {
+        scrollArea.value.scrollTop = 7 * HEIGHT_PER_HOUR;
+        hourBoxes = <HTMLElement[]>[...Array.from(scrollArea.value.querySelectorAll(".hour-box"))];
+    }
+});
 </script>
 
 <template>
@@ -62,6 +185,7 @@ function getHeight(entry: TimeEntry): number {
                 'scrollbar-track:!rounded scrollbar-track:!bg-slate-100 scrollbar-thumb:!rounded scrollbar-thumb:!bg-slate-300',
                 'dark:scrollbar-track:!bg-slate-500/[0.16] dark:scrollbar-thumb:!bg-slate-500/50 pr-2',
             ]"
+            ref="scrollArea"
         >
             <div class="flex border-gray-400">
                 <div class="w-[26px] text-sm border-inherit">
@@ -71,22 +195,25 @@ function getHeight(entry: TimeEntry): number {
                         </div>
                     </div>
                 </div>
-                <div v-for="day in days" class="flex-1 border-inherit relative">
-                    <div v-for="hour in hours" class="border-r border-inherit">
-                        <div class="border-b border-gray-100 h-[10px]"></div>
-                        <div class="border-b border-gray-100 h-[10px]"></div>
-                        <div class="border-b border-gray-100 h-[10px]"></div>
-                        <div class="border-b border-inherit h-[10px]"></div>
+                <div v-for="day in days" class="flex-1 border-inherit relative" @dragover="onDragOver" @drop="onDrop">
+                    <div v-for="_ in hours" class="border-r border-inherit">
+                        <div class="hour-box border-b border-gray-100 h-[10px]" />
+                        <div class="hour-box border-b border-gray-100 h-[10px]" />
+                        <div class="hour-box border-b border-gray-100 h-[10px]" />
+                        <div class="hour-box border-b border-inherit h-[10px]" />
                     </div>
 
                     <div
                         v-for="entry in getEntries(day.date)"
                         class="absolute w-full px-1.5"
                         :style="{ top: getTop(entry) + 'px', height: getHeight(entry) + 'px' }"
+                        draggable="true"
+                        @dragstart="onDragStart($event, entry)"
+                        @drag="onDrag"
                     >
                         <div
                             v-if="getHeight(entry) > 40"
-                            class="h-full border rounded-lg p-1 overflow-hidden"
+                            class="h-full border rounded-lg p-1 overflow-hidden translate-x-0"
                             :style="<StyleValue><unknown>getSubjectColor(entry.subject)"
                         >
                             <span
