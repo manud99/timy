@@ -6,6 +6,7 @@ import Section from "../blocks/Section.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import { getCalendarId, setCalendarId } from "../settings";
 import { googleReadyKey } from "../keys";
+import { fetchCalendars } from "../google/query";
 
 const calendars: Ref<Option[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
@@ -15,9 +16,8 @@ const ready = inject<Ref<boolean>>(googleReadyKey);
 async function getCalendars() {
     if (!ready || !ready.value) return;
 
-    const res = await window.gapi.client.calendar.calendarList.list();
-    const json = JSON.parse(res.body);
-    calendars.value = json.items.map((calendar: any) => {
+    const res = await fetchCalendars();
+    calendars.value = res.map((calendar: any) => {
         return { label: calendar.summary, value: calendar.id };
     });
 }

@@ -2,24 +2,25 @@
 import type { Ref } from "vue";
 import { computed, inject, onMounted, ref, watch } from "vue";
 import { TimeEntry } from "../@types/models";
-import Page from "../blocks/Page.vue";
-import Section from "../blocks/Section.vue";
-import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
-import SubjectTag from "../blocks/SubjectTag.vue";
-import Button, { ButtonSize } from "../components/Button.vue";
-import Table from "../components/Table.vue";
-import type { Field } from "../components/Table.vue";
-import IconPlus from "../icons/Plus.vue";
-import IconPencil from "../icons/Pencil.vue";
-import IconGarbage from "../icons/Garbage.vue";
-import Tabs from "../components/Tabs.vue";
-import type { Tab } from "../components/Tabs.vue";
 import { getCalendarId } from "../settings";
 import { getSubject } from "../subjects";
-import { googleReadyKey, showLoginModalKey } from "../keys";
-import { getDate, getTime, getWeekStart } from "../utils/date";
-import WeekSlider from "../components/WeekSlider.vue";
+import { googleReadyKey } from "../keys";
+import Page from "../blocks/Page.vue";
+import Section from "../blocks/Section.vue";
+import SubjectTag from "../blocks/SubjectTag.vue";
+import Button, { ButtonSize } from "../components/Button.vue";
 import Calendar from "../components/Calendar.vue";
+import Table from "../components/Table.vue";
+import type { Field } from "../components/Table.vue";
+import Tabs from "../components/Tabs.vue";
+import type { Tab } from "../components/Tabs.vue";
+import WeekSlider from "../components/WeekSlider.vue";
+import { fetchEvents } from "../google/query";
+import IconGarbage from "../icons/Garbage.vue";
+import IconPencil from "../icons/Pencil.vue";
+import IconPlus from "../icons/Plus.vue";
+import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
+import { getDate, getTime, getWeekStart } from "../utils/date";
 
 const fields: Field[] = [
     {
@@ -114,7 +115,6 @@ function loadSubject(subject: string) {
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const ready = inject<Ref<boolean>>(googleReadyKey);
-const showLoginModal = inject<Ref<boolean>>(showLoginModalKey);
 
 async function getTimeEntries() {
     if (!ready || !ready.value) return;
@@ -123,36 +123,20 @@ async function getTimeEntries() {
     const calendarId = getCalendarId();
     const start = weekStart.value;
     const end = weekEnd.value;
-    try {
-        const res = await window.gapi.client.calendar.events.list({
-            calendarId: calendarId,
-            timeMin: start,
-            timeMax: end,
-            timeZone: "UTC",
-            singleEvents: true,
-            orderBy: "startTime",
-        });
-        const body = JSON.parse(res.body);
-        timeEntries.value = body.items.map((graphItem: any): TimeEntry => {
-            const { subject, description } = loadSubject(graphItem.summary);
-            return {
-                description,
-                subject,
-                id: graphItem.id,
-                start: graphItem.start.dateTime,
-                end: graphItem.end.dateTime,
-            };
-        });
-        loading.value = false;
-    } catch (error: any) {
-        loading.value = false;
-        if (error?.status === 401) {
-            console.error("[GAPI]", error?.result?.error?.message);
-            if (showLoginModal) showLoginModal.value = true;
-            return;
-        }
-        console.error("Dashboard error while loading time entries", error);
-    }
+
+    const res = await fetchEvents(calendarId, start, end);
+    timeEntries.value = res.map((graphItem: any): TimeEntry => {
+        const { subject, description } = loadSubject(graphItem.summary);
+        return {
+            description,
+            subject,
+            id: graphItem.id,
+            start: graphItem.start.dateTime,
+            end: graphItem.end.dateTime,
+        };
+    });
+    loading.value = false;
+    stopWatcher();
 }
 
 function createTimeEntry(timeEntry: TimeEntry) {
@@ -191,8 +175,9 @@ onMounted(() => {
     getTimeEntries();
 });
 
+let stopWatcher = () => {};
 if (ready) {
-    watch(ready, () => {
+    stopWatcher = watch(ready, () => {
         getTimeEntries();
     });
 }

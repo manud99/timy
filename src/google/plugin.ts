@@ -1,12 +1,13 @@
 import { App, Ref, ref } from "vue";
 import { loadGoogleLibraries } from "./load";
-import { googleReadyKey, tokenClientKey } from "../keys";
+import { googleReadyKey, tokenClientKey, showLoginModalKey } from "../keys";
 
 const ACCESS_TOKEN_KEY: string = "timy_google_access_token";
 
 export const tokenClient: Ref<google.accounts.oauth2.TokenClient | null> = ref(null);
+export const ready = ref(false);
 const accessToken = ref(window.localStorage.getItem(ACCESS_TOKEN_KEY));
-const ready = ref(false);
+export const showLoginModal: Ref<boolean> = ref(false);
 
 function handleCodeResponse(res: google.accounts.oauth2.TokenResponse) {
     if (res.error !== undefined) {
@@ -23,6 +24,7 @@ export default {
     install: async (app: App) => {
         app.provide(tokenClientKey, tokenClient);
         app.provide(googleReadyKey, ready);
+        app.provide(showLoginModalKey, showLoginModal);
 
         tokenClient.value = await loadGoogleLibraries(handleCodeResponse);
 

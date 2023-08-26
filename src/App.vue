@@ -8,7 +8,7 @@ import Settings from "./pages/Settings.vue";
 import NotFound from "./pages/404.vue";
 import { locationKey } from "./keys";
 import LoginModal from "./modals/LoginModal.vue";
-import { showLoginModalKey } from "./keys";
+import { showLoginModal } from "./google/plugin";
 
 interface ComponentOption {
     url: String;
@@ -33,9 +33,6 @@ provide(locationKey, location);
 window.addEventListener("popstate", (event) => {
     location.value = window.location.pathname;
 });
-
-const showLoginModal: Ref<boolean> = ref(false);
-provide(showLoginModalKey, showLoginModal);
 </script>
 
 <template>
