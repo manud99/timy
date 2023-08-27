@@ -27,7 +27,7 @@ function storeCalendar(value: string) {
 }
 
 onMounted(() => {
-    calendar.value = getCalendarId();
+    calendar.value = getCalendarId() || "";
     getCalendars();
 });
 
@@ -50,8 +50,13 @@ if (ready) {
             />
         </Section> -->
 
-        <Section class="items-center p-4 bg-white">
+        <Section class="items-center p-4 bg-white max-w-[500px] mx-auto">
             <h2 class="text-lg font-bold mb-4">Kalender auswählen</h2>
+
+            <p class="mb-2">
+                Bitte wähle einen Google-Kalender aus, der deinem Account gehört. Mit diesem Kalender werden deine
+                Zeiteinträge synchronisiert. Es kann ein neuer oder auch ein bestehender Kalender sein.
+            </p>
 
             <SelectField
                 v-model:value="calendar"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, toRefs, watch } from "vue";
+import { computed, ref, toRefs, watch } from "vue";
 import type { Ref } from "vue";
 import type { Subject } from "../@types/models";
 import Modal from "../components/Modal.vue";
@@ -47,10 +47,18 @@ function submitSubject() {
     const subject: Subject = { name: name.value, color: parseInt(color.value, 10), isActive: isActive.value };
     emit("update", subject);
 }
+
+const newEntry = computed(() => !subject.value);
 </script>
 
 <template>
-    <Modal title="Fach bearbeiten" :show="show" @close="$emit('close')" @submit="submitSubject">
+    <Modal
+        :title="newEntry ? 'Neues Fach' : 'Fach bearbeiten'"
+        :submit-title="newEntry ? 'Erstellen' : 'Aktualisieren'"
+        :show="show"
+        @close="$emit('close')"
+        @submit="submitSubject"
+    >
         <FormGroup label="Name" name="name" :errors="errors">
             <InputField v-model:value="name" name="name" label="Name" />
         </FormGroup>

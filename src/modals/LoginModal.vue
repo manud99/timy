@@ -35,9 +35,9 @@ if (ready) {
 </script>
 
 <template>
-    <Modal title="Anmelden" :show="show" :no-footer="true" @close="emit('close')">
-        <div class="text-center">
-            <div>Bitte melde dich an</div>
+    <Modal title="Anmelden" :show="show" :no-footer="true" :width="500" @close="emit('close')">
+        <div class="">
+            <p class="mb-2">Bitte melde dich mit einem Google-Account an, um deine Zeiteintrage zu verwalten:</p>
             <Button
                 class="flex items-center"
                 label="Neues Eintrag erstellen"
@@ -45,7 +45,7 @@ if (ready) {
                 color="blue"
                 @click="signIn"
             >
-                Anmelden
+                Jetzt mit Google-Account anmelden
             </Button>
         </div>
     </Modal>

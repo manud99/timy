@@ -45,14 +45,6 @@ function isActive(href: string) {
                         v-text="page.label"
                     />
                 </li>
-                <li class="px-2 ml-4">
-                    <button
-                        class="font-semibold text-gray-600 transition-colors duration-150 hover:text-blue-700 px-4 py-1"
-                        @click="signIn"
-                    >
-                        Anmelden
-                    </button>
-                </li>
             </ul>
         </nav>
     </header>

@@ -174,39 +174,41 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="bg-white">
-        <div class="flex pr-3.5 text-xs font-bold tracking-wide text-left text-gray-500 uppercase border-y bg-gray-50">
-            <div class="w-[26px] border-inherit" />
-            <div v-for="day in days" class="flex-1 px-2 py-3">{{ day.weekday }}</div>
-        </div>
-        <div
-            :class="[
-                'max-h-[600px] overflow-auto scrollbar:!w-1.5 scrollbar:!h-1.5 scrollbar:bg-transparent',
-                'scrollbar-track:!rounded scrollbar-track:!bg-slate-100 scrollbar-thumb:!rounded scrollbar-thumb:!bg-slate-300',
-                'dark:scrollbar-track:!bg-slate-500/[0.16] dark:scrollbar-thumb:!bg-slate-500/50 pr-2',
-            ]"
-            ref="scrollArea"
-        >
-            <div class="flex border-gray-400">
-                <div class="w-[26px] text-sm border-inherit">
-                    <div v-for="hour in [...Array(24).keys()]" class="border-r border-inherit">
-                        <div class="leading-4 text-gray-600 border-b border-inherit h-[40px] px-1 text-right">
-                            {{ hour }}
-                        </div>
-                    </div>
+    <div class="flex pr-3.5 text-xs font-bold tracking-wide text-left text-gray-500 uppercase border-y bg-gray-50">
+        <div class="w-[26px] border-inherit" />
+        <div v-for="day in days" class="flex-1 px-2 py-3">{{ day.weekday }}</div>
+    </div>
+    <div
+        :class="[
+            'bg-white max-h-[600px] overflow-auto scrollbar:!w-1.5 scrollbar:!h-1.5 scrollbar:bg-transparent',
+            'scrollbar-track:!rounded scrollbar-track:!bg-slate-100 scrollbar-thumb:!rounded scrollbar-thumb:!bg-slate-300',
+            'dark:scrollbar-track:!bg-slate-500/[0.16] dark:scrollbar-thumb:!bg-slate-500/50 pr-2',
+        ]"
+        ref="scrollArea"
+    >
+        <div class="flex border-gray-400">
+            <div class="w-[26px] text-sm border-inherit">
+                <div
+                    v-for="hour in [...Array(24).keys()]"
+                    class="h-[40px] border-b border-r border-inherit text-right text-gray-600 leading-4 px-1"
+                    v-text="hour"
+                />
+            </div>
+            <div v-for="day in days" class="flex-1 border-inherit relative" @dragover="onDragOver" @drop="onDrop">
+                <div v-for="_ in hours" class="border-r border-inherit">
+                    <div class="hour-box border-b border-gray-100 h-[10px]" />
+                    <div class="hour-box border-b border-gray-100 h-[10px]" />
+                    <div class="hour-box border-b border-gray-100 h-[10px]" />
+                    <div class="hour-box border-b border-inherit h-[10px]" />
                 </div>
-                <div v-for="day in days" class="flex-1 border-inherit relative" @dragover="onDragOver" @drop="onDrop">
-                    <div v-for="_ in hours" class="border-r border-inherit">
-                        <div class="hour-box border-b border-gray-100 h-[10px]" />
-                        <div class="hour-box border-b border-gray-100 h-[10px]" />
-                        <div class="hour-box border-b border-gray-100 h-[10px]" />
-                        <div class="hour-box border-b border-inherit h-[10px]" />
-                    </div>
 
+                <div
+                    v-for="entry in getEntries(day.date)"
+                    class="absolute w-full px-1.5"
+                    :style="{ top: getTop(entry) + 'px', height: getHeight(entry) + 'px' }"
+                >
                     <div
-                        v-for="entry in getEntries(day.date)"
-                        class="absolute w-full px-1.5"
-                        :style="{ top: getTop(entry) + 'px', height: getHeight(entry) + 'px' }"
+                        class="h-full cursor-pointer"
                         draggable="true"
                         @dragstart="onDragStart($event, entry)"
                         @drag="onDrag"
@@ -221,11 +223,11 @@ onMounted(() => {
                                 :class="['text-xs rounded px-1 mr-2', getSubjectColor(entry.subject).contrast]"
                                 v-text="entry.subject.name"
                             />
-                            <span class="font-semibold" v-text="entry.description" />
+                            <span class="text-sm font-semibold" v-text="entry.description" />
                         </div>
                         <div
-                            v-else
-                            class="h-full border rounded-lg px-1 leading-[1] text-ellipsis overflow-hidden whitespace-nowrap"
+                            v-else-if="getHeight(entry) > 10"
+                            class="h-full border rounded-lg px-1 leading-[1] text-[11px] text-ellipsis overflow-hidden whitespace-nowrap"
                             :style="<StyleValue><unknown>getSubjectColor(entry.subject)"
                         >
                             <span
@@ -233,8 +235,14 @@ onMounted(() => {
                                 :class="['text-[9px] rounded px-1 mr-1', getSubjectColor(entry.subject).contrast]"
                                 v-text="entry.subject.name"
                             />
-                            <span class="text-[10px] font-semibold" v-text="entry.description" />
+                            <span class="font-semibold" v-text="entry.description" />
                         </div>
+                        <div
+                            v-else
+                            class="h-full border rounded-lg overflow-hidden"
+                            :title="entry.subject ? `[${entry.subject.name}] ${entry.description}` : entry.description"
+                            :style="<StyleValue><unknown>getSubjectColor(entry.subject)"
+                        />
                     </div>
                 </div>
             </div>

@@ -15,7 +15,7 @@ import type { Field } from "../components/Table.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
 import WeekSlider from "../components/WeekSlider.vue";
-import { fetchEvents } from "../google/query";
+import { fetchEvents, createEvent, updateEvent, deleteEvent } from "../google/query";
 import IconGarbage from "../icons/Garbage.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconPlus from "../icons/Plus.vue";
@@ -103,65 +103,75 @@ function showUpdateModal(timeEntry: TimeEntry) {
     showModal.value = true;
 }
 
-function loadSubject(subject: string) {
-    const matches = subject.match(/^\[([A-Za-zÀ-ž0-9-_ ]+)\] (.*)$/);
-    if (!matches) {
-        return { subject: null, description: subject };
-    }
-    return { subject: getSubject(matches[1]), description: matches[2] };
-}
-
 // Call the API
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const ready = inject<Ref<boolean>>(googleReadyKey);
+const calendarId: Ref<string | null> = ref(null);
+
+function makeSureCalendarIdExists() {
+    if (!calendarId.value) {
+        window.history.pushState(null, "", "/settings");
+        return false;
+    }
+    return true;
+}
 
 async function getTimeEntries() {
-    if (!ready || !ready.value) return;
+    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
 
     loading.value = true;
-    const calendarId = getCalendarId();
     const start = weekStart.value;
     const end = weekEnd.value;
 
-    const res = await fetchEvents(calendarId, start, end);
-    timeEntries.value = res.map((graphItem: any): TimeEntry => {
-        const { subject, description } = loadSubject(graphItem.summary);
-        return {
-            description,
-            subject,
-            id: graphItem.id,
-            start: graphItem.start.dateTime,
-            end: graphItem.end.dateTime,
-        };
-    });
+    timeEntries.value = await fetchEvents(calendarId.value!, start, end);
+
     loading.value = false;
-    stopWatcher();
 }
 
-function createTimeEntry(timeEntry: TimeEntry) {
+async function createTimeEntry(timeEntry: TimeEntry) {
+    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
+
     showModal.value = false;
-    timeEntries.value.push(timeEntry);
 
-    // TODO: Send new time entry to API
-}
-
-function updateTimeEntry(timeEntry: TimeEntry) {
-    showModal.value = false;
-    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
-    timeEntries.value.splice(index, 1, timeEntry);
-
-    // TODO: Send updated time entry to API
-}
-
-function deleteTimeEntry(timeEntry: TimeEntry) {
-    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
-    try {
-        // TODO: Send delete time entry request to API
-        timeEntries.value.splice(index, 1);
-    } catch (err) {
-        console.error("Could not delete subject", err);
+    const entry = await createEvent(calendarId.value!, timeEntry);
+    if (!entry) {
+        console.warn("Event was not created");
+        return;
     }
+
+    const sortedIndex = timeEntries.value.findIndex((record) => record.start > entry.start);
+    timeEntries.value.splice(sortedIndex, 0, entry);
+}
+
+async function updateTimeEntry(timeEntry: TimeEntry) {
+    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
+
+    showModal.value = false;
+
+    const entry = await updateEvent(calendarId.value!, timeEntry.id, timeEntry);
+    if (!entry) {
+        console.warn("Event was not updated");
+        return;
+    }
+
+    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
+    timeEntries.value.splice(index, 1);
+    const sortedIndex = timeEntries.value.findIndex((record) => record.start > timeEntry.start);
+    timeEntries.value.splice(sortedIndex, 0, entry);
+}
+
+async function deleteTimeEntry(timeEntry: TimeEntry) {
+    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
+
+    const entry = await deleteEvent(calendarId.value!, timeEntry.id);
+    if (!entry) {
+        console.warn("Event was not deleted");
+        return;
+    }
+
+    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
+    timeEntries.value.splice(index, 1);
 }
 
 onMounted(() => {
@@ -172,12 +182,14 @@ onMounted(() => {
     }
     // Set activeWeek to a Monday.
     activeWeek.value = getWeekStart(activeWeek.value).toISOString();
+
+    calendarId.value = getCalendarId();
+
     getTimeEntries();
 });
 
-let stopWatcher = () => {};
 if (ready) {
-    stopWatcher = watch(ready, () => {
+    watch(ready, () => {
         getTimeEntries();
     });
 }
@@ -219,7 +231,9 @@ if (ready) {
                         <SubjectTag v-if="entry.subject" :subject="entry.subject" />
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
-                    <template #cell(time)="row"> {{ getTime(row.entry.start, row.entry.end) }}</template>
+                    <template #cell(time)="row">
+                        {{ getTime(row.entry.start) }} – {{ getTime(row.entry.end) }}</template
+                    >
                     <template #cell(actions)="{ entry }">
                         <div class="flex">
                             <Button

@@ -3,7 +3,14 @@ import Button from "./Button.vue";
 import { nextTick, ref, toRefs, watch } from "vue";
 import IconCross from "../icons/Cross.vue";
 
-const props = withDefaults(defineProps<{ title: string; show: boolean; noFooter?: boolean }>(), { noFooter: false });
+const props = withDefaults(
+    defineProps<{ title: string; submitTitle?: string; show: boolean; noFooter?: boolean; width?: number }>(),
+    {
+        submitTitle: "Speichern",
+        noFooter: false,
+        width: 800,
+    }
+);
 const { title, show } = toRefs(props);
 const emit = defineEmits<{
     (e: "close"): void;
@@ -34,12 +41,18 @@ function onEsc() {
                 @keydown.esc="onEsc"
             >
                 <form
-                    class="modal-container w-full max-w-[800px] m-auto bg-gray-100 border rounded shadow-lg transition-all duration-300"
+                    class="modal-container w-full m-auto bg-gray-100 border rounded shadow-lg transition-all duration-300"
+                    :style="{ maxWidth: width + 'px' }"
                     @submit.prevent="$emit('submit')"
                 >
                     <div class="flex justify-between border-b px-4 py-3">
                         <h2 class="text-xl font-semibold text-gray-700" v-text="title" />
-                        <button class="leading-none text-3xl p-0 m-0" title="Schliessen" @click="$emit('close')">
+                        <button
+                            class="leading-none text-3xl p-0 m-0"
+                            title="Schliessen"
+                            type="button"
+                            @click="$emit('close')"
+                        >
                             <IconCross :size="24" />
                         </button>
                     </div>
@@ -49,7 +62,7 @@ function onEsc() {
                     </div>
 
                     <footer v-if="!noFooter" class="flex justify-end border-t px-4 py-3">
-                        <Button type="submit" label="Speichern" />
+                        <Button type="submit" :label="submitTitle" />
                     </footer>
                 </form>
             </div>

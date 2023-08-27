@@ -2,10 +2,8 @@ export function getDate(date: string | Date): string {
     return new Date(date).toLocaleString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
 }
 
-export function getTime(start: string, end: string): string {
-    const startTime = new Date(start).toLocaleString("de-CH", { timeStyle: "short" });
-    const endTime = new Date(end).toLocaleString("de-CH", { timeStyle: "short" });
-    return `${startTime} – ${endTime}`;
+export function getTime(value: string): string {
+    return new Date(value).toLocaleString("de-CH", { timeStyle: "short" });
 }
 
 export function addDay(date: string, amount: number): string {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { value, name, label } = defineProps<{
+const props = defineProps<{
     value: boolean;
     name: string;
     label: string;

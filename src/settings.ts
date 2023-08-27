@@ -27,10 +27,10 @@ function storeSettings(): void {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings.value));
 }
 
-export function getCalendarId(): string {
+export function getCalendarId(): string | null {
     loadSettings();
 
-    return settings?.value.calendarId || "";
+    return settings?.value.calendarId || null;
 }
 
 export function setCalendarId(calendarId: string): void {

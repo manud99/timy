@@ -129,3 +129,11 @@ export function getSubjectColor(subject: Subject | null): SubjectColorSetting {
 
     return colorMap[subject.color];
 }
+
+export function parseSubject(subject: string) {
+    const matches = subject.match(/^\[([A-Za-zÀ-ž0-9-_ ]+)\] (.*)$/);
+    if (!matches) {
+        return { subject: null, description: subject };
+    }
+    return { subject: getSubject(matches[1]), description: matches[2] };
+}

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, toRefs, watch, computed } from "vue";
+import { ref, toRefs, watch, computed, onMounted } from "vue";
 import type { Ref } from "vue";
-import Axios, { AxiosError } from "axios";
 import { TimeEntry } from "../@types/models";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
 import { ValidationError } from "../@types/ValidationErrors";
 import DateField from "../components/DateField.vue";
+import SelectField, { Option } from "../components/SelectField.vue";
 import TimeField from "../components/TimeField.vue";
-import ArrowUp from "../icons/ArrowUp.vue";
-import ArrowDown from "../icons/ArrowDown.vue";
+import { getSubject, getSubjects, subjects } from "../subjects";
+import { getTime } from "../utils/date";
 
 const description: Ref<string> = ref("");
 const dateStart: Ref<string> = ref("");
@@ -18,7 +18,7 @@ const dateEnd: Ref<string> = ref("");
 const date: Ref<string> = ref("");
 const start: Ref<string> = ref("");
 const end: Ref<string> = ref("");
-const subjectId: Ref<string> = ref("");
+const subject: Ref<string> = ref("");
 const errors: Ref<ValidationError[]> = ref([]);
 
 const props = defineProps<{
@@ -33,28 +33,30 @@ const emit = defineEmits<{
     (e: "update", timeEntry: TimeEntry): void;
 }>();
 
-watch(show, async (val) => {
-    if (!val) return;
-    if (timeEntry.value) {
-        description.value = timeEntry.value?.description!;
-        subjectId.value = timeEntry.value?.subject!.name;
-        setDateFields(timeEntry.value?.start! as string, timeEntry.value?.end! as string);
-    } else {
-        description.value = "";
-        subjectId.value = "";
-        date.value = "";
-        start.value = "";
-        end.value = "";
-    }
-});
-
 function setDateFields(dateStart: string, dateEnd: string) {
     // date is in ISO format
     // e.g. 2023-02-13T09:15:00.000Z
     date.value = dateStart.substring(0, 10);
-    start.value = dateStart.substring(11, 16);
-    end.value = dateEnd.substring(11, 16);
+    start.value = getTime(dateStart);
+    end.value = getTime(dateEnd);
 }
+
+watch(show, (val) => {
+    if (!val) {
+        return;
+    }
+    if (timeEntry.value) {
+        description.value = timeEntry.value?.description!;
+        subject.value = timeEntry.value?.subject!.name;
+        setDateFields(timeEntry.value?.start as string, timeEntry.value?.end as string);
+    } else {
+        description.value = "";
+        subject.value = "";
+        const end = new Date(Math.round(new Date().valueOf() / 900_000) * 900_000);
+        const start = new Date(end.valueOf() - 3_600_000);
+        setDateFields(start.toISOString(), end.toISOString());
+    }
+});
 
 watch([date, start, end], () => {
     if (!date.value || !start.value || !end.value) return;
@@ -67,40 +69,47 @@ watch([date, start, end], () => {
     dateEnd.value = value.toISOString();
 });
 
+onMounted(() => {
+    getSubjects();
+});
+
+const subjectOptions = computed(() => {
+    return subjects.value.map((subject): Option => ({ label: subject.name, value: subject.name }));
+});
+
+const newEntry = computed(() => !timeEntry.value);
+
 async function submitTimeEntry() {
-    const data = {
+    // TODO: validate data
+    // description, start, end: required
+    // start, end: date
+    // start < end
+    // subject: nullable
+
+    const entry: TimeEntry = {
+        id: timeEntry.value ? timeEntry.value.id : "",
         description: description.value,
         start: dateStart.value,
         end: dateEnd.value,
-        subjectId: parseInt(subjectId.value, 10),
+        subject: getSubject(subject.value),
     };
 
-    try {
-        if (!timeEntry.value) {
-            // Create
-            //            const response = await Axios.post("/api/time-entries", data);
-            //            emit("create", data);
-        } else {
-            // Update
-            //            const response = await Axios.put(`/api/time-entries/${timeEntry.value?.id!}`, data);
-            //            emit("update", { id: timeEntry.value.id, ...data });
-        }
-    } catch (err) {
-        const error = err as AxiosError<{ errors: ValidationError[] }>;
-        if (error.response?.status !== 422) {
-            console.error(error);
-            return;
-        }
-        errors.value = error.response?.data.errors;
+    if (newEntry.value) {
+        emit("create", entry);
+    } else {
+        emit("update", entry);
     }
 }
 </script>
 
 <template>
-    <Modal title="Zeiteintrag bearbeiten" :show="show" @close="$emit('close')" @submit="submitTimeEntry">
-        <FormGroup label="Beschreibung" name="description" :errors="errors">
-            <InputField v-model:value="description" name="description" label="Beschreibung" />
-        </FormGroup>
+    <Modal
+        :title="newEntry ? 'Neuer Zeiteintrag' : 'Zeiteintrag bearbeiten'"
+        :submit-title="newEntry ? 'Erstellen' : 'Aktualisieren'"
+        :show="show"
+        @close="$emit('close')"
+        @submit="submitTimeEntry"
+    >
         <FormGroup label="Datum" name="date" :errors="errors">
             <DateField v-model:value="date" name="date" label="Datum" />
         </FormGroup>
@@ -110,8 +119,17 @@ async function submitTimeEntry() {
         <FormGroup label="Ende" name="end" :errors="errors">
             <TimeField v-model:value="end" name="end" label="Ende" />
         </FormGroup>
-        <FormGroup label="Fach" name="subjectId" :errors="errors">
-            <InputField v-model:value="subjectId" name="subjectId" label="Fach" />
+        <FormGroup label="Beschreibung" name="description" :errors="errors">
+            <InputField v-model:value="description" name="description" label="Beschreibung" />
+        </FormGroup>
+        <FormGroup label="Fach" name="subject" :errors="errors">
+            <SelectField
+                v-model:value="subject"
+                :options="subjectOptions"
+                name="subject"
+                label="Fach auswählen"
+                clearable
+            />
         </FormGroup>
     </Modal>
 </template>
