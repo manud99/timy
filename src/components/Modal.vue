@@ -1,188 +1,87 @@
+<script setup lang="ts">
+import Button from "./Button.vue";
+import { nextTick, ref, toRefs, watch } from "vue";
+import IconCross from "../icons/Cross.vue";
+
+const props = withDefaults(
+    defineProps<{ title: string; submitTitle?: string; show: boolean; noFooter?: boolean; width?: number }>(),
+    {
+        submitTitle: "Speichern",
+        noFooter: false,
+        width: 800,
+    }
+);
+const { title, show } = toRefs(props);
+const emit = defineEmits<{
+    (e: "close"): void;
+    (e: "submit"): void;
+}>();
+
+const modalBody = ref<HTMLElement | null>(null);
+
+watch(show, async (val) => {
+    if (!val) return;
+    await nextTick();
+
+    modalBody.value?.querySelector("input")?.focus();
+});
+
+function onEsc() {
+    emit("close");
+}
+</script>
+
 <template>
-    <teleport to="body">
-        <div
-            class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center"
-            :class="{'opacity-0': ! isOpen, 'pointer-events-none': ! isOpen}"
-            style="transition: opacity 0.3s"
-            @keyup="onKeyup"
-            @click="close"
-        >
-            <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
-
-            <div class="modal-container bg-white w-2/3 lg:w-2/5 mx-auto rounded shadow-lg z-50 overflow-y-auto">
-                <form class="modal-content py-4 text-left px-6" @submit.prevent="onSubmit" @click.stop="() => {}">
-                    <div class="flex justify-between items-center pb-3 mb-4">
-                        <h2 class="text-2xl font-bold">Add time entry</h2>
-
-                        <button class="modal-close cursor-pointer z-50" @click="close">
-                            <svg class="fill-current text-black"
-                                 xmlns="http://www.w3.org/2000/svg"
-                                 width="18"
-                                 height="18"
-                                 viewBox="0 0 18 18">
-                                <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="mb-4">
-                        <div class="flex items-center">
-                            <label for="title" class="w-full md:w-1/3 font-semibold text-lg pr-4">Title</label>
-                            <input v-model="title"
-                                   class="w-full md:w-2/3 border rounded px-4 py-2"
-                                   type="text"
-                                   id="title"
-                                   name="title"
-                                   placeholder="Title"
-                                   ref="title">
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <TimeField v-model="start" label="Start" name="start"/>
-                    </div>
-
-                    <div class="mb-4">
-                        <TimeField v-model="end" label="End" name="end"/>
-                    </div>
-
-                    <div class="flex flex-row-reverse">
+    <Teleport to="body">
+        <Transition name="modal">
+            <div
+                v-if="show"
+                class="flex fixed z-50 inset-0 bg-black/50 transition-opacity duration-300 p-2 overflow-y-auto"
+                tabindex="0"
+                @keydown.esc="onEsc"
+            >
+                <form
+                    class="modal-container w-full m-auto bg-gray-100 border rounded shadow-lg transition-all duration-300"
+                    :style="{ maxWidth: width + 'px' }"
+                    @submit.prevent="$emit('submit')"
+                >
+                    <div class="flex justify-between border-b px-4 py-3">
+                        <h2 class="text-xl font-semibold text-gray-700" v-text="title" />
                         <button
-                            type="submit"
-                            class="modal-close px-4 bg-indigo-500 p-3 rounded-lg text-white hover:bg-indigo-400"
-                        >
-                            Save
-                        </button>
-                        <button
+                            class="leading-none text-3xl p-0 m-0"
+                            title="Schliessen"
                             type="button"
-                            class="px-4 bg-transparent p-3 rounded-lg text-indigo-500 hover:bg-gray-100 hover:text-indigo-400 mr-2"
-                            @click="close"
+                            @click="$emit('close')"
                         >
-                            Close
+                            <IconCross :size="24" />
                         </button>
                     </div>
+
+                    <div class="px-4 py-3 bg-white" id="modal-body" ref="modalBody">
+                        <slot></slot>
+                    </div>
+
+                    <footer v-if="!noFooter" class="flex justify-end border-t px-4 py-3">
+                        <Button type="submit" :label="submitTitle" />
+                    </footer>
                 </form>
             </div>
-        </div>
-    </teleport>
+        </Transition>
+    </Teleport>
 </template>
 
-<script>
-import Axios from "axios";
-import TimeField from "./TimeField";
-import { prepareDate, formatDate, calculateDuration } from "../client/dates";
+<style>
+/* Transition properties */
+.modal-enter-from {
+    opacity: 0;
+}
 
-export default {
-    components: { TimeField },
+.modal-leave-to {
+    opacity: 0;
+}
 
-    props: {
-        entry: {
-            type: Object,
-        },
-    },
-
-    emits: ['open', 'close', 'add', 'update'],
-
-    data() {
-        return {
-            isOpen: false,
-            title: '',
-            start: null,
-            end: null,
-            errors: {},
-        };
-    },
-
-    watch: {
-        entry() {
-            this.updateForm();
-        },
-    },
-
-    methods: {
-        open() {
-            this.updateForm();
-            this.isOpen = true;
-            this.$refs.title.focus();
-
-            this.$emit('open');
-        },
-
-        close() {
-            this.isOpen = false;
-
-            this.$emit('close');
-        },
-
-        onKeyup(event) {
-            if (event.key === 'Escape') {
-                this.close();
-            }
-        },
-
-        onSubmit() {
-            const entry = {
-                title: this.title,
-                start: prepareDate(this.start),
-                end: prepareDate(this.end),
-            };
-
-            if (! this.entry || ! this.entry.id) {
-                this.addEntry(entry);
-            } else {
-                this.updateEntry(entry, this.entry.id);
-            }
-        },
-
-        addEntry(entry) {
-            Axios.post('/api/v1/times', entry)
-                .then((response) => {
-                    this.$emit('add', response.data.data);
-
-                    this.close();
-                })
-                .catch(this.handleErrors);
-        },
-
-        updateEntry(entry, id) {
-            Axios.put(`/api/v1/times/${id}`, entry)
-                .then((response) => {
-                    if (response.data?.status === true) {
-                        this.$emit('update', id, {
-                            title: this.title,
-                            start: formatDate(entry.start),
-                            end: formatDate(entry.end),
-                            duration: calculateDuration(entry.start, entry.end),
-                        });
-                    }
-
-                    this.close();
-                })
-                .catch(this.handleErrors);
-        },
-
-        // TODO: Show validation errors.
-        handleErrors(error) {
-            this.errors = error.response.data.errors;
-            console.error(this.errors);
-        },
-
-        updateForm() {
-            if (! this.entry) {
-                this.resetForm();
-                return;
-            }
-
-            this.title = this.entry.title;
-            this.start = this.entry.start;
-            this.end = this.entry.end;
-        },
-
-        resetForm() {
-            this.title = '';
-            this.start = '';
-            this.end = null;
-        },
-    },
-};
-</script>
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
+    transform: scale(1.1);
+}
+</style>

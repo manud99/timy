@@ -1,20 +1,21 @@
-interface IModel {
-    id?: number,
+/**
+ * Model TimeEntry
+ *
+ */
+export interface TimeEntry {
+    id: string;
+    description: string;
+    subject: Subject | null;
+    start: Date | string;
+    end: Date | string;
 }
 
-interface DbTimeEntry extends IModel {
-    title?: string,
-    start: number,
-    end?: number,
-    created_at: number,
-    updated_at: number,
-}
-
-interface ApiTimeEntry extends IModel {
-    title?: string,
-    start: string,
-    end?: string,
-    duration?: number,
-    created_at?: string,
-    updated_at?: string,
+/**
+ * Model Subject
+ *
+ */
+export interface Subject {
+    name: string;
+    color: number;
+    isActive: boolean;
 }

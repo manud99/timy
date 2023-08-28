@@ -1,43 +1,30 @@
 {
-  "name": "timy",
-  "description": "A simple app to manage time entries during your work day.",
-  "main": "dist/server/server.js",
-  "author": "Manuel Dublanc",
-  "version": "1.0.0",
-  "license": "ISC",
-  "scripts": {
-    "start": "node dist/server/server.js",
-    "build": "tsc --build tsconfig.server.json && mix --production",
-    "run": "concurrently --raw yarn:run-*",
-    "watch": "mix watch",
-    "run-ts": "tsc --build tsconfig.server.json -w",
-    "run-node": "cross-env PORT=8080 nodemon --watch dist/server dist/server/server.js",
-    "setup-db": "node dist/server/cli.js init",
-    "reset-db": "yarn run setup-db -- --reset"
-  },
-  "dependencies": {
-    "@types/express": "^4.17.9",
-    "@types/node": "^14.14.9",
-    "@types/sqlite3": "^3.1.6",
-    "@types/yargs": "^15.0.10",
-    "concurrently": "^5.3.0",
-    "cross-env": "^7.0.2",
-    "express": "^4.17.1",
-    "express-validator": "^6.7.0",
-    "nodemon": "^2.0.6",
-    "sqlite3": "^5.0.0",
-    "typescript": "^4.1.2",
-    "yargs": "^16.1.1"
-  },
-  "devDependencies": {
-    "@vue/compiler-sfc": "^3.0.2",
-    "axios": "^0.21.0",
-    "laravel-mix": "^6.0.0-beta.14",
-    "mix-tailwindcss": "^1.2.0",
-    "postcss": "^8.1.9",
-    "tailwindcss": "^2.0.1",
-    "ts-loader": "^8.0.11",
-    "vue": "^3.0.2",
-    "vue-loader": "^16.0.0-rc.2"
-  }
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "check": "vue-tsc && prettier --check .",
+        "prettier": "prettier --write ."
+    },
+    "dependencies": {
+        "@tailwindcss/forms": "^0.5.3",
+        "@types/gapi": "^0.0.44",
+        "@types/gapi.client.calendar-v3": "^0.0.1",
+        "@types/google.accounts": "^0.0.9",
+        "axios": "^1.3.2",
+        "tailwindcss": "^3.2.4",
+        "vue": "^3.2.45"
+    },
+    "devDependencies": {
+        "@babel/types": "^7.20.7",
+        "@vitejs/plugin-vue": "^4.0.0",
+        "autoprefixer": "^10.4.13",
+        "postcss": "^8.4.21",
+        "prettier": "^2.8.3",
+        "typescript": "^4.9.3",
+        "vite": "^4.1.0",
+        "vue-tsc": "^1.0.24"
+    }
 }

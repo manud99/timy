@@ -1,0 +1,7 @@
+/.insomnia/
+/.fleet/
+/.vscode/
+/dist/
+/dist-server/
+/node_modules/
+/prisma/seed.js
