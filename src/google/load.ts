@@ -1,4 +1,4 @@
-import { apiConfig, tokenConfig } from "./config";
+import { tokenConfig } from "./config";
 
 let gapiLoaded = false;
 let gsiLoaded = false;
@@ -16,7 +16,7 @@ export function loadGoogleLibraries(
         }
 
         async function initializeGapiClient() {
-            await gapi.client.init(apiConfig);
+            await gapi.client.init({});
             gapiLoaded = true;
             maybeResolve();
         }
