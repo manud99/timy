@@ -37,7 +37,7 @@ if (ready) {
 <template>
     <Modal title="Anmelden" :show="show" :no-footer="true" :width="500" @close="emit('close')">
         <div class="">
-            <p class="mb-2">Bitte melde dich mit einem Google-Account an, um deine Zeiteintrage zu verwalten:</p>
+            <p class="mb-2">Bitte melde dich mit einem Google-Account an, um deine Zeiteinträge zu verwalten:</p>
             <Button
                 class="flex items-center"
                 label="Neues Eintrag erstellen"

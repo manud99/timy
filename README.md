@@ -1,6 +1,6 @@
-# Timy
+# Timy ⏱️
 
-Manage your work time locally with Time. Timy is a single-page application (SPA) that enables you to easily track your activities. It runs locally on your computer and uses a cloud calendar that allows you to manage your records on multiple devices. Timy is small, responsive and useful for personal usage.
+Effortlessly master your time with Timy ⏱️ – the sleek Single-Page Application (SPA) designed for seamless activity tracking. Run Timy ⏱️ directly on your device to monitor tasks, while harnessing cloud integration for multi-device access. Timy ⏱️: compact, responsive, and tailored for your individual productivity.
 
 ## Setup
 
@@ -14,10 +14,10 @@ To install this project you must have a Google Account and Node 18 (current LTS)
 3. Go to the [Google API Console](https://console.developers.google.com/project). Click **Create project**, enter a name, and click **Create**.
 4. Open this page [Google Calendar API](https://console.cloud.google.com/apis/api/calendar-json.googleapis.com) and click **Enable**.
 5. On the [Credentials](https://console.cloud.google.com/apis/credentials) page click on **Create Credentials** and **Create OAuth client ID**.
-6. As *Application Type* select **Web application** and enter an appropriate *Name*.
-7. Under *Authorised JavaScript origins* click on **Add URI** and enter the address you want Timy to run on - default is `http://localhost:5173`. Do the same in the *Authorised redirect URIs* section.
+6. As _Application Type_ select **Web application** and enter an appropriate _Name_.
+7. Under _Authorised JavaScript origins_ click on **Add URI** and enter the address you want Timy to run on - default is `http://localhost:5173`. Do the same in the _Authorised redirect URIs_ section.
 8. Click on **Create**.
-9.  Copy the *Client ID* and paste it in [.env.local](.env.local) after the key `VITE_GOOGLE_CLIENT_ID`.
+9. Copy the _Client ID_ and paste it in [.env.local](.env.local) after the key `VITE_GOOGLE_CLIENT_ID`.
 10. Start the Vite server with
     ```shell
     npm run dev

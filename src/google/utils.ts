@@ -1,8 +1,6 @@
-import { inject, Ref } from "vue";
-import { tokenClient } from "./plugin";
-import { tokenClientKey } from "../keys";
+import { forgetToken, tokenClient } from "./plugin";
 
-export const signIn = () => {
+export function signIn() {
     if (!tokenClient) {
         console.error("Google Code Client is not initialized");
         return;
@@ -15,4 +13,19 @@ export const signIn = () => {
         // Skip display of account chooser and consent dialog for an existing session.
         tokenClient.value?.requestAccessToken({ prompt: "" });
     }
-};
+}
+
+export function signOut() {
+    if (!tokenClient) {
+        console.error("Google Code Client is not initialized");
+        return;
+    }
+
+    const accessToken = window.gapi.auth.getToken().access_token;
+    console.log("accessToken", accessToken);
+
+    if (!accessToken) return;
+    google.accounts.oauth2.revoke(window.gapi.auth.getToken().access_token, () => {
+        forgetToken();
+    });
+}

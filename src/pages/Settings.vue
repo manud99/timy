@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { Ref, ref, inject, computed, onMounted, watch } from "vue";
+import { Ref, ref, inject, onMounted, watch } from "vue";
 import Page from "../blocks/Page.vue";
-import SignOutButton from "../components/SignOutButton.vue";
+import Button, { ButtonSize } from "../components/Button.vue";
 import Section from "../blocks/Section.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import { getCalendarId, setCalendarId } from "../settings";
 import { googleReadyKey } from "../keys";
-import { fetchCalendars } from "../google/query";
+import { fetchCalendars, fetchUserInfo } from "../google/query";
+import { signOut } from "../google/utils";
 
 const calendars: Ref<Option[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const calendar: Ref<string> = ref("");
+const account: Ref<any> = ref(null);
 const ready = inject<Ref<boolean>>(googleReadyKey);
 
 async function getCalendars() {
@@ -22,6 +24,13 @@ async function getCalendars() {
     });
 }
 
+async function getUserInfo() {
+    if (!ready || !ready.value) return;
+
+    const res = await fetchUserInfo();
+    account.value = res;
+}
+
 function storeCalendar(value: string) {
     setCalendarId(value);
 }
@@ -29,42 +38,45 @@ function storeCalendar(value: string) {
 onMounted(() => {
     calendar.value = getCalendarId() || "";
     getCalendars();
+    getUserInfo();
 });
 
 if (ready) {
     const stopWatcher = watch(ready, () => {
         getCalendars();
+        getUserInfo();
     });
 }
 </script>
 
 <template>
     <Page title="Einstellungen">
-        <!-- <Section class="flex justify-between items-center p-4 bg-white">
-            <div>
-                Du bist angemeldet als
-                <strong>{{ account.name }}: {{ account.email }}</strong>
-            </div>
-            <SignOutButton
-                class="inline-flex items-center font-medium leading-5 text-white transition-colors duration-150 border border-transparent rounded-lg focus:outline-none focus:ring-2 px-3 md:px-5 py-3 bg-blue-600 active:bg-blue-600 hover:bg-blue-700 ring-blue-700 flex items-center"
-            />
-        </Section> -->
-
-        <Section class="items-center p-4 bg-white max-w-[500px] mx-auto">
-            <h2 class="text-lg font-bold mb-4">Kalender auswählen</h2>
-
-            <p class="mb-2">
-                Bitte wähle einen Google-Kalender aus, der deinem Account gehört. Mit diesem Kalender werden deine
-                Zeiteinträge synchronisiert. Es kann ein neuer oder auch ein bestehender Kalender sein.
-            </p>
-
-            <SelectField
-                v-model:value="calendar"
-                @update:value="storeCalendar"
-                :options="calendars"
-                label="Bitte Kalender auswählen"
-                name="calendar"
-            />
-        </Section>
+        <div class="grid lg:grid-cols-2 gap-6">
+            <Section class="mx-auto p-4 bg-white" v-if="account">
+                <h2 class="text-lg font-bold mb-4">Account Informationen</h2>
+                <p class="mb-2">
+                    Du bist angemeldet als
+                    <strong>
+                        {{ account.names[0].displayName }}
+                        ({{ account.emailAddresses[0].value }})
+                    </strong>
+                </p>
+                <Button :size="ButtonSize.LG" label="Abmelden" @click="signOut" />
+            </Section>
+            <Section class="items-center p-4 bg-white mx-auto">
+                <h2 class="text-lg font-bold mb-4">Kalender auswählen</h2>
+                <p class="mb-2">
+                    Bitte wähle einen Google-Kalender aus, der deinem Account gehört. Mit diesem Kalender werden deine
+                    Zeiteinträge synchronisiert. Es kann ein neuer oder auch ein bestehender Kalender sein.
+                </p>
+                <SelectField
+                    v-model:value="calendar"
+                    @update:value="storeCalendar"
+                    :options="calendars"
+                    label="Bitte Kalender auswählen"
+                    name="calendar"
+                />
+            </Section>
+        </div>
     </Page>
 </template>

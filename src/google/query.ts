@@ -14,6 +14,16 @@ function parseEvent(graphItem: any): TimeEntry {
     };
 }
 
+export async function fetchUserInfo(): Promise<any> {
+    const response = await makeRequest(
+        "https://people.googleapis.com/v1/people/me",
+        "GET",
+        { personFields: "names,emailAddresses" },
+        null
+    );
+    return response?.result || null;
+}
+
 export async function fetchCalendars(): Promise<gapi.client.calendar.Calendar[]> {
     const response = await makeRequest("https://www.googleapis.com/calendar/v3/users/me/calendarList", "GET", {}, null);
     return response ? response.result.items : [];
