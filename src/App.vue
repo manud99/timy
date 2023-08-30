@@ -6,38 +6,26 @@ import Subjects from "./pages/Subjects.vue";
 import Statistics from "./pages/Statistics.vue";
 import Settings from "./pages/Settings.vue";
 import NotFound from "./pages/404.vue";
-import { locationKey, baseUrlKey } from "./keys";
 import LoginModal from "./modals/LoginModal.vue";
 import { showLoginModal } from "./google/plugin";
+import {baseUrl, location} from "./routing";
 
 interface ComponentOption {
-    url: String;
+    url: string;
     component: any;
 }
 
-let baseUrl = import.meta.env.BASE_URL;
-if (!baseUrl.endsWith("/")) baseUrl += "/";
-provide(baseUrlKey, baseUrl);
-console.log(baseUrl);
-
-
-const options = [
-    { url: baseUrl, component: Dashboard },
-    { url: baseUrl + "subjects", component: Subjects },
-    { url: baseUrl + "statistics", component: Statistics },
-    { url: baseUrl + "settings", component: Settings },
+const options: ComponentOption[] = [
+    { url: baseUrl.value, component: Dashboard },
+    { url: baseUrl.value + "subjects", component: Subjects },
+    { url: baseUrl.value + "statistics", component: Statistics },
+    { url: baseUrl.value + "settings", component: Settings },
 ];
 
 const active = computed(() => {
     const option = options.find((entry) => entry.url === location.value);
     if (option) return option;
     else return { url: "*", component: NotFound };
-});
-
-const location = ref<string>(window.location.pathname);
-provide(locationKey, location);
-window.addEventListener("popstate", (event) => {
-    location.value = window.location.pathname;
 });
 </script>
 

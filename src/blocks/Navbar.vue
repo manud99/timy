@@ -1,20 +1,10 @@
 <script setup lang="ts">
 import InternalLink from "../components/InternalLink.vue";
-import { baseUrlKey, locationKey } from "../keys";
-import { inject } from "vue";
-import type { Ref } from "vue";
-import { signIn } from "../google/utils";
-
-const location = inject<Ref<string>>(locationKey);
-
-// const isAuthenticated = getIsAuthenticated();
-const isAuthenticated = false;
+import { baseUrl, location } from "../routing";
 
 function isActive(href: string) {
     return location?.value === href;
 }
-
-const baseUrl = inject(baseUrlKey) || "/";
 </script>
 
 <template>

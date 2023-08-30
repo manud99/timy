@@ -3,7 +3,6 @@ import type { Ref } from "vue";
 import { computed, inject, onMounted, ref, watch } from "vue";
 import { TimeEntry } from "../@types/models";
 import { getCalendarId } from "../settings";
-import { getSubject } from "../subjects";
 import { googleReadyKey } from "../keys";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
@@ -21,6 +20,7 @@ import IconPencil from "../icons/Pencil.vue";
 import IconPlus from "../icons/Plus.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
 import { getDate, getTime, getWeekStart } from "../utils/date";
+import { navigate } from "../routing";
 
 const fields: Field[] = [
     {
@@ -111,7 +111,7 @@ const calendarId: Ref<string | null> = ref(null);
 
 function makeSureCalendarIdExists() {
     if (!calendarId.value) {
-        window.history.pushState(null, "", "/settings");
+        navigate("settings");
         return false;
     }
     return true;
