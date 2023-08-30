@@ -48,6 +48,7 @@ jobs:
           npm run build
         env:
           GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          BASE_URL: /timy/
 
       # Upload build filtes to GitHub Pages
       - name: Configure GitHub Pages
