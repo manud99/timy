@@ -58,7 +58,9 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
-        run: npm run build -- --base="$BASE_PATH"
+        run: |
+          npm run build -- --base="$BASE_PATH"
+          cp dist/index.html dist/404.html
         env:
           BASE_PATH: ${{ steps.config.outputs.base_path }}
 
