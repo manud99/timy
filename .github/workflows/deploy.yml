@@ -44,7 +44,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'
 
       # Configure GitHub Pages
       - name: Configure GitHub Pages
@@ -61,7 +60,7 @@ jobs:
       - name: Build
         run: npm run build -- --base="$BASE_PATH"
         env:
-          BASE_PATH: ${{ steps.config.base_path }}
+          BASE_PATH: ${{ steps.config.outputs.base_path }}
 
       # Upload build files to GitHub Pages
       - name: Upload GitHub Pages artifact
