@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import type { Ref } from "vue";
-import { locationKey } from "../keys";
+import { baseUrlKey, locationKey } from "../keys";
 
-const { href } = defineProps<{ href: string }>();
+const props = defineProps<{ page: string }>();
 const location = inject<Ref<string>>(locationKey);
 
 function navigate() {
@@ -12,9 +12,16 @@ function navigate() {
         return;
     }
 
-    window.history.pushState(null, "", href);
-    location.value = href;
+    const url = (baseUrl || "/") + props.page;
+    window.history.pushState(null, "", url);
+    location.value = (baseUrl || "/") + props.page;
 }
+
+let baseUrl = inject(baseUrlKey);
+const href = computed(() => {
+    if (!baseUrl) return "/" + props.page;
+    return baseUrl + props.page;
+})
 </script>
 
 <template>

@@ -3,5 +3,7 @@ import Page from "../blocks/Page.vue";
 </script>
 
 <template>
-    <Page title="Page Not Found"></Page>
+    <Page>
+        <h1 class="text-2xl font-bold">Page Not Found</h1>
+    </Page>
 </template>

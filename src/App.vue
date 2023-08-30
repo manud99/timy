@@ -6,7 +6,7 @@ import Subjects from "./pages/Subjects.vue";
 import Statistics from "./pages/Statistics.vue";
 import Settings from "./pages/Settings.vue";
 import NotFound from "./pages/404.vue";
-import { locationKey } from "./keys";
+import { locationKey, baseUrlKey } from "./keys";
 import LoginModal from "./modals/LoginModal.vue";
 import { showLoginModal } from "./google/plugin";
 
@@ -15,11 +15,17 @@ interface ComponentOption {
     component: any;
 }
 
+let baseUrl = import.meta.env.BASE_URL;
+if (!baseUrl.endsWith("/")) baseUrl += "/";
+provide(baseUrlKey, baseUrl);
+console.log(baseUrl);
+
+
 const options = [
-    { url: "/", component: Dashboard },
-    { url: "/subjects", component: Subjects },
-    { url: "/statistics", component: Statistics },
-    { url: "/settings", component: Settings },
+    { url: baseUrl, component: Dashboard },
+    { url: baseUrl + "subjects", component: Subjects },
+    { url: baseUrl + "statistics", component: Statistics },
+    { url: baseUrl + "settings", component: Settings },
 ];
 
 const active = computed(() => {

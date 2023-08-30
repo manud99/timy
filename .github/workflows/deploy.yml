@@ -23,6 +23,11 @@ jobs:
       contents: read
       pages: write
       id-token: write
+
+    # Allow one concurrent deployment
+    concurrency:
+      group: 'pages'
+      cancel-in-progress: true
     
     # Enforce branch/deployment protection rules
     environment:
@@ -38,24 +43,31 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: 18
+          cache: 'npm'
 
+      # Configure GitHub Pages
+      - name: Configure GitHub Pages
+        id: config
+        uses: actions/configure-pages@v3.0.6
+      
       # Build the artifacts for GitHub Pages
-      - name: Install artifacts
-        run: |
-          echo $GOOGLE_CLIENT_ID >> .env.local
-          npm ci
-          npm run build
+      - name: Config environment
+        run: echo "VITE_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env.local
         env:
           GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
-          BASE_URL: /timy/
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build -- --base="$BASE_PATH"
+        env:
+          BASE_PATH: ${{ steps.config.base_path }}
 
-      # Upload build filtes to GitHub Pages
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v3.0.6
+      # Upload build files to GitHub Pages
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v2.0.0
         with:
           path: dist/
       - name: Deploy GitHub Pages site
+        id: deployment
         uses: actions/deploy-pages@v1.2.9
