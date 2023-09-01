@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, StyleValue, computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { getWeekday, isOnSameDay } from "../utils/date";
+import { getTime, getWeekday, isOnSameDay } from "../utils/date";
 import { getSubjectColor } from "../utils/subjects";
 import { TimeEntry } from "../@types/models";
 
@@ -12,6 +12,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "update", timeEntry: TimeEntry): void;
     (e: "delete", timeEntry: TimeEntry): void;
+    (e: "edit", timeEntry: TimeEntry): void;
 }>();
 
 interface Day {
@@ -165,6 +166,10 @@ function onDrop(event: DragEvent) {
     dragTarget.style.visibility = "";
 }
 
+function onDblClick(event: MouseEvent, entry: TimeEntry) {
+    emit("edit", entry);
+}
+
 onMounted(() => {
     if (scrollArea.value) {
         scrollArea.value.scrollTop = 7 * HEIGHT_PER_HOUR;
@@ -212,10 +217,11 @@ onMounted(() => {
                         draggable="true"
                         @dragstart="onDragStart($event, entry)"
                         @drag="onDrag"
+                        @dblclick="onDblClick($event, entry)"
                     >
                         <div
                             v-if="getHeight(entry) > 40"
-                            class="h-full border rounded-lg p-1 overflow-hidden translate-x-0"
+                            class="h-full border rounded-lg px-1 py-0.5 overflow-hidden translate-x-0"
                             :style="<StyleValue><unknown>getSubjectColor(entry.subject)"
                         >
                             <span
@@ -224,15 +230,19 @@ onMounted(() => {
                                 v-text="entry.subject.name"
                             />
                             <span class="text-sm font-semibold" v-text="entry.description" />
+                            <div class="text-xs" v-text="getTime(entry.start) + ' &#x2013; ' + getTime(entry.end)"></div>
                         </div>
                         <div
                             v-else-if="getHeight(entry) > 10"
-                            class="h-full border rounded-lg px-1 leading-[1] text-[11px] text-ellipsis overflow-hidden whitespace-nowrap"
+                            class="h-full flex items-center border rounded-lg px-1 leading-[1] text-[11px] text-ellipsis overflow-hidden whitespace-nowrap"
                             :style="<StyleValue><unknown>getSubjectColor(entry.subject)"
                         >
                             <span
                                 v-if="entry.subject"
-                                :class="['text-[9px] rounded px-1 mr-1', getSubjectColor(entry.subject).contrast]"
+                                :class="[
+                                    'text-[9px] rounded px-1 py-0.5 mr-1',
+                                    getSubjectColor(entry.subject).contrast,
+                                ]"
                                 v-text="entry.subject.name"
                             />
                             <span class="font-semibold" v-text="entry.description" />

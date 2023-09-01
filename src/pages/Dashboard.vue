@@ -156,7 +156,7 @@ onMounted(() => {
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
                     <template #cell(time)="row">
-                        {{ getTime(row.entry.start) }} – {{ getTime(row.entry.end) }}</template
+                        {{ getTime(row.entry.start) }} &#x2013; {{ getTime(row.entry.end) }}</template
                     >
                     <template #cell(actions)="{ entry }">
                         <div class="flex">
@@ -189,6 +189,7 @@ onMounted(() => {
                 <Calendar
                     :values="timeEntries"
                     :week-start="weekStart"
+                    @edit="showUpdateModal"
                     @update="updateTimeEntry"
                     @delete="deleteTimeEntry"
                 />

@@ -6,8 +6,8 @@ export interface TimeEntry {
     id: string;
     description: string;
     subject: Subject | null;
-    start: Date | string;
-    end: Date | string;
+    start: string;
+    end: string;
 }
 
 /**
