@@ -2,7 +2,7 @@
 import { ValidationError } from "../@types/ValidationErrors";
 import { computed } from "vue";
 
-const { label, name, hint, errors } = defineProps({
+const props = defineProps({
     label: { type: String, required: true },
     name: { type: String, required: true },
     hint: { type: String, default: "" },
@@ -15,11 +15,9 @@ const { label, name, hint, errors } = defineProps({
 });
 
 const errorMessages = computed(() => {
-    return (
-        errors
-            .filter((error: ValidationError) => error.field === name)
-            .map((error: ValidationError) => error.message) || []
-    );
+    return props.errors
+        .filter((error: ValidationError) => error.field === props.name)
+        .map((error: ValidationError) => error.message);
 });
 </script>
 

@@ -40,6 +40,11 @@ export async function getTimeEntries() {
     loading.value = false;
 }
 
+function findSortedIndex(entry: TimeEntry) {
+    const sortedIndex = timeEntries.value.findIndex((record) => record.start > entry.start);
+    return sortedIndex >= 0 ? sortedIndex : timeEntries.value.length;
+}
+
 export async function createTimeEntry(timeEntry: TimeEntry) {
     if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
 
@@ -49,8 +54,7 @@ export async function createTimeEntry(timeEntry: TimeEntry) {
         return;
     }
 
-    const sortedIndex = timeEntries.value.findIndex((record) => record.start > entry.start);
-    timeEntries.value.splice(sortedIndex >= 0 ? sortedIndex : timeEntries.value.length, 0, entry);
+    timeEntries.value.splice(findSortedIndex(entry), 0, entry);
 }
 
 export async function updateTimeEntry(timeEntry: TimeEntry) {
@@ -64,8 +68,7 @@ export async function updateTimeEntry(timeEntry: TimeEntry) {
 
     const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
     timeEntries.value.splice(index, 1);
-    const sortedIndex = timeEntries.value.findIndex((record) => record.start > timeEntry.start);
-    timeEntries.value.splice(sortedIndex, 0, entry);
+    timeEntries.value.splice(findSortedIndex(entry), 0, entry);
 }
 
 export async function deleteTimeEntry(timeEntry: TimeEntry) {

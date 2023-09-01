@@ -7,12 +7,11 @@ import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
 import SelectField from "../components/SelectField.vue";
 import CheckboxField from "../components/CheckboxField.vue";
-import { ValidationError } from "../@types/ValidationErrors";
+import { validationErrors, validate, RuleType } from "../utils/validation";
 
 const name: Ref<string> = ref("");
 const color: Ref<string> = ref("");
 const isActive: Ref<boolean> = ref(false);
-const errors: Ref<ValidationError[]> = ref([]);
 
 const colorOptions = [
     { value: 1, label: "Gelb" },
@@ -45,6 +44,16 @@ watch(show, async (val) => {
 
 function submitSubject() {
     const subject: Subject = { name: name.value, color: parseInt(color.value, 10), isActive: isActive.value };
+
+    if (
+        !validate(subject, [
+            { field: "name", type: RuleType.Required },
+            { field: "color", type: RuleType.Required },
+            { field: "color", type: RuleType.Custom, callback: (record) => record.color >= 1 && record.color <= 8 },
+        ])
+    )
+        return;
+
     emit("update", subject);
 }
 
@@ -59,13 +68,13 @@ const newEntry = computed(() => !subject.value);
         @close="$emit('close')"
         @submit="submitSubject"
     >
-        <FormGroup label="Name" name="name" :errors="errors">
+        <FormGroup label="Name" name="name" :errors="validationErrors">
             <InputField v-model:value="name" name="name" label="Name" />
         </FormGroup>
-        <FormGroup label="Farbe" name="color" :errors="errors">
+        <FormGroup label="Farbe" name="color" :errors="validationErrors">
             <SelectField v-model:value="color" :options="colorOptions" name="color" label="Farbe auswählen" />
         </FormGroup>
-        <FormGroup label="Aktiv?" name="isActive" :errors="errors">
+        <FormGroup label="Aktiv?" name="isActive" :errors="validationErrors">
             <CheckboxField v-model:value="isActive" name="isActive" label="aktiv?" />
         </FormGroup>
     </Modal>

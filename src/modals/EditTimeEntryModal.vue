@@ -5,7 +5,6 @@ import { TimeEntry } from "../@types/models";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
-import { ValidationError } from "../@types/ValidationErrors";
 import DateField from "../components/DateField.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import TimeField from "../components/TimeField.vue";
@@ -13,6 +12,7 @@ import { getSubject, getSubjects, subjects } from "../utils/subjects";
 import { getTime, isOnSameDay, roundedToQuarterHours } from "../utils/date";
 import { timeEntries } from "../utils/timeEntries";
 import { firstOpened } from "../utils/firstOpened";
+import { validate, RuleType, validationErrors } from "../utils/validation";
 
 const description: Ref<string> = ref("");
 const dateStart: Ref<string> = ref("");
@@ -21,7 +21,6 @@ const date: Ref<string> = ref("");
 const start: Ref<string> = ref("");
 const end: Ref<string> = ref("");
 const subject: Ref<string> = ref("");
-const errors: Ref<ValidationError[]> = ref([]);
 
 const props = defineProps<{
     show: boolean;
@@ -43,32 +42,37 @@ function setDateFields(dateStart: string, dateEnd: string) {
     end.value = getTime(dateEnd);
 }
 
+// Update fields with values from timeEntry
 watch(show, (val) => {
     if (!val) {
         return;
     }
     if (timeEntry.value) {
+        // Set fields of existing time entry
         description.value = timeEntry.value?.description!;
         subject.value = timeEntry.value?.subject?.name || "";
         setDateFields(timeEntry.value?.start as string, timeEntry.value?.end as string);
     } else {
+        // Set fields to create a new time entry
         description.value = "";
         subject.value = "";
 
         let start;
         let end = roundedToQuarterHours(new Date());
-
         const todaysEntries = timeEntries.value.filter((entry) => isOnSameDay(entry.start, end));
+
         if (todaysEntries.length) {
             start = new Date(todaysEntries[todaysEntries.length - 1].end);
-        } else if (firstOpened.value) {
+        } else if (firstOpened.value && isOnSameDay(firstOpened.value, end)) {
             start = roundedToQuarterHours(new Date(firstOpened.value));
         } else {
-            start = new Date(end.valueOf() - 3_600_000);
+            const midnight = new Date(end);
+            midnight.setHours(0, 0, 0, 0);
+            start = new Date(Math.max(end.valueOf() - 3_600_000, midnight.valueOf()));
         }
 
+        // Enforce difference of at least 15 minutes
         if (end.valueOf() - start.valueOf() < 900_000) {
-            // Enforce difference of at least 15 minutes
             end = new Date(start.valueOf() + 900_000);
         }
 
@@ -83,7 +87,11 @@ watch([date, start, end], () => {
     dateObj.setHours(parseInt(start.value.substring(0, 2), 10), parseInt(start.value.substring(3, 5), 10));
     dateStart.value = dateObj.toISOString();
 
-    dateObj.setHours(parseInt(end.value.substring(0, 2), 10), parseInt(end.value.substring(3, 5), 10));
+    if (end.value === "00:00") {
+        dateObj.setHours(24, 0, 0, 0);
+    } else {
+        dateObj.setHours(parseInt(end.value.substring(0, 2), 10), parseInt(end.value.substring(3, 5), 10));
+    }
     dateEnd.value = dateObj.toISOString();
 });
 
@@ -98,19 +106,22 @@ const subjectOptions = computed(() => {
 const newEntry = computed(() => !timeEntry.value);
 
 async function submitTimeEntry() {
-    // TODO: validate data
-    // description, start, end: required
-    // start, end: date
-    // start < end (at least 15 minutes)
-    // subject: nullable
-
     const entry: TimeEntry = {
         id: timeEntry.value ? timeEntry.value.id : "",
         description: description.value,
         start: dateStart.value,
         end: dateEnd.value,
-        subject: getSubject(subject.value),
+        subject: subject.value ? getSubject(subject.value) : null,
     };
+
+    if (!validate(entry, [
+        { field: "description", type: RuleType.Required },
+        { field: "start", type: RuleType.Required },
+        { field: "end", type: RuleType.Required },
+        { field: "start", type: RuleType.Date },
+        { field: "end", type: RuleType.Date },
+        { field: "end", type: RuleType.Custom, callback: (record) => new Date(record.end).valueOf() - new Date(record.start).valueOf() >= 900_000 },
+    ])) return;
 
     if (newEntry.value) {
         emit("create", entry);
@@ -128,19 +139,19 @@ async function submitTimeEntry() {
         @close="$emit('close')"
         @submit="submitTimeEntry"
     >
-        <FormGroup label="Datum" name="date" :errors="errors">
+        <FormGroup label="Datum" name="date" :errors="validationErrors">
             <DateField v-model:value="date" name="date" label="Datum" />
         </FormGroup>
-        <FormGroup label="Start" name="start" :errors="errors">
-            <TimeField v-model:value="start" name="start" label="Startzeit" />
+        <FormGroup label="Start" name="start" :errors="validationErrors">
+            <TimeField v-model:value="start" name="start" label="Startzeit" :end="false" />
         </FormGroup>
-        <FormGroup label="Ende" name="end" :errors="errors">
-            <TimeField v-model:value="end" name="end" label="Ende" />
+        <FormGroup label="Ende" name="end" :errors="validationErrors">
+            <TimeField v-model:value="end" name="end" label="Ende" :end="true" />
         </FormGroup>
-        <FormGroup label="Beschreibung" name="description" :errors="errors">
+        <FormGroup label="Beschreibung" name="description" :errors="validationErrors">
             <InputField v-model:value="description" name="description" label="Beschreibung" />
         </FormGroup>
-        <FormGroup label="Fach" name="subject" :errors="errors">
+        <FormGroup label="Fach" name="subject" :errors="validationErrors">
             <SelectField
                 v-model:value="subject"
                 :options="subjectOptions"
