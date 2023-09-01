@@ -3,7 +3,6 @@ import { TimeEntry } from "../@types/models";
 import { navigate } from "./routing";
 import { ready } from "../google/plugin";
 import { fetchEvents, createEvent, updateEvent, deleteEvent } from "../google/query";
-import { getCalendarId } from "./settings";
 import { getWeekStart } from "./date";
 
 export const timeEntries: Ref<TimeEntry[]> = ref([]);
@@ -22,7 +21,7 @@ export const weekEnd = computed(() => {
     return date.toISOString();
 });
 
-function makeSureCalendarIdExists() {
+export function makeSureCalendarIdExists() {
     if (!calendarId.value) {
         navigate("settings");
         return false;
