@@ -9,8 +9,10 @@ import { ValidationError } from "../@types/ValidationErrors";
 import DateField from "../components/DateField.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import TimeField from "../components/TimeField.vue";
-import { getSubject, getSubjects, subjects } from "../subjects";
-import { getTime } from "../utils/date";
+import { getSubject, getSubjects, subjects } from "../utils/subjects";
+import { getTime, isOnSameDay, roundedToQuarterHours } from "../utils/date";
+import { timeEntries } from "../utils/timeEntries";
+import { firstOpened } from "../utils/firstOpened";
 
 const description: Ref<string> = ref("");
 const dateStart: Ref<string> = ref("");
@@ -47,13 +49,29 @@ watch(show, (val) => {
     }
     if (timeEntry.value) {
         description.value = timeEntry.value?.description!;
-        subject.value = timeEntry.value?.subject!.name;
+        subject.value = timeEntry.value?.subject?.name || "";
         setDateFields(timeEntry.value?.start as string, timeEntry.value?.end as string);
     } else {
         description.value = "";
         subject.value = "";
-        const end = new Date(Math.round(new Date().valueOf() / 900_000) * 900_000);
-        const start = new Date(end.valueOf() - 3_600_000);
+
+        let start;
+        let end = roundedToQuarterHours(new Date());
+
+        const todaysEntries = timeEntries.value.filter((entry) => isOnSameDay(entry.start, end));
+        if (todaysEntries.length) {
+            start = new Date(todaysEntries[todaysEntries.length - 1].end);
+        } else if (firstOpened.value) {
+            start = roundedToQuarterHours(new Date(firstOpened.value));
+        } else {
+            start = new Date(end.valueOf() - 3_600_000);
+        }
+
+        if (end.valueOf() - start.valueOf() < 900_000) {
+            // Enforce difference of at least 15 minutes
+            end = new Date(start.valueOf() + 900_000);
+        }
+
         setDateFields(start.toISOString(), end.toISOString());
     }
 });
@@ -61,12 +79,12 @@ watch(show, (val) => {
 watch([date, start, end], () => {
     if (!date.value || !start.value || !end.value) return;
 
-    const value = new Date(date.value);
-    value.setHours(parseInt(start.value.substring(0, 2), 10), parseInt(start.value.substring(3, 5), 10));
-    dateStart.value = value.toISOString();
+    const dateObj = new Date(date.value);
+    dateObj.setHours(parseInt(start.value.substring(0, 2), 10), parseInt(start.value.substring(3, 5), 10));
+    dateStart.value = dateObj.toISOString();
 
-    value.setHours(parseInt(end.value.substring(0, 2), 10), parseInt(end.value.substring(3, 5), 10));
-    dateEnd.value = value.toISOString();
+    dateObj.setHours(parseInt(end.value.substring(0, 2), 10), parseInt(end.value.substring(3, 5), 10));
+    dateEnd.value = dateObj.toISOString();
 });
 
 onMounted(() => {
@@ -83,7 +101,7 @@ async function submitTimeEntry() {
     // TODO: validate data
     // description, start, end: required
     // start, end: date
-    // start < end
+    // start < end (at least 15 minutes)
     // subject: nullable
 
     const entry: TimeEntry = {

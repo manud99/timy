@@ -1,7 +1,7 @@
 import { TimeEntry } from "../@types/models";
 import { ready } from "./plugin";
 import { showLoginModal } from "./plugin";
-import { parseSubject } from "../subjects";
+import { parseSubject } from "../utils/subjects";
 
 function parseEvent(graphItem: any): TimeEntry {
     const { subject, description } = parseSubject(graphItem.summary);
@@ -9,8 +9,8 @@ function parseEvent(graphItem: any): TimeEntry {
         description,
         subject,
         id: graphItem.id,
-        start: graphItem.start.dateTime,
-        end: graphItem.end.dateTime,
+        start: new Date(graphItem.start.dateTime).toISOString(),
+        end: new Date(graphItem.end.dateTime).toISOString(),
     };
 }
 

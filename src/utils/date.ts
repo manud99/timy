@@ -44,3 +44,7 @@ export function isOnSameDay(left: string | Date, right: string | Date): boolean 
         leftDate.getFullYear() === rightDate.getFullYear()
     );
 }
+
+export function roundedToQuarterHours(date: Date): Date {
+    return new Date(Math.round(date.valueOf() / 900_000) * 900_000);
+}

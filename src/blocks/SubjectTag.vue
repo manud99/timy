@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { StyleValue, computed } from "vue";
 import { Subject } from "../@types/models";
-import { getSubjectColor } from "../subjects";
+import { getSubjectColor } from "../utils/subjects";
 
 const props = defineProps<{
     subject: Subject;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, StyleValue, computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { getWeekday, isOnSameDay } from "../utils/date";
-import { getSubjectColor } from "../subjects";
+import { getSubjectColor } from "../utils/subjects";
 import { TimeEntry } from "../@types/models";
 
 const props = defineProps<{

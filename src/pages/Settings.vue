@@ -4,7 +4,7 @@ import Page from "../blocks/Page.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
 import Section from "../blocks/Section.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
-import { getCalendarId, setCalendarId } from "../settings";
+import { getCalendarId, setCalendarId } from "../utils/settings";
 import { googleReadyKey } from "../keys";
 import { fetchCalendars, fetchUserInfo } from "../google/query";
 import { signOut } from "../google/utils";

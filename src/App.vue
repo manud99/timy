@@ -8,7 +8,7 @@ import Settings from "./pages/Settings.vue";
 import NotFound from "./pages/404.vue";
 import LoginModal from "./modals/LoginModal.vue";
 import { showLoginModal } from "./google/plugin";
-import {baseUrl, location} from "./routing";
+import { baseUrl, location } from "./utils/routing";
 
 interface ComponentOption {
     url: string;

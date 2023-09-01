@@ -1,5 +1,5 @@
-import { Ref, StyleValue, ref } from "vue";
-import { Subject } from "./@types/models";
+import { Ref, ref } from "vue";
+import { Subject } from "../@types/models";
 
 const SUBJECTS_KEY: string = "timy_subjects";
 let loaded: boolean = false;

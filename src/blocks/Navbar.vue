@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InternalLink from "../components/InternalLink.vue";
-import { baseUrl, location } from "../routing";
+import { baseUrl, location } from "../utils/routing";
 
 function isActive(href: string) {
     return location?.value === href;

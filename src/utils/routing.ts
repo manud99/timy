@@ -10,7 +10,7 @@ export function navigate(page: string) {
     const url = (baseUrl.value || "/") + page;
     window.history.pushState(null, "", url);
     location.value = url;
-}   
+}
 
 window.addEventListener("popstate", () => {
     location.value = window.location.pathname;

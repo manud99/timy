@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import { computed, inject, onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import { TimeEntry } from "../@types/models";
-import { getCalendarId } from "../settings";
-import { googleReadyKey } from "../keys";
+import { getCalendarId } from "../utils/settings";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
 import SubjectTag from "../blocks/SubjectTag.vue";
@@ -14,13 +13,23 @@ import type { Field } from "../components/Table.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
 import WeekSlider from "../components/WeekSlider.vue";
-import { fetchEvents, createEvent, updateEvent, deleteEvent } from "../google/query";
 import IconGarbage from "../icons/Garbage.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconPlus from "../icons/Plus.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
 import { getDate, getTime, getWeekStart } from "../utils/date";
-import { navigate } from "../routing";
+import { firstOpened } from "../utils/firstOpened";
+import {
+    timeEntries,
+    activeWeek,
+    calendarId,
+    weekStart,
+    weekEnd,
+    getTimeEntries,
+    createTimeEntry,
+    updateTimeEntry,
+    deleteTimeEntry,
+} from "../utils/timeEntries";
 
 const fields: Field[] = [
     {
@@ -50,18 +59,6 @@ const tabs: Tab[] = [
     { id: "week", label: "Woche" },
 ];
 const activeTab: Ref<string> = ref("list");
-const activeWeek: Ref<string> = ref(new Date().toISOString());
-
-const weekStart = computed(() => {
-    const date = getWeekStart(activeWeek.value);
-    return date.toISOString();
-});
-
-const weekEnd = computed(() => {
-    const date = getWeekStart(activeWeek.value);
-    date.setDate(date.getDate() + 7);
-    return date.toISOString();
-});
 
 function getQueryParam(key: string) {
     const searchParams = new URLSearchParams(window.location.search);
@@ -103,77 +100,6 @@ function showUpdateModal(timeEntry: TimeEntry) {
     showModal.value = true;
 }
 
-// Call the API
-const timeEntries: Ref<TimeEntry[]> = ref([]);
-const loading: Ref<boolean> = ref(false);
-const ready = inject<Ref<boolean>>(googleReadyKey);
-const calendarId: Ref<string | null> = ref(null);
-
-function makeSureCalendarIdExists() {
-    if (!calendarId.value) {
-        navigate("settings");
-        return false;
-    }
-    return true;
-}
-
-async function getTimeEntries() {
-    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
-
-    loading.value = true;
-    const start = weekStart.value;
-    const end = weekEnd.value;
-
-    timeEntries.value = await fetchEvents(calendarId.value!, start, end);
-
-    loading.value = false;
-}
-
-async function createTimeEntry(timeEntry: TimeEntry) {
-    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
-
-    showModal.value = false;
-
-    const entry = await createEvent(calendarId.value!, timeEntry);
-    if (!entry) {
-        console.warn("Event was not created");
-        return;
-    }
-
-    const sortedIndex = timeEntries.value.findIndex((record) => record.start > entry.start);
-    timeEntries.value.splice(sortedIndex, 0, entry);
-}
-
-async function updateTimeEntry(timeEntry: TimeEntry) {
-    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
-
-    showModal.value = false;
-
-    const entry = await updateEvent(calendarId.value!, timeEntry.id, timeEntry);
-    if (!entry) {
-        console.warn("Event was not updated");
-        return;
-    }
-
-    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
-    timeEntries.value.splice(index, 1);
-    const sortedIndex = timeEntries.value.findIndex((record) => record.start > timeEntry.start);
-    timeEntries.value.splice(sortedIndex, 0, entry);
-}
-
-async function deleteTimeEntry(timeEntry: TimeEntry) {
-    if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
-
-    const entry = await deleteEvent(calendarId.value!, timeEntry.id);
-    if (!entry) {
-        console.warn("Event was not deleted");
-        return;
-    }
-
-    const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
-    timeEntries.value.splice(index, 1);
-}
-
 onMounted(() => {
     activeTab.value = getQueryParam("tab") || activeTab.value;
     const weekStart = getQueryParam("weekStart");
@@ -184,31 +110,29 @@ onMounted(() => {
     activeWeek.value = getWeekStart(activeWeek.value).toISOString();
 
     calendarId.value = getCalendarId();
-
     getTimeEntries();
 });
-
-if (ready) {
-    watch(ready, () => {
-        getTimeEntries();
-    });
-}
 </script>
 
 <template>
     <Page title="Übersicht">
         <Section class="flex justify-between items-center p-4 bg-white">
-            <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes draus!</div>
-            <Button
-                class="flex items-center"
-                label="Neues Eintrag erstellen"
-                :size="ButtonSize.LG"
-                color="blue"
-                @click="showCreateModal"
-            >
-                <IconPlus class="mr-2" :size="12" />
-                <span>Neuer Eintrag erstellen</span>
-            </Button>
+            <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes daraus!</div>
+            <div class="flex items-center">
+                <div v-if="firstOpened" class="text-sm text-gray-600 mr-2">
+                    Heute geöffnet um: {{ getTime(firstOpened) }}
+                </div>
+                <Button
+                    class="flex items-center"
+                    label="Neues Eintrag erstellen"
+                    :size="ButtonSize.LG"
+                    color="blue"
+                    @click="showCreateModal"
+                >
+                    <IconPlus class="mr-2" :size="12" />
+                    <span>Neuer Eintrag erstellen</span>
+                </Button>
+            </div>
         </Section>
 
         <Section>
@@ -276,7 +200,17 @@ if (ready) {
         :timeEntry="activeTimeEntry"
         :show="showModal"
         @close="showModal = false"
-        @create="createTimeEntry"
-        @update="updateTimeEntry"
+        @create="
+            (timeEntry) => {
+                showModal = false;
+                createTimeEntry(timeEntry);
+            }
+        "
+        @update="
+            (timeEntry) => {
+                showModal = false;
+                updateTimeEntry(timeEntry);
+            }
+        "
     />
 </template>

@@ -11,7 +11,7 @@ import IconPlus from "../icons/Plus.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconGarbage from "../icons/Garbage.vue";
 import { Subject } from "../@types/models";
-import { subjects, getSubjects, createSubject, updateSubject, deleteSubject } from "../subjects";
+import { subjects, getSubjects, createSubject, updateSubject, deleteSubject } from "../utils/subjects";
 
 const fields = [
     {
