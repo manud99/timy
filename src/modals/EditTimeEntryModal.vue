@@ -5,11 +5,11 @@ import { TimeEntry } from "../@types/models";
 import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
-import DateField from "../components/DateField.vue";
+import DatePicker from "../components/DatePicker.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import TimeField from "../components/TimeField.vue";
 import { getSubject, getSubjects, subjects } from "../utils/subjects";
-import { getTime, isOnSameDay, roundedToQuarterHours } from "../utils/date";
+import { getIsoDate, getTime, isOnSameDay, roundedToQuarterHours } from "../utils/date";
 import { timeEntries } from "../utils/timeEntries";
 import { firstOpened } from "../utils/firstOpened";
 import { validate, RuleType, validationErrors } from "../utils/validation";
@@ -37,7 +37,7 @@ const emit = defineEmits<{
 function setDateFields(dateStart: string, dateEnd: string) {
     // date is in ISO format
     // e.g. 2023-02-13T09:15:00.000Z
-    date.value = dateStart.substring(0, 10);
+    date.value = getIsoDate(dateStart);
     start.value = getTime(dateStart);
     end.value = getTime(dateEnd);
 }
@@ -114,14 +114,21 @@ async function submitTimeEntry() {
         subject: subject.value ? getSubject(subject.value) : null,
     };
 
-    if (!validate(entry, [
-        { field: "description", type: RuleType.Required },
-        { field: "start", type: RuleType.Required },
-        { field: "end", type: RuleType.Required },
-        { field: "start", type: RuleType.Date },
-        { field: "end", type: RuleType.Date },
-        { field: "end", type: RuleType.Custom, callback: (record) => new Date(record.end).valueOf() - new Date(record.start).valueOf() >= 900_000 },
-    ])) return;
+    if (
+        !validate(entry, [
+            { field: "description", type: RuleType.Required },
+            { field: "start", type: RuleType.Required },
+            { field: "end", type: RuleType.Required },
+            { field: "start", type: RuleType.Date },
+            { field: "end", type: RuleType.Date },
+            {
+                field: "end",
+                type: RuleType.Custom,
+                callback: (record) => new Date(record.end).valueOf() - new Date(record.start).valueOf() >= 900_000,
+            },
+        ])
+    )
+        return;
 
     if (newEntry.value) {
         emit("create", entry);
@@ -140,7 +147,7 @@ async function submitTimeEntry() {
         @submit="submitTimeEntry"
     >
         <FormGroup label="Datum" name="date" :errors="validationErrors">
-            <DateField v-model:value="date" name="date" label="Datum" />
+            <DatePicker v-model:value="date" name="date" label="Datum" />
         </FormGroup>
         <FormGroup label="Start" name="start" :errors="validationErrors">
             <TimeField v-model:value="start" name="start" label="Startzeit" :end="false" />

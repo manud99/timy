@@ -15,3 +15,7 @@ export function navigate(page: string) {
 window.addEventListener("popstate", () => {
     location.value = window.location.pathname;
 });
+
+export function isActive(href: string) {
+    return location?.value === baseUrl.value + href;
+}

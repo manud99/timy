@@ -230,7 +230,10 @@ onMounted(() => {
                                 v-text="entry.subject.name"
                             />
                             <span class="text-sm font-semibold" v-text="entry.description" />
-                            <div class="text-xs" v-text="getTime(entry.start) + ' &#x2013; ' + getTime(entry.end)"></div>
+                            <div
+                                class="text-xs"
+                                v-text="getTime(entry.start) + ' &#x2013; ' + getTime(entry.end)"
+                            ></div>
                         </div>
                         <div
                             v-else-if="getHeight(entry) > 10"

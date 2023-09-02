@@ -43,7 +43,9 @@ function addMinutes(amount: number) {
             :class="[
                 'flex-1 border-l-2 border-y-2 border-inherit rounded-l-lg',
                 'px-2 md:px-4 py-2 text-sm',
-                valueInMinutes < 240 ? 'bg-gray-200 cursor-not-allowed' : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
+                valueInMinutes < 240
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
             ]"
             type="button"
             :disabled="valueInMinutes < 240"
@@ -55,7 +57,9 @@ function addMinutes(amount: number) {
             :class="[
                 'flex-1 border-l-2 border-y-2 border-inherit',
                 'px-2 md:px-4 py-2 text-sm',
-                valueInMinutes < 60 ? 'bg-gray-200 cursor-not-allowed' : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
+                valueInMinutes < 60
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
             ]"
             type="button"
             :disabled="valueInMinutes < 60"
@@ -67,7 +71,9 @@ function addMinutes(amount: number) {
             :class="[
                 'flex-1 border-l-2 border-y-2 border-inherit',
                 'px-2 md:px-4 py-2 text-sm',
-                valueInMinutes < 15 ? 'bg-gray-200 cursor-not-allowed' : 'hover:text-white hover:border-blue-500 hover:bg-blue-500',
+                valueInMinutes < 15
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'hover:text-white hover:border-blue-500 hover:bg-blue-500',
             ]"
             type="button"
             :disabled="valueInMinutes < 15"
@@ -88,7 +94,9 @@ function addMinutes(amount: number) {
             :class="[
                 'flex-1 border-r-2 border-y-2 border-inherit',
                 'px-2 md:px-4 py-2 text-sm',
-                minutesUntilMidnight < 15 ? 'bg-gray-200 cursor-not-allowed' : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
+                minutesUntilMidnight < 15
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
             ]"
             type="button"
             :disabled="minutesUntilMidnight < 15"
@@ -100,7 +108,9 @@ function addMinutes(amount: number) {
             :class="[
                 'flex-1 border-r-2 border-y-2 border-inherit',
                 'px-2 md:px-4 py-2 text-sm',
-                minutesUntilMidnight < 60 ? 'bg-gray-200 cursor-not-allowed' : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
+                minutesUntilMidnight < 60
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
             ]"
             type="button"
             :disabled="minutesUntilMidnight < 60"
@@ -112,7 +122,9 @@ function addMinutes(amount: number) {
             :class="[
                 'flex-1 border-r-2 border-y-2 border-inherit',
                 'rounded-r-lg px-2 md:px-4 py-2 text-sm',
-                minutesUntilMidnight < 240 ? 'bg-gray-200 cursor-not-allowed' : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
+                minutesUntilMidnight < 240
+                    ? 'bg-gray-200 cursor-not-allowed'
+                    : 'hover:text-white hover:border-blue-400 hover:bg-blue-400',
             ]"
             type="button"
             :disabled="minutesUntilMidnight < 240"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { TimeEntry } from "../@types/models";
 import { getCalendarId } from "../utils/settings";
 import Page from "../blocks/Page.vue";
@@ -30,6 +30,8 @@ import {
     updateTimeEntry,
     deleteTimeEntry,
 } from "../utils/timeEntries";
+import { ready } from "../google/plugin";
+import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 
 const fields: Field[] = [
     {
@@ -59,17 +61,6 @@ const tabs: Tab[] = [
     { id: "week", label: "Woche" },
 ];
 const activeTab: Ref<string> = ref("list");
-
-function getQueryParam(key: string) {
-    const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get(key);
-}
-
-function updateQueryParam(key: string, value: string) {
-    const searchParams = new URLSearchParams(window.location.search);
-    searchParams.set(key, value);
-    window.history.replaceState(null, "", window.location.pathname + "?" + searchParams.toString());
-}
 
 function toLocalDate(date: Date) {
     const year = date.getFullYear();
@@ -112,6 +103,12 @@ onMounted(() => {
     calendarId.value = getCalendarId();
     getTimeEntries();
 });
+
+if (ready) {
+    watch(ready, () => {
+        getTimeEntries();
+    });
+}
 </script>
 
 <template>

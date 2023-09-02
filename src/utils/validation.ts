@@ -1,5 +1,6 @@
 import { Ref, ref } from "vue";
 import { ValidationError } from "../@types/ValidationErrors";
+import { isValidDate } from "./date";
 
 export enum RuleType {
     Required = 1,
@@ -23,7 +24,7 @@ function validateRequired(record: Record, rule: Rule) {
 }
 
 function validateDate(record: Record, rule: Rule) {
-    return record[rule.field] && !Number.isNaN(new Date(record[rule.field]).valueOf());
+    return record[rule.field] && isValidDate(record[rule.field]);
 }
 
 function validateCustom(record: Record, rule: Rule) {
@@ -33,15 +34,15 @@ function validateCustom(record: Record, rule: Rule) {
 export const validationErrors: Ref<ValidationError[]> = ref([]);
 
 const ruleTypeMap = {
-    [RuleType.Required]: {fn: validateRequired, message: (field: string) => `Das Feld ${field} ist erforderlich`},
-    [RuleType.Date]: {fn: validateDate, message: (field: string) => `Das Feld ${field} muss ein gültiges Datum sein`},
-    [RuleType.Custom]: {fn: validateCustom, message: (field: string) => `Das Feld ${field} ist ungültig`},
-}
+    [RuleType.Required]: { fn: validateRequired, message: (field: string) => `Das Feld ${field} ist erforderlich` },
+    [RuleType.Date]: { fn: validateDate, message: (field: string) => `Das Feld ${field} muss ein gültiges Datum sein` },
+    [RuleType.Custom]: { fn: validateCustom, message: (field: string) => `Das Feld ${field} ist ungültig` },
+};
 
 export function validate(record: Record, rules: Rule[]): boolean {
     validationErrors.value = [];
     rules.forEach((rule) => {
-        const {fn, message} = ruleTypeMap[rule.type];
+        const { fn, message } = ruleTypeMap[rule.type];
         if (!fn(record, rule)) {
             validationErrors.value.push({
                 field: rule.field,

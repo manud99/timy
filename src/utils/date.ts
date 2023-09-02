@@ -2,6 +2,10 @@ export function getDate(date: string | Date): string {
     return new Date(date).toLocaleString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
 }
 
+export function getIsoDate(value: string | Date): string {
+    return new Date(value).toISOString().substring(0, 10);
+}
+
 export function getTime(value: string): string {
     return new Date(value).toLocaleString("de-CH", { timeStyle: "short" });
 }
@@ -43,6 +47,10 @@ export function isOnSameDay(left: string | Date, right: string | Date): boolean 
         leftDate.getMonth() === rightDate.getMonth() &&
         leftDate.getFullYear() === rightDate.getFullYear()
     );
+}
+
+export function isValidDate(value: string | Date): boolean {
+    return !Number.isNaN(new Date(value).valueOf());
 }
 
 export function roundedToQuarterHours(date: Date): Date {

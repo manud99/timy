@@ -52,11 +52,11 @@ if (ready) {
 <template>
     <Page title="Einstellungen">
         <div class="grid lg:grid-cols-2 gap-6">
-            <Section class="mx-auto p-4 bg-white" v-if="account">
+            <Section class="mx-auto p-4 bg-white">
                 <h2 class="text-lg font-bold mb-4">Account Informationen</h2>
                 <p class="mb-2">
                     Du bist angemeldet als
-                    <strong>
+                    <strong v-if="account">
                         {{ account.names[0].displayName }}
                         ({{ account.emailAddresses[0].value }})
                     </strong>

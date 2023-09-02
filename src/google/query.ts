@@ -52,7 +52,9 @@ export async function createEvent(calendarId: string, timeEntry: TimeEntry): Pro
     const body = {
         start: { dateTime: timeEntry.start },
         end: { dateTime: timeEntry.end },
-        summary: timeEntry.subject?.name ? `[${timeEntry.subject.name}] ${timeEntry.description}` : timeEntry.description,
+        summary: timeEntry.subject?.name
+            ? `[${timeEntry.subject.name}] ${timeEntry.description}`
+            : timeEntry.description,
     };
     const response = await makeRequest(
         `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,

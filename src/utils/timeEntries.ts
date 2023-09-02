@@ -23,6 +23,8 @@ export const weekEnd = computed(() => {
 
 export function makeSureCalendarIdExists() {
     if (!calendarId.value) {
+        console.log("Calendar ID is invalid", calendarId.value);
+
         navigate("settings");
         return false;
     }
@@ -81,10 +83,4 @@ export async function deleteTimeEntry(timeEntry: TimeEntry) {
 
     const index = timeEntries.value.findIndex((el) => el.id === timeEntry.id);
     timeEntries.value.splice(index, 1);
-}
-
-if (ready) {
-    watch(ready, () => {
-        getTimeEntries();
-    });
 }
