@@ -29,6 +29,15 @@ export function getSubject(name: string): Subject {
     return { name, color: 0, isActive: true };
 }
 
+export function getOrCreateSubject(name: string): Subject {
+    loadSubjects();
+    const subject = subjects.value.find((record) => record.name === name);
+    if (subject) return subject;
+    const newSubject = { name, color: 0, isActive: true };
+    createSubject(newSubject);
+    return newSubject;
+}
+
 export function getSubjects(): Ref<Subject[]> {
     loadSubjects();
     return subjects;
@@ -39,7 +48,9 @@ export function createSubject(subject: Subject): void {
     storeSubjects();
 }
 
-export function updateSubject(subject: Subject, index: number): void {
+export function updateSubject(subject: Subject, index?: number): void {
+    loadSubjects();
+    index = index || subjects.value.findIndex((record) => record.name === subject.name);
     subjects.value.splice(index, 1, subject);
     storeSubjects();
 }
@@ -130,10 +141,11 @@ export function getSubjectColor(subject: Subject | null): SubjectColorSetting {
     return colorMap[subject.color];
 }
 
-export function parseSubject(subject: string) {
-    const matches = subject.match(/^\[([A-Za-zÀ-ž0-9-_ ]+)\] (.*)$/);
+export function parseSubject(description: string) {
+    const matches = description.match(/^\[([A-Za-zÀ-ž0-9-_ ]+)\] (.*)$/);
     if (!matches) {
-        return { subject: null, description: subject };
+        return { subject: null, description };
     }
-    return { subject: getSubject(matches[1]), description: matches[2] };
+    const subject = getOrCreateSubject(matches[1]);
+    return { subject, description: matches[2] };
 }

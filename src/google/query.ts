@@ -18,14 +18,19 @@ export async function fetchUserInfo(): Promise<any> {
     const response = await makeRequest(
         "https://people.googleapis.com/v1/people/me",
         "GET",
-        { personFields: "names,emailAddresses" },
+        { personFields: "names,emailAddresses", fields: "names(displayName),emailAddresses(value)" },
         null
     );
     return response?.result || null;
 }
 
 export async function fetchCalendars(): Promise<gapi.client.calendar.Calendar[]> {
-    const response = await makeRequest("https://www.googleapis.com/calendar/v3/users/me/calendarList", "GET", {}, null);
+    const response = await makeRequest(
+        "https://www.googleapis.com/calendar/v3/users/me/calendarList",
+        "GET",
+        { fields: "items(id,summary)" },
+        null
+    );
     return response ? response.result.items : [];
 }
 
@@ -39,6 +44,8 @@ export async function fetchEvents(calendarId: string, start: string, end: string
             timeZone: "UTC",
             singleEvents: true,
             orderBy: "startTime",
+            fields: "items(id,summary,start,end)",
+            maxResults: 2500,
         },
         null
     );

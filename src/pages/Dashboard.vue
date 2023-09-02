@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
 import { onMounted, ref, watch } from "vue";
-import { TimeEntry } from "../@types/models";
+import { Subject, TimeEntry } from "../@types/models";
 import { getCalendarId } from "../utils/settings";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
@@ -32,6 +32,8 @@ import {
 } from "../utils/timeEntries";
 import { ready } from "../google/plugin";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
+import EditSubjectModal from "../modals/EditSubjectModal.vue";
+import { updateSubject } from "../utils/subjects";
 
 const fields: Field[] = [
     {
@@ -77,7 +79,7 @@ function changeWeek(addDays: number) {
     getTimeEntries();
 }
 
-// Show various modals
+// Show time entry modal
 const showModal: Ref<boolean> = ref(false);
 const activeTimeEntry: Ref<TimeEntry | null> = ref(null);
 
@@ -89,6 +91,24 @@ function showCreateModal() {
 function showUpdateModal(timeEntry: TimeEntry) {
     activeTimeEntry.value = timeEntry;
     showModal.value = true;
+}
+
+// Show subject modal
+const activeSubject: Ref<Subject | null> = ref(null);
+const showSubjectModal: Ref<boolean> = ref(false);
+
+function editSubject(subject: Subject) {
+    showSubjectModal.value = true;
+    activeSubject.value = subject;
+}
+
+function onUpdateSubject(subject: Subject) {
+    showSubjectModal.value = false;
+    updateSubject(subject);
+    timeEntries.value.forEach((timeEntry) => {
+        if (timeEntry.subject?.name !== subject.name) return;
+        timeEntry.subject = subject;
+    });
 }
 
 onMounted(() => {
@@ -149,7 +169,12 @@ if (ready) {
 
                 <Table :fields="fields" :values="timeEntries">
                     <template #cell(subject)="{ entry }">
-                        <SubjectTag v-if="entry.subject" :subject="entry.subject" />
+                        <SubjectTag
+                            v-if="entry.subject"
+                            class="cursor-pointer"
+                            :subject="entry.subject"
+                            @dblclick="editSubject(entry.subject)"
+                        />
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
                     <template #cell(time)="row">
@@ -210,5 +235,12 @@ if (ready) {
                 updateTimeEntry(timeEntry);
             }
         "
+    />
+
+    <EditSubjectModal
+        :subject="activeSubject"
+        :show="showSubjectModal"
+        @close="showSubjectModal = false"
+        @update="onUpdateSubject"
     />
 </template>

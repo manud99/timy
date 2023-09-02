@@ -37,8 +37,8 @@ const emit = defineEmits<{
 
 watch(show, async (val) => {
     if (!val) return;
-    name.value = subject.value ? subject.value?.name! : "";
-    color.value = subject.value ? subject.value?.color!.toString(10) : "";
+    name.value = subject.value ? subject.value.name : "";
+    color.value = subject.value && subject.value.color ? subject.value.color.toString(10) : "";
     isActive.value = subject.value ? subject.value?.isActive! : false;
 });
 

@@ -115,7 +115,6 @@ const chartHoursPerWeek = computed(() => {
 
     return {
         labels: labels.map((label) => getDate(label)),
-        // datasets: [{ label: "Hours per week", data: totalData }].concat(subjectDatasets),
         datasets: subjectDatasets,
     };
 });
@@ -173,8 +172,8 @@ const lineChartOptions: ChartOptions<"line"> = {
 <template>
     <Page title="Statistik">
         <Section class="bg-white p-4">
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-bold mb-4">Stunden pro Woche</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Stunden pro Woche</h2>
                 <div>
                     Zeitspanne von
                     <input type="date" v-model="start" :max="end" />

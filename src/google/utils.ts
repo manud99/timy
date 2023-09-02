@@ -22,7 +22,6 @@ export function signOut() {
     }
 
     const accessToken = window.gapi.auth.getToken().access_token;
-    console.log("accessToken", accessToken);
 
     if (!accessToken) return;
     google.accounts.oauth2.revoke(window.gapi.auth.getToken().access_token, () => {

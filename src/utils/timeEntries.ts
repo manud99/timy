@@ -23,8 +23,6 @@ export const weekEnd = computed(() => {
 
 export function makeSureCalendarIdExists() {
     if (!calendarId.value) {
-        console.log("Calendar ID is invalid", calendarId.value);
-
         navigate("settings");
         return false;
     }
