@@ -2,6 +2,8 @@
 
 Effortlessly master your time with Timy ⏱️ – the sleek Single-Page Application (SPA) designed for seamless activity tracking. Run Timy ⏱️ directly on your device to monitor tasks, while harnessing cloud integration for multi-device access. Timy ⏱️: compact, responsive, and tailored for your individual productivity.
 
+See Demo: https://manud99.github.io/timy/
+
 ## Setup
 
 To install this project you must have a Google Account and Node 18 (current LTS) or newer on your machine.
