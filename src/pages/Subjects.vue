@@ -16,7 +16,7 @@ import { subjects, getSubjects, createSubject, updateSubject, deleteSubject } fr
 const fields = [
     {
         id: "name",
-        label: "Markierung",
+        label: "Fach",
     },
     {
         id: "actions",
@@ -62,12 +62,12 @@ onMounted(async () => {
 
 <template>
     <Page title="Fächer">
-        <Section class="flex justify-between items-center p-4 bg-white">
+        <Section class="flex flex-wrap justify-between gap-4 items-center p-4 bg-white">
             <div class="font-semibold text-gray-600 text-lg">
                 {{ subjects.length }} Fächer gefunden, {{ numActiveSujects }} davon sind aktiv
             </div>
             <Button
-                class="flex items-center"
+                class="flex justify-center items-center w-full md:w-auto"
                 label="Neues Fach erstellen"
                 :size="ButtonSize.LG"
                 color="blue"

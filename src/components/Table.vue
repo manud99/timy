@@ -8,6 +8,7 @@ export interface Props {
 export interface Field {
     id: string;
     label: string;
+    nowrap?: boolean;
 }
 
 const { fields } = withDefaults(defineProps<Props>(), { emptyText: "Keine Eintr√§ge gefunden" });
@@ -24,10 +25,10 @@ const { fields } = withDefaults(defineProps<Props>(), { emptyText: "Keine Eintr√
             <tbody class="bg-white divide-y">
                 <template v-if="values.length > 0">
                     <tr v-for="(row, index) in values" class="text-gray-700">
-                        <td v-for="field in fields" class="px-4 py-6">
-                            <slot :name="`cell(${field.id})`" :entry="row" :field="field" :index="index">{{
-                                row[field.id]
-                            }}</slot>
+                        <td v-for="field in fields" :class="['px-4 py-6', field.nowrap ? 'whitespace-nowrap' : '']">
+                            <slot :name="`cell(${field.id})`" :entry="row" :field="field" :index="index">
+                                {{ row[field.id] }}
+                            </slot>
                         </td>
                     </tr>
                 </template>

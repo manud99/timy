@@ -32,7 +32,7 @@ const active = computed(() => {
 <template>
     <div class="flex flex-col flex-1 w-full">
         <Navbar />
-        <main class="h-full overflow-y-auto">
+        <main class="h-full overflow-y-auto pb-10">
             <component :is="active.component" />
         </main>
     </div>

@@ -39,10 +39,12 @@ const fields: Field[] = [
     {
         id: "day",
         label: "Datum",
+        nowrap: true,
     },
     {
         id: "time",
         label: "Zeit",
+        nowrap: true,
     },
     {
         id: "description",
@@ -133,14 +135,14 @@ if (ready) {
 
 <template>
     <Page title="Übersicht">
-        <Section class="flex justify-between items-center p-4 bg-white">
+        <Section class="flex flex-wrap gap-4 justify-between items-center p-4 bg-white">
             <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes daraus!</div>
-            <div class="flex items-center">
-                <div v-if="firstOpened" class="text-sm text-gray-600 mr-2">
+            <div class="flex flex-wrap items-center">
+                <div v-if="firstOpened" class="text-sm text-gray-600 md:mr-4 mb-2 md:mb-0">
                     Heute geöffnet um: {{ getTime(firstOpened) }}
                 </div>
                 <Button
-                    class="flex items-center"
+                    class="flex justify-center items-center w-full md:w-auto"
                     label="Neues Eintrag erstellen"
                     :size="ButtonSize.LG"
                     color="blue"
@@ -178,8 +180,8 @@ if (ready) {
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
                     <template #cell(time)="row">
-                        {{ getTime(row.entry.start) }} &#x2013; {{ getTime(row.entry.end) }}</template
-                    >
+                        <span class="whitespace-nowrap">{{ getTime(row.entry.start) }}&nbsp;&#x2013;&nbsp;{{ getTime(row.entry.end) }}</span>
+                    </template>
                     <template #cell(actions)="{ entry }">
                         <div class="flex">
                             <Button

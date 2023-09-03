@@ -16,11 +16,11 @@ function changeTab(id: string) {
 </script>
 
 <template>
-    <nav class="grid md:grid-cols-2 text-gray-600">
+    <nav class="grid grid-cols-2 text-gray-600">
         <button
             v-for="tab in tabs"
             :class="[
-                'px-4 py-3 font-semibold rounded-t-lg',
+                'py-2 md:py-3 font-semibold rounded-t-lg',
                 'border-4 border-b hover:border-b-transparent',
                 'focus:outline-none ring-black ring-inset focus-visible:ring-2',
                 modelValue === tab.id

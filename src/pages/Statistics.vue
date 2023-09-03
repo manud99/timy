@@ -137,6 +137,7 @@ function footer(items: TooltipItem<"bar" | "line">[]) {
 }
 
 const barChartOptions: ChartOptions<"bar"> = {
+    responsive: true,
     scales: {
         x: { stacked: true },
         y: { stacked: true },
@@ -155,6 +156,7 @@ const barChartOptions: ChartOptions<"bar"> = {
 };
 
 const lineChartOptions: ChartOptions<"line"> = {
+    responsive: true,
     interaction: {
         mode: "index",
     },
@@ -172,7 +174,7 @@ const lineChartOptions: ChartOptions<"line"> = {
 <template>
     <Page title="Statistik">
         <Section class="bg-white p-4">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-wrap gap-4 justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">Stunden pro Woche</h2>
                 <div>
                     Zeitspanne von
@@ -181,7 +183,9 @@ const lineChartOptions: ChartOptions<"line"> = {
                     <input type="date" v-model="end" :min="start" />
                 </div>
             </div>
-            <Bar :data="chartHoursPerWeek" :options="barChartOptions" />
+            <div>
+                <Bar :data="chartHoursPerWeek" :options="barChartOptions" />
+            </div>
         </Section>
         <Section class="bg-white p-4">
             <h2 class="text-xl font-bold mb-4">Line-Chart</h2>
