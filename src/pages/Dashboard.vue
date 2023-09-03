@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { Subject, TimeEntry } from "../@types/models";
 import { getCalendarId } from "../utils/settings";
 import Page from "../blocks/Page.vue";
@@ -33,7 +33,7 @@ import {
 import { ready } from "../google/plugin";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
-import { updateSubject } from "../utils/subjects";
+import { createSubject, updateSubject } from "../utils/subjects";
 
 const fields: Field[] = [
     {
@@ -113,6 +113,15 @@ function onUpdateSubject(subject: Subject) {
     });
 }
 
+function onKeyPress(event: KeyboardEvent) {
+    if (event.target !== document.body) return;
+    switch (event.key.toLowerCase()) {
+        case "n":
+            showCreateModal();
+            break;
+    }
+}
+
 onMounted(() => {
     activeTab.value = getQueryParam("tab") || activeTab.value;
     const weekStart = getQueryParam("weekStart");
@@ -124,6 +133,12 @@ onMounted(() => {
 
     calendarId.value = getCalendarId();
     getTimeEntries();
+
+    document.addEventListener("keypress", onKeyPress);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("keypress", onKeyPress);
 });
 
 if (ready) {
@@ -180,7 +195,9 @@ if (ready) {
                     </template>
                     <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
                     <template #cell(time)="row">
-                        <span class="whitespace-nowrap">{{ getTime(row.entry.start) }}&nbsp;&#x2013;&nbsp;{{ getTime(row.entry.end) }}</span>
+                        <span class="whitespace-nowrap"
+                            >{{ getTime(row.entry.start) }}&nbsp;&#x2013;&nbsp;{{ getTime(row.entry.end) }}</span
+                        >
                     </template>
                     <template #cell(actions)="{ entry }">
                         <div class="flex">

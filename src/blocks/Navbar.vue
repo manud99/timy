@@ -36,7 +36,7 @@ import { baseUrl, isActive } from "../utils/routing";
             </ul>
         </nav>
     </header>
-    <footer class="fixed bottom-0 inset-x-0 bg-white shadow-t-md">
+    <footer class="fixed md:hidden bottom-0 inset-x-0 bg-white shadow-t-md">
         <ul class="grid grid-cols-3 py-2">
             <li
                 class="px-2 md:mx-4 text-center"

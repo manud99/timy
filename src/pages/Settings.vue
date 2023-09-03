@@ -52,16 +52,16 @@ if (ready) {
 <template>
     <Page title="Einstellungen">
         <div class="grid lg:grid-cols-2 gap-6">
-            <Section class="mx-auto p-4 bg-white">
+            <Section class="flex flex-col mx-auto p-4 bg-white">
                 <h2 class="text-lg font-bold mb-4">Account Informationen</h2>
-                <p class="mb-2">
+                <p class="flex-1 mb-2">
                     Du bist angemeldet als
                     <strong v-if="account">
                         {{ account.names[0].displayName }}
                         ({{ account.emailAddresses[0].value }})
                     </strong>
                 </p>
-                <Button :size="ButtonSize.LG" label="Abmelden" @click="signOut" />
+                <div><Button :size="ButtonSize.LG" label="Abmelden" @click="signOut" /></div>
             </Section>
             <Section class="items-center p-4 bg-white mx-auto">
                 <h2 class="text-lg font-bold mb-4">Kalender auswählen</h2>
