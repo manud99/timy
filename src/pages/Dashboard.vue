@@ -34,6 +34,7 @@ import { ready } from "../google/plugin";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import { createSubject, updateSubject } from "../utils/subjects";
+import { loading } from "../utils/timeEntries";
 
 const fields: Field[] = [
     {
@@ -184,7 +185,7 @@ if (ready) {
                     @update="(val) => changeWeek(val)"
                 />
 
-                <Table :fields="fields" :values="timeEntries">
+                <Table :fields="fields" :values="timeEntries" :loading="loading">
                     <template #cell(subject)="{ entry }">
                         <SubjectTag
                             v-if="entry.subject"
