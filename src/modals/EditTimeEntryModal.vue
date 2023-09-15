@@ -156,7 +156,7 @@ async function submitTimeEntry() {
             <TimeField v-model:value="end" name="end" label="Ende" :end="true" />
         </FormGroup>
         <FormGroup label="Beschreibung" name="description" :errors="validationErrors">
-            <InputField v-model:value="description" name="description" label="Beschreibung" />
+            <InputField v-model:value="description" name="description" label="Beschreibung" autofocus />
         </FormGroup>
         <FormGroup label="Fach" name="subject" :errors="validationErrors">
             <SelectField

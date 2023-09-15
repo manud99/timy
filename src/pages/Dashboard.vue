@@ -21,6 +21,7 @@ import { getDate, getTime, getWeekStart } from "../utils/date";
 import { firstOpened } from "../utils/firstOpened";
 import {
     timeEntries,
+    loading,
     activeWeek,
     calendarId,
     weekStart,
@@ -34,7 +35,6 @@ import { ready } from "../google/plugin";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import { createSubject, updateSubject } from "../utils/subjects";
-import { loading } from "../utils/timeEntries";
 
 const fields: Field[] = [
     {

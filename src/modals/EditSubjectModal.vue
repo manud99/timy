@@ -69,7 +69,7 @@ const newEntry = computed(() => !subject.value);
         @submit="submitSubject"
     >
         <FormGroup label="Name" name="name" :errors="validationErrors">
-            <InputField v-model:value="name" name="name" label="Name" />
+            <InputField v-model:value="name" name="name" label="Name" autofocus />
         </FormGroup>
         <FormGroup label="Farbe" name="color" :errors="validationErrors">
             <SelectField v-model:value="color" :options="colorOptions" name="color" label="Farbe auswählen" />

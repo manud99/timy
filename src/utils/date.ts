@@ -43,7 +43,7 @@ export function isOnSameDay(left: string | Date, right: string | Date): boolean 
     const leftDate = new Date(left);
     const rightDate = new Date(right);
     return (
-        leftDate.getDay() === rightDate.getDay() &&
+        leftDate.getDate() === rightDate.getDate() &&
         leftDate.getMonth() === rightDate.getMonth() &&
         leftDate.getFullYear() === rightDate.getFullYear()
     );

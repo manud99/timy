@@ -23,7 +23,7 @@ watch(show, async (val) => {
     if (!val) return;
     await nextTick();
 
-    modalBody.value?.querySelector("input")?.focus();
+    (modalBody.value?.querySelector("[autofocus]") as HTMLElement)?.focus();
 });
 
 function onEsc() {

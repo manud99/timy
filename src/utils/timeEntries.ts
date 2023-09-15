@@ -8,7 +8,7 @@ import { getWeekStart } from "./date";
 export const timeEntries: Ref<TimeEntry[]> = ref([]);
 export const activeWeek: Ref<string> = ref(new Date().toISOString());
 export const calendarId: Ref<string | null> = ref(null);
-export const loading: Ref<boolean> = ref(false);
+export const loading: Ref<boolean> = ref(true);
 
 export const weekStart = computed(() => {
     const date = getWeekStart(activeWeek.value);
