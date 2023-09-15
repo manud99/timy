@@ -2,6 +2,10 @@ export function getDate(date: string | Date): string {
     return new Date(date).toLocaleString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
 }
 
+export function getFullDate(date: string | Date): string {
+    return new Date(date).toLocaleString("de-CH", { weekday: "long", day: "2-digit", month: "short", year: "numeric" });
+}
+
 export function getIsoDate(value: string | Date): string {
     return new Date(value).toISOString().substring(0, 10);
 }

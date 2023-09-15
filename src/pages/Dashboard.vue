@@ -17,7 +17,7 @@ import IconGarbage from "../icons/Garbage.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconPlus from "../icons/Plus.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
-import { getDate, getTime, getWeekStart } from "../utils/date";
+import { getFullDate, getTime, getWeekStart } from "../utils/date";
 import { firstOpened } from "../utils/firstOpened";
 import {
     timeEntries,
@@ -34,7 +34,8 @@ import {
 import { ready } from "../google/plugin";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
-import { createSubject, updateSubject } from "../utils/subjects";
+import { updateSubject } from "../utils/subjects";
+import List from "../components/List.vue";
 
 const fields: Field[] = [
     {
@@ -185,7 +186,7 @@ if (ready) {
                     @update="(val) => changeWeek(val)"
                 />
 
-                <Table :fields="fields" :values="timeEntries" :loading="loading">
+                <Table class="hidden md:block" :fields="fields" :values="timeEntries" :loading="loading">
                     <template #cell(subject)="{ entry }">
                         <SubjectTag
                             v-if="entry.subject"
@@ -194,7 +195,7 @@ if (ready) {
                             @dblclick="editSubject(entry.subject)"
                         />
                     </template>
-                    <template #cell(day)="row"> {{ getDate(row.entry.start) }}</template>
+                    <template #cell(day)="row"> {{ getFullDate(row.entry.start) }}</template>
                     <template #cell(time)="row">
                         <span class="whitespace-nowrap"
                             >{{ getTime(row.entry.start) }}&nbsp;&#x2013;&nbsp;{{ getTime(row.entry.end) }}</span
@@ -218,6 +219,13 @@ if (ready) {
                         </div>
                     </template>
                 </Table>
+                <List
+                    :time-entries="timeEntries"
+                    :loading="loading"
+                    @edit="showUpdateModal"
+                    @delete="deleteTimeEntry"
+                    @edit-subject="editSubject"
+                />
             </template>
 
             <div v-else-if="activeTab === 'week'">

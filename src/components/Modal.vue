@@ -57,11 +57,11 @@ function onEsc() {
                         </button>
                     </div>
 
-                    <div class="px-4 py-3 bg-white" id="modal-body" ref="modalBody">
+                    <div class="px-2 md:px-4 py-3 bg-white" id="modal-body" ref="modalBody">
                         <slot></slot>
                     </div>
 
-                    <footer v-if="!noFooter" class="flex justify-end border-t px-4 py-3">
+                    <footer v-if="!noFooter" class="flex justify-end border-t px-2 md:px-4 py-3">
                         <Button type="submit" :label="submitTitle" />
                     </footer>
                 </form>

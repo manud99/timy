@@ -19,7 +19,7 @@ const { fields } = withDefaults(defineProps<Props>(), { emptyText: "Keine Eintr√
 
 <template>
     <div class="w-full overflow-x-auto border-t">
-        <table class="w-full whitespace-no-wrap">
+        <table class="w-full">
             <thead>
                 <tr class="text-xs font-bold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
                     <th v-for="field in fields" class="px-4 py-3" v-text="field.label" />

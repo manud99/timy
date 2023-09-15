@@ -41,7 +41,7 @@ function addMinutes(amount: number) {
     <div class="flex border-gray-400">
         <button
             :class="[
-                'flex-1 border-l-2 border-y-2 border-inherit rounded-l-lg',
+                'hidden sm:block flex-1 border-l border-y border-inherit rounded-l-lg',
                 'px-2 md:px-4 py-2 text-sm',
                 valueInMinutes < 240
                     ? 'bg-gray-200 cursor-not-allowed'
@@ -55,7 +55,7 @@ function addMinutes(amount: number) {
         </button>
         <button
             :class="[
-                'flex-1 border-l-2 border-y-2 border-inherit',
+                'flex-1 border-l border-y border-inherit rounded-l-lg sm:rounded-none',
                 'px-2 md:px-4 py-2 text-sm',
                 valueInMinutes < 60
                     ? 'bg-gray-200 cursor-not-allowed'
@@ -69,7 +69,7 @@ function addMinutes(amount: number) {
         </button>
         <button
             :class="[
-                'flex-1 border-l-2 border-y-2 border-inherit',
+                'flex-1 border-l border-y border-inherit',
                 'px-2 md:px-4 py-2 text-sm',
                 valueInMinutes < 15
                     ? 'bg-gray-200 cursor-not-allowed'
@@ -79,10 +79,10 @@ function addMinutes(amount: number) {
             :disabled="valueInMinutes < 15"
             @click="addMinutes(-15)"
         >
-            -15min
+            -15m<span class="hidden sm:inline">in</span>
         </button>
         <input
-            class="block text-sm border-2 border-blue-600 bg-blue-600 text-white focus:outline-none focus:ring-2 focus:z-10 ring-blue-700"
+            class="block text-sm border border-blue-600 bg-blue-600 text-white focus:outline-none focus:ring-2 focus:z-10 ring-blue-700"
             style="color-scheme: dark"
             :id="`input-${name}`"
             type="time"
@@ -92,7 +92,7 @@ function addMinutes(amount: number) {
         />
         <button
             :class="[
-                'flex-1 border-r-2 border-y-2 border-inherit',
+                'flex-1 border-r border-y border-inherit',
                 'px-2 md:px-4 py-2 text-sm',
                 minutesUntilMidnight < 15
                     ? 'bg-gray-200 cursor-not-allowed'
@@ -102,11 +102,11 @@ function addMinutes(amount: number) {
             :disabled="minutesUntilMidnight < 15"
             @click="addMinutes(15)"
         >
-            +15min
+            +15m<span class="hidden sm:inline">in</span>
         </button>
         <button
             :class="[
-                'flex-1 border-r-2 border-y-2 border-inherit',
+                'flex-1 border-r border-y border-inherit rounded-r-lg sm:rounded-none',
                 'px-2 md:px-4 py-2 text-sm',
                 minutesUntilMidnight < 60
                     ? 'bg-gray-200 cursor-not-allowed'
@@ -120,7 +120,7 @@ function addMinutes(amount: number) {
         </button>
         <button
             :class="[
-                'flex-1 border-r-2 border-y-2 border-inherit',
+                'hidden sm:block flex-1 border-r border-y border-inherit',
                 'rounded-r-lg px-2 md:px-4 py-2 text-sm',
                 minutesUntilMidnight < 240
                     ? 'bg-gray-200 cursor-not-allowed'
