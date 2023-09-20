@@ -58,25 +58,25 @@ watch(show, (val) => {
         subject.value = "";
 
         let start;
-        let end = roundedToQuarterHours(new Date());
-        const todaysEntries = timeEntries.value.filter((entry) => isOnSameDay(entry.start, end));
+        let nowRounded = roundedToQuarterHours(new Date());
+        const todaysEntries = timeEntries.value.filter((entry) => isOnSameDay(entry.start, nowRounded) && new Date(entry.end).valueOf() < nowRounded.valueOf());
 
         if (todaysEntries.length) {
             start = new Date(todaysEntries[todaysEntries.length - 1].end);
-        } else if (firstOpened.value && isOnSameDay(firstOpened.value, end)) {
+        } else if (firstOpened.value && isOnSameDay(firstOpened.value, nowRounded)) {
             start = roundedToQuarterHours(new Date(firstOpened.value));
         } else {
-            const midnight = new Date(end);
+            const midnight = new Date(nowRounded);
             midnight.setHours(0, 0, 0, 0);
-            start = new Date(Math.max(end.valueOf() - 3_600_000, midnight.valueOf()));
+            start = new Date(Math.max(nowRounded.valueOf() - 3_600_000, midnight.valueOf()));
         }
 
         // Enforce difference of at least 15 minutes
-        if (end.valueOf() - start.valueOf() < 900_000) {
-            end = new Date(start.valueOf() + 900_000);
+        if (nowRounded.valueOf() - start.valueOf() < 900_000) {
+            nowRounded = new Date(start.valueOf() + 900_000);
         }
 
-        setDateFields(start.toISOString(), end.toISOString());
+        setDateFields(start.toISOString(), nowRounded.toISOString());
     }
 });
 
