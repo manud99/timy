@@ -20,44 +20,53 @@ import { getCalendarId } from "../utils/settings";
 import { ready } from "../google/plugin";
 import { TimeEntry } from "../@types/models";
 import { fetchEvents } from "../google/query";
-import { getDate, getIsoDate, getWeekStart, isValidDate } from "../utils/date";
 import debounce from "lodash.debounce";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import { getSubjects } from "../utils/subjects";
 import { getSubjectColor } from "../utils/subjects";
+import CustomDate from "../utils/CustomDate";
 
-const startParam = getQueryParam("start") || "";
-const todayMinusSixMonth = new Date();
-todayMinusSixMonth.setMonth(todayMinusSixMonth.getMonth() - 6);
-const startDate = isValidDate(startParam) ? new Date(startParam) : todayMinusSixMonth;
-const endParam = getQueryParam("end") || "";
-const endDate = isValidDate(endParam) ? new Date(endParam) : new Date();
+const startParam = new CustomDate(getQueryParam("start") || "");
+const todayMinusSixMonth = CustomDate.now().addMonths(-6);
+const startDate = startParam.isValidDate() ? startParam : todayMinusSixMonth;
+const endParam = new CustomDate(getQueryParam("end") || "");
+const endDate = endParam.isValidDate() ? endParam : CustomDate.now();
 
-const start: Ref<string> = ref(getIsoDate(startDate));
-const end: Ref<string> = ref(getIsoDate(endDate));
+const start: Ref<CustomDate> = ref(startDate);
+const end: Ref<CustomDate> = ref(endDate);
 
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const minutesPerWeek: Ref<{ [startOfWeek: string]: { total: number; [subject: string]: number } }> = ref({});
 const debounceGetTimeEntries = debounce(getTimeEntries, 300);
 
+const startProp = computed({
+    get() {
+        return start.value.getIsoDate();
+    },
+    set(value) {
+        start.value = new CustomDate(value);
+    },
+});
+
+const endProp = computed({
+    get() {
+        return end.value.getIsoDate();
+    },
+    set(value) {
+        end.value = new CustomDate(value);
+    },
+});
+
 function analyzeTimeEntries() {
     const hours: { [startOfWeek: string]: { total: number; [subject: string]: number } } = {};
 
-    for (
-        let date = getWeekStart(start.value);
-        new Date(date).valueOf() < new Date(end.value).valueOf();
-        date.setDate(date.getDate() + 7)
-    ) {
-        if (date.getDay() === 1) {
-            hours[date.toISOString()] = { total: 0 };
-        }
+    for (let date = start.value.setToWeekStart(); end.value.isBiggerThan(date); date = date.addDays(7)) {
+        hours[date.toString()] = { total: 0 };
     }
 
     timeEntries.value.forEach((entry) => {
-        const end = new Date(entry.end);
-        const start = new Date(entry.start);
-        const weekStart = getWeekStart(start).toISOString();
-        const duration = Math.floor((end.valueOf() - start.valueOf()) / 60_000);
+        const weekStart = entry.start.setToWeekStart().toString();
+        const duration = entry.end.diffInMinutes(entry.start);
 
         if (entry.subject?.name) {
             hours[weekStart][entry.subject.name] = (hours[weekStart][entry.subject.name] || 0) + duration;
@@ -71,11 +80,7 @@ function analyzeTimeEntries() {
 async function getTimeEntries() {
     if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
 
-    timeEntries.value = await fetchEvents(
-        calendarId.value!,
-        new Date(start.value).toISOString(),
-        new Date(end.value).toISOString()
-    );
+    timeEntries.value = await fetchEvents(calendarId.value!, start.value, end.value);
     analyzeTimeEntries();
 }
 
@@ -91,8 +96,8 @@ if (ready) {
 }
 
 watch([start, end], () => {
-    updateQueryParam("start", start.value);
-    updateQueryParam("end", end.value);
+    updateQueryParam("start", start.value.toString());
+    updateQueryParam("end", end.value.toString());
     debounceGetTimeEntries();
 });
 
@@ -114,7 +119,7 @@ const chartHoursPerWeek = computed(() => {
     });
 
     return {
-        labels: labels.map((label) => getDate(label)),
+        labels: labels.map((label) => new CustomDate(label).getDate()),
         datasets: subjectDatasets,
     };
 });
@@ -178,9 +183,9 @@ const lineChartOptions: ChartOptions<"line"> = {
                 <h2 class="text-xl font-bold">Stunden pro Woche</h2>
                 <div>
                     Zeitspanne von
-                    <input type="date" v-model="start" :max="end" />
+                    <input type="date" v-model="startProp" :max="end.toString()" />
                     bis
-                    <input type="date" v-model="end" :min="start" />
+                    <input type="date" v-model="endProp" :min="start.toString()" />
                 </div>
             </div>
             <div>

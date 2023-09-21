@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Subject, TimeEntry } from "../@types/models";
-import { getFullDate, getTime, isOnSameDay } from "../utils/date";
+import CustomDate from "../utils/CustomDate";
 import Button, { ButtonSize } from "./Button.vue";
 import IconGarbage from "../icons/Garbage.vue";
 import IconPencil from "../icons/Pencil.vue";
@@ -18,10 +18,10 @@ const emit = defineEmits<{
     (e: "editSubject", subject: Subject): void;
 }>();
 
-let lastDate: string | null = null;
-function isFirstEntryOfTheDay(value: string) {
-    const res = lastDate === null || !isOnSameDay(lastDate, value);
-    lastDate = value;
+let prevDate: CustomDate | null = null;
+function isFirstEntryOfTheDay(entry: TimeEntry): boolean {
+    const res = prevDate === null || !prevDate.isOnSameDay(entry.start);
+    prevDate = entry.start;
     return res;
 }
 </script>
@@ -31,9 +31,9 @@ function isFirstEntryOfTheDay(value: string) {
         <template v-if="!loading">
             <div v-for="entry in timeEntries">
                 <div
-                    v-if="isFirstEntryOfTheDay(entry.start)"
+                    v-if="isFirstEntryOfTheDay(entry)"
                     class="text-xs font-bold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50 p-2"
-                    v-text="getFullDate(entry.start)"
+                    v-text="entry.start.getFullDate()"
                 />
                 <div class="bg-white border-b px-2 py-4">
                     <div class="flex justify-between mb-2">
@@ -61,7 +61,7 @@ function isFirstEntryOfTheDay(value: string) {
                     </div>
                     <div class="flex items-baseline gap-2">
                         <span class="min-w-[110px] whitespace-nowrap">
-                            {{ getTime(entry.start) }} &#x2013; {{ getTime(entry.end) }}
+                            {{ entry.start.getTime() }} &#x2013; {{ entry.end.getTime() }}
                         </span>
                         <span class="font-semibold" v-text="entry.description" />
                     </div>

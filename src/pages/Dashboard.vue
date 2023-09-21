@@ -17,7 +17,7 @@ import IconGarbage from "../icons/Garbage.vue";
 import IconPencil from "../icons/Pencil.vue";
 import IconPlus from "../icons/Plus.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
-import { getFullDate, getTime, getWeekStart } from "../utils/date";
+import CustomDate from "../utils/CustomDate";
 import { firstOpened } from "../utils/firstOpened";
 import {
     timeEntries,
@@ -68,17 +68,16 @@ const tabs: Tab[] = [
 ];
 const activeTab: Ref<string> = ref("list");
 
-function toLocalDate(date: Date) {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
+function toLocalDate(date: CustomDate) {
+    const year = date.getYear();
+    const month = date.getMonth().toString().padStart(2, "0");
+    const day = date.getDay().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
 }
 
-function changeWeek(addDays: number) {
-    const date = new Date(activeWeek.value);
-    date.setDate(date.getDate() + addDays);
-    activeWeek.value = date.toISOString();
+function changeWeek(amountOfDays: number) {
+    const date = activeWeek.value.addDays(amountOfDays);
+    activeWeek.value = date;
     updateQueryParam("weekStart", toLocalDate(date));
     getTimeEntries();
 }
@@ -128,10 +127,10 @@ onMounted(() => {
     activeTab.value = getQueryParam("tab") || activeTab.value;
     const weekStart = getQueryParam("weekStart");
     if (weekStart) {
-        activeWeek.value = new Date(weekStart).toISOString();
+        activeWeek.value = new CustomDate(weekStart);
     }
     // Set activeWeek to a Monday.
-    activeWeek.value = getWeekStart(activeWeek.value).toISOString();
+    activeWeek.value = activeWeek.value.setToWeekStart();
 
     calendarId.value = getCalendarId();
     getTimeEntries();
@@ -156,7 +155,7 @@ if (ready) {
             <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes daraus!</div>
             <div class="flex flex-wrap items-center">
                 <div v-if="firstOpened" class="text-sm text-gray-600 md:mr-4 mb-2 md:mb-0">
-                    Heute geöffnet um: {{ getTime(firstOpened) }}
+                    Heute geöffnet um: {{ firstOpened.getTime() }}
                 </div>
                 <Button
                     class="flex justify-center items-center w-full md:w-auto"
@@ -179,12 +178,7 @@ if (ready) {
             />
 
             <template v-if="activeTab === 'list'">
-                <WeekSlider
-                    :active-week="activeWeek"
-                    :week-start="weekStart"
-                    :week-end="weekEnd"
-                    @update="(val) => changeWeek(val)"
-                />
+                <WeekSlider :week-start="weekStart" :week-end="weekEnd" @update="(val) => changeWeek(val)" />
 
                 <Table class="hidden md:block" :fields="fields" :values="timeEntries" :loading="loading">
                     <template #cell(subject)="{ entry }">
@@ -195,10 +189,10 @@ if (ready) {
                             @dblclick="editSubject(entry.subject)"
                         />
                     </template>
-                    <template #cell(day)="row"> {{ getFullDate(row.entry.start) }}</template>
+                    <template #cell(day)="row"> {{ row.entry.start.getFullDate() }}</template>
                     <template #cell(time)="row">
                         <span class="whitespace-nowrap"
-                            >{{ getTime(row.entry.start) }}&nbsp;&#x2013;&nbsp;{{ getTime(row.entry.end) }}</span
+                            >{{ row.entry.start.getTime() }} &#x2013; {{ row.entry.end.getTime() }}</span
                         >
                     </template>
                     <template #cell(actions)="{ entry }">

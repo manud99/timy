@@ -9,14 +9,14 @@ import DatePicker from "../components/DatePicker.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import TimeField from "../components/TimeField.vue";
 import { getSubject, getSubjects, subjects } from "../utils/subjects";
-import { getIsoDate, getTime, isOnSameDay, roundedToQuarterHours } from "../utils/date";
 import { timeEntries } from "../utils/timeEntries";
 import { firstOpened } from "../utils/firstOpened";
 import { validate, RuleType, validationErrors } from "../utils/validation";
+import CustomDate from "../utils/CustomDate";
 
 const description: Ref<string> = ref("");
-const dateStart: Ref<string> = ref("");
-const dateEnd: Ref<string> = ref("");
+const dateStart: Ref<CustomDate> = ref(new CustomDate("NaN"));
+const dateEnd: Ref<CustomDate> = ref(new CustomDate("NaN"));
 const date: Ref<string> = ref("");
 const start: Ref<string> = ref("");
 const end: Ref<string> = ref("");
@@ -34,12 +34,12 @@ const emit = defineEmits<{
     (e: "update", timeEntry: TimeEntry): void;
 }>();
 
-function setDateFields(dateStart: string, dateEnd: string) {
+function setDateFields(dateStart: CustomDate, dateEnd: CustomDate) {
     // date is in ISO format
     // e.g. 2023-02-13T09:15:00.000Z
-    date.value = getIsoDate(dateStart);
-    start.value = getTime(dateStart);
-    end.value = getTime(dateEnd);
+    date.value = dateStart.getIsoDate();
+    start.value = dateStart.getTime();
+    end.value = dateEnd.getTime();
 }
 
 // Update fields with values from timeEntry
@@ -51,48 +51,51 @@ watch(show, (val) => {
         // Set fields of existing time entry
         description.value = timeEntry.value?.description!;
         subject.value = timeEntry.value?.subject?.name || "";
-        setDateFields(timeEntry.value?.start as string, timeEntry.value?.end as string);
+        setDateFields(timeEntry.value?.start, timeEntry.value?.end);
     } else {
         // Set fields to create a new time entry
         description.value = "";
         subject.value = "";
 
         let start;
-        let nowRounded = roundedToQuarterHours(new Date());
-        const todaysEntries = timeEntries.value.filter((entry) => isOnSameDay(entry.start, nowRounded) && new Date(entry.end).valueOf() < nowRounded.valueOf());
+        let nowRounded = new CustomDate(new Date()).roundedToQuarterHours();
+        const todaysEntries = timeEntries.value.filter(
+            (entry) => nowRounded.isOnSameDay(entry.start) && nowRounded.isBiggerThan(entry.start)
+        );
 
         if (todaysEntries.length) {
-            start = new Date(todaysEntries[todaysEntries.length - 1].end);
-        } else if (firstOpened.value && isOnSameDay(firstOpened.value, nowRounded)) {
-            start = roundedToQuarterHours(new Date(firstOpened.value));
+            start = todaysEntries[todaysEntries.length - 1].end;
+        } else if (firstOpened.value && nowRounded.isOnSameDay(firstOpened.value)) {
+            start = firstOpened.value.roundedToQuarterHours();
         } else {
-            const midnight = new Date(nowRounded);
+            const midnight = new Date(nowRounded.date);
             midnight.setHours(0, 0, 0, 0);
-            start = new Date(Math.max(nowRounded.valueOf() - 3_600_000, midnight.valueOf()));
+            start = new CustomDate(midnight).max(nowRounded.addHours(-1));
         }
 
         // Enforce difference of at least 15 minutes
-        if (nowRounded.valueOf() - start.valueOf() < 900_000) {
-            nowRounded = new Date(start.valueOf() + 900_000);
+        if (nowRounded.diffInMinutes(start) < 15) {
+            nowRounded = start.addMinutes(15);
         }
 
-        setDateFields(start.toISOString(), nowRounded.toISOString());
+        setDateFields(start, nowRounded);
     }
 });
 
 watch([date, start, end], () => {
     if (!date.value || !start.value || !end.value) return;
 
-    const dateObj = new Date(date.value);
+    let dateObj = new Date(date.value);
     dateObj.setHours(parseInt(start.value.substring(0, 2), 10), parseInt(start.value.substring(3, 5), 10));
-    dateStart.value = dateObj.toISOString();
+    dateStart.value = new CustomDate(dateObj);
 
+    dateObj = new Date(dateObj);
     if (end.value === "00:00") {
         dateObj.setHours(24, 0, 0, 0);
     } else {
         dateObj.setHours(parseInt(end.value.substring(0, 2), 10), parseInt(end.value.substring(3, 5), 10));
     }
-    dateEnd.value = dateObj.toISOString();
+    dateEnd.value = new CustomDate(dateObj);
 });
 
 onMounted(() => {
@@ -150,10 +153,10 @@ async function submitTimeEntry() {
             <DatePicker v-model:value="date" name="date" label="Datum" />
         </FormGroup>
         <FormGroup label="Start" name="start" :errors="validationErrors">
-            <TimeField v-model:value="start" name="start" label="Startzeit" :end="false" />
+            <TimeField v-model:value="start" name="start" label="Startzeit" :end="false" :max="end" />
         </FormGroup>
         <FormGroup label="Ende" name="end" :errors="validationErrors">
-            <TimeField v-model:value="end" name="end" label="Ende" :end="true" />
+            <TimeField v-model:value="end" name="end" label="Ende" :end="true" :min="start" />
         </FormGroup>
         <FormGroup label="Beschreibung" name="description" :errors="validationErrors">
             <InputField v-model:value="description" name="description" label="Beschreibung" autofocus />

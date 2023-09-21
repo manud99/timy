@@ -2,6 +2,7 @@ import { TimeEntry } from "../@types/models";
 import { ready } from "./plugin";
 import { showLoginModal } from "./plugin";
 import { parseSubject } from "../utils/subjects";
+import CustomDate from "../utils/CustomDate";
 
 function parseEvent(graphItem: any): TimeEntry {
     const { subject, description } = parseSubject(graphItem.summary);
@@ -9,8 +10,8 @@ function parseEvent(graphItem: any): TimeEntry {
         description,
         subject,
         id: graphItem.id,
-        start: new Date(graphItem.start.dateTime).toISOString(),
-        end: new Date(graphItem.end.dateTime).toISOString(),
+        start: new CustomDate(graphItem.start.dateTime),
+        end: new CustomDate(graphItem.end.dateTime),
     };
 }
 
@@ -34,13 +35,13 @@ export async function fetchCalendars(): Promise<gapi.client.calendar.Calendar[]>
     return response ? response.result.items : [];
 }
 
-export async function fetchEvents(calendarId: string, start: string, end: string): Promise<TimeEntry[]> {
+export async function fetchEvents(calendarId: string, start: CustomDate, end: CustomDate): Promise<TimeEntry[]> {
     const response = await makeRequest(
         `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,
         "GET",
         {
-            timeMin: start,
-            timeMax: end,
+            timeMin: start.toString(),
+            timeMax: end.toString(),
             timeZone: "UTC",
             singleEvents: true,
             orderBy: "startTime",
@@ -57,8 +58,8 @@ export async function fetchEvents(calendarId: string, start: string, end: string
 
 export async function createEvent(calendarId: string, timeEntry: TimeEntry): Promise<TimeEntry | null> {
     const body = {
-        start: { dateTime: timeEntry.start },
-        end: { dateTime: timeEntry.end },
+        start: { dateTime: timeEntry.start.toString() },
+        end: { dateTime: timeEntry.end.toString() },
         summary: timeEntry.subject?.name
             ? `[${timeEntry.subject.name}] ${timeEntry.description}`
             : timeEntry.description,
@@ -81,8 +82,8 @@ export async function updateEvent(
     timeEntry: TimeEntry
 ): Promise<TimeEntry | null> {
     const body = {
-        start: { dateTime: timeEntry.start },
-        end: { dateTime: timeEntry.end },
+        start: { dateTime: timeEntry.start.toString() },
+        end: { dateTime: timeEntry.end.toString() },
         summary: timeEntry.subject ? `[${timeEntry.subject.name}] ${timeEntry.description}` : timeEntry.description,
     };
     const response = await makeRequest(

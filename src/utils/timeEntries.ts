@@ -3,22 +3,19 @@ import { TimeEntry } from "../@types/models";
 import { navigate } from "./routing";
 import { ready } from "../google/plugin";
 import { fetchEvents, createEvent, updateEvent, deleteEvent } from "../google/query";
-import { getWeekStart } from "./date";
+import CustomDate from "./CustomDate";
 
 export const timeEntries: Ref<TimeEntry[]> = ref([]);
-export const activeWeek: Ref<string> = ref(new Date().toISOString());
+export const activeWeek: Ref<CustomDate> = ref(CustomDate.now());
 export const calendarId: Ref<string | null> = ref(null);
 export const loading: Ref<boolean> = ref(true);
 
 export const weekStart = computed(() => {
-    const date = getWeekStart(activeWeek.value);
-    return date.toISOString();
+    return activeWeek.value.setToWeekStart();
 });
 
 export const weekEnd = computed(() => {
-    const date = getWeekStart(activeWeek.value);
-    date.setDate(date.getDate() + 7);
-    return date.toISOString();
+    return activeWeek.value.setToWeekStart().addDays(7);
 });
 
 export function makeSureCalendarIdExists() {

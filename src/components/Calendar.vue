@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, StyleValue, computed, onMounted, onUnmounted, ref, watch } from "vue";
-import { getTime, getWeekday, isOnSameDay } from "../utils/date";
+import CustomDate from "../utils/CustomDate";
 import { getSubjectColor } from "../utils/subjects";
 import { TimeEntry } from "../@types/models";
 
 const props = defineProps<{
-    weekStart: string;
+    weekStart: CustomDate;
     values: Array<TimeEntry>;
 }>();
 
@@ -16,45 +16,44 @@ const emit = defineEmits<{
 }>();
 
 interface Day {
-    date: string;
+    date: CustomDate;
     weekday: string;
     day: number;
 }
 
 const days: ComputedRef<Day[]> = computed(() => {
-    const date = new Date(props.weekStart);
+    let date = props.weekStart;
     const days = [];
     for (let i = 0; i < 7; i++) {
         days.push({
-            date: date.toISOString(),
-            weekday: getWeekday(date),
-            day: date.getDate(),
+            date,
+            weekday: date.getWeekday(),
+            day: date.getDay(),
         });
-        date.setDate(date.getDate() + 1);
+        date = date.addDays(1);
     }
     return days;
 });
 const hours = [...Array(24).keys()];
 
-function getEntries(day: string) {
-    return props.values.filter((entry) => isOnSameDay(entry.start, day));
+function getEntries(date: CustomDate) {
+    console.log(date, props.values);
+
+    return props.values.filter((entry) => date.isOnSameDay(entry.start));
 }
 
 const HEIGHT_PER_HOUR = 40;
 
 function getTop(entry: TimeEntry): number {
-    const date = new Date(entry.start);
-    return date.getHours() * HEIGHT_PER_HOUR + (date.getMinutes() / 60) * HEIGHT_PER_HOUR;
+    return entry.start.getHoursSinceMidnight() * HEIGHT_PER_HOUR;
 }
 
-function getDurationInMs(entry: TimeEntry): number {
-    const end = new Date(entry.end);
-    const start = new Date(entry.start);
-    return end.valueOf() - start.valueOf();
+function getDuration(entry: TimeEntry): number {
+    return entry.end.diffInMinutes(entry.start);
 }
 
 function getHeight(entry: TimeEntry): number {
-    return (getDurationInMs(entry) / 3_600_000) * HEIGHT_PER_HOUR;
+    return (getDuration(entry) / 60) * HEIGHT_PER_HOUR;
 }
 
 let hourBoxes: HTMLElement[] | null = [];
@@ -146,15 +145,15 @@ function onDrop(event: DragEvent) {
     const indexHour = getElementIndexInContainer(hourBox.parentElement);
     const indexDay = getElementIndexInContainer(hourBox.parentElement.parentElement) - 1;
 
-    const start = new Date(props.weekStart);
-    start.setDate(start.getDate() + indexDay);
-    start.setHours(start.getHours() + indexHour);
-    start.setMinutes(start.getMinutes() + indexQuarterHour * 15);
-    const end = new Date(start.valueOf() + getDurationInMs(draggedTimeEntry.value));
-    new Date(draggedTimeEntry.value.end);
+    const start = props.weekStart
+        .clone()
+        .addDays(indexDay)
+        .addHours(indexHour)
+        .addMinutes(indexQuarterHour * 15);
+    const end = start.addMinutes(getDuration(draggedTimeEntry.value));
 
-    draggedTimeEntry.value.start = start.toISOString();
-    draggedTimeEntry.value.end = end.toISOString();
+    draggedTimeEntry.value.start = start;
+    draggedTimeEntry.value.end = end;
     emit("update", draggedTimeEntry.value);
     draggedTimeEntry.value = null;
 
@@ -230,10 +229,7 @@ onMounted(() => {
                                 v-text="entry.subject.name"
                             />
                             <span class="text-sm font-semibold" v-text="entry.description" />
-                            <div
-                                class="text-xs"
-                                v-text="getTime(entry.start) + ' &#x2013; ' + getTime(entry.end)"
-                            ></div>
+                            <div class="text-xs">{{ entry.start.getTime() }} &#x2013; {{ entry.end.getTime() }}</div>
                         </div>
                         <div
                             v-else-if="getHeight(entry) > 10"

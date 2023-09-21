@@ -1,3 +1,5 @@
+import CustomDate from "../utils/CustomDate";
+
 /**
  * Model TimeEntry
  *
@@ -6,8 +8,8 @@ export interface TimeEntry {
     id: string;
     description: string;
     subject: Subject | null;
-    start: string;
-    end: string;
+    start: CustomDate;
+    end: CustomDate;
 }
 
 /**

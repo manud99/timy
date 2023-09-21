@@ -1,6 +1,6 @@
 import { Ref, ref } from "vue";
 import { ValidationError } from "../@types/ValidationErrors";
-import { isValidDate } from "./date";
+import CustomDate from "./CustomDate";
 
 export enum RuleType {
     Required = 1,
@@ -24,7 +24,7 @@ function validateRequired(record: Record, rule: Rule) {
 }
 
 function validateDate(record: Record, rule: Rule) {
-    return record[rule.field] && isValidDate(record[rule.field]);
+    return record[rule.field] && record[rule.field] instanceof CustomDate && record[rule.field].isValidDate();
 }
 
 function validateCustom(record: Record, rule: Rule) {

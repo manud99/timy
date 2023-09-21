@@ -42,9 +42,11 @@ const hasFocus = ref(false);
     <div class="grid md:grid-cols-4 border-gray-400">
         <button
             v-for="(day, i) in days"
-            class="py-1.5 border border-b-0 md:border-b md:border-r-0 transition-colors duration-300 ring-blue-600 focus:outline-none focus:ring-2 focus:z-0"
             :class="[
-                numDaysFromToday === day.diff ? 'bg-blue-600 border-blue-600 text-white' : 'border-inherit',
+                'py-1.5 border border-b-0 md:border-b md:border-r-0 transition-colors duration-300 ring-blue-600 focus:outline-none focus:ring-2 focus:z-0',
+                numDaysFromToday === day.diff
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'hover:bg-blue-300 border-inherit',
                 i === 0 ? 'rounded-t-lg md:rounded-tr-none md:rounded-l-lg' : '',
             ]"
             type="button"
@@ -64,7 +66,7 @@ const hasFocus = ref(false);
                 v-text="'Früher'"
             />
             <input
-                class="block text-sm rounded-b-lg md:rounded-bl-none md:rounded-r-lg border focus:outline-none focus:ring-2 border-blue-600 w-full"
+                class="block cursor-pointer text-sm rounded-b-lg md:rounded-bl-none md:rounded-r-lg border focus:outline-none focus:ring-2 border-blue-600 w-full"
                 :id="`input-${name}`"
                 type="date"
                 :value="value"
