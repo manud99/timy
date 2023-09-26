@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { watch, toRefs, Ref, inject } from "vue";
+import { watch, toRefs, Ref } from "vue";
 import Modal from "../components/Modal.vue";
 import { signIn } from "../google/utils";
 import Button, { ButtonSize } from "../components/Button.vue";
-import { googleReadyKey } from "../keys";
+import { ready } from "../google/plugin";
 
 const props = defineProps<{ show: boolean }>();
 const { show } = toRefs(props);
-
-const ready = inject<Ref<boolean>>(googleReadyKey);
 
 const emit = defineEmits<{
     (e: "close"): void;

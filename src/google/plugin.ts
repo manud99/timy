@@ -1,6 +1,5 @@
 import { App, Ref, ref } from "vue";
 import { loadGoogleLibraries } from "./load";
-import { googleReadyKey, tokenClientKey, showLoginModalKey } from "../keys";
 import { retryRequests } from "./query";
 
 const ACCESS_TOKEN_KEY: string = "timy_google_access_token";
@@ -29,10 +28,6 @@ export function forgetToken() {
 
 export default {
     install: async (app: App) => {
-        app.provide(tokenClientKey, tokenClient);
-        app.provide(googleReadyKey, ready);
-        app.provide(showLoginModalKey, showLoginModal);
-
         tokenClient.value = await loadGoogleLibraries(handleCodeResponse);
 
         if (accessToken.value) {

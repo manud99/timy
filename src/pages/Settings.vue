@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { Ref, ref, inject, onMounted, watch } from "vue";
+import { Ref, ref, onMounted, watch } from "vue";
 import Page from "../blocks/Page.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
 import Section from "../blocks/Section.vue";
 import SelectField, { Option } from "../components/SelectField.vue";
 import { getCalendarId, setCalendarId } from "../utils/settings";
-import { googleReadyKey } from "../keys";
 import { fetchCalendars, fetchUserInfo } from "../google/query";
 import { signOut } from "../google/utils";
+import { ready } from "../google/plugin";
 
 const calendars: Ref<Option[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const calendar: Ref<string> = ref("");
 const account: Ref<any> = ref(null);
-const ready = inject<Ref<boolean>>(googleReadyKey);
 
 async function getCalendars() {
     if (!ready || !ready.value) return;
