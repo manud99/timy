@@ -1,6 +1,7 @@
 import { App, Ref, ref } from "vue";
 import { loadGoogleLibraries } from "./load";
 import { googleReadyKey, tokenClientKey, showLoginModalKey } from "../keys";
+import { retryRequests } from "./query";
 
 const ACCESS_TOKEN_KEY: string = "timy_google_access_token";
 
@@ -18,6 +19,7 @@ function handleCodeResponse(res: google.accounts.oauth2.TokenResponse) {
     const accessToken = res.access_token;
     window.localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     ready.value = true;
+    retryRequests();
 }
 
 export function forgetToken() {

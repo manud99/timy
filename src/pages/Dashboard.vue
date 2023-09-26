@@ -5,16 +5,12 @@ import { Subject, TimeEntry } from "../@types/models";
 import { getCalendarId } from "../utils/settings";
 import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
-import SubjectTag from "../blocks/SubjectTag.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
 import Calendar from "../components/Calendar.vue";
-import Table from "../components/Table.vue";
 import type { Field } from "../components/Table.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
 import WeekSlider from "../components/WeekSlider.vue";
-import IconGarbage from "../icons/Garbage.vue";
-import IconPencil from "../icons/Pencil.vue";
 import IconPlus from "../icons/Plus.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
 import CustomDate from "../utils/CustomDate";
@@ -36,31 +32,6 @@ import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import { updateSubject } from "../utils/subjects";
 import List from "../components/List.vue";
-
-const fields: Field[] = [
-    {
-        id: "day",
-        label: "Datum",
-        nowrap: true,
-    },
-    {
-        id: "time",
-        label: "Zeit",
-        nowrap: true,
-    },
-    {
-        id: "description",
-        label: "Beschreibung",
-    },
-    {
-        id: "subject",
-        label: "Fach",
-    },
-    {
-        id: "actions",
-        label: "Aktionen",
-    },
-];
 
 const tabs: Tab[] = [
     { id: "list", label: "Liste" },

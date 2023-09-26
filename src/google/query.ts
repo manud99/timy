@@ -4,6 +4,15 @@ import { showLoginModal } from "./plugin";
 import { parseSubject } from "../utils/subjects";
 import CustomDate from "../utils/CustomDate";
 
+interface RequestObject {
+    endpoint: string;
+    method: string;
+    params: object;
+    body: string | null;
+}
+
+const retrySubmissionAfterLogin: RequestObject[] = [];
+
 function parseEvent(graphItem: any): TimeEntry {
     const { subject, description } = parseSubject(graphItem.summary);
     return {
@@ -109,6 +118,13 @@ export async function deleteEvent(calendarId: string, eventId: string): Promise<
     return response && response.body === "";
 }
 
+export async function retryRequests() {
+    while (retrySubmissionAfterLogin.length) {
+        const { endpoint, method, params, body } = retrySubmissionAfterLogin.pop()!;
+        await makeRequest(endpoint, method, params, body);
+    }
+}
+
 async function makeRequest(
     endpoint: string,
     method: string,
@@ -129,6 +145,7 @@ async function makeRequest(
         if (error?.status === 401) {
             console.error("[GAPI]", error?.result?.error?.message);
             if (showLoginModal) showLoginModal.value = true;
+            retrySubmissionAfterLogin.push({ endpoint, method, params, body });
         } else {
             console.error("Dashboard error while loading time entries", error);
         }
