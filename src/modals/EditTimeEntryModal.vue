@@ -10,7 +10,7 @@ import SelectField, { Option } from "../components/SelectField.vue";
 import TimeField from "../components/TimeField.vue";
 import { getSubject, getSubjects, subjects } from "../utils/subjects";
 import { timeEntries } from "../utils/timeEntries";
-import { firstOpened } from "../utils/firstOpened";
+import { startTime } from "../utils/timeKeeper";
 import { validate, RuleType, validationErrors } from "../utils/validation";
 import CustomDate from "../utils/CustomDate";
 
@@ -65,8 +65,8 @@ watch(show, (val) => {
 
         if (todaysEntries.length) {
             start = todaysEntries[todaysEntries.length - 1].end;
-        } else if (firstOpened.value && nowRounded.isOnSameDay(firstOpened.value)) {
-            start = firstOpened.value.roundedToQuarterHours();
+        } else if (startTime.value && nowRounded.isOnSameDay(startTime.value)) {
+            start = startTime.value.roundedToQuarterHours();
         } else {
             const midnight = new Date(nowRounded.date);
             midnight.setHours(0, 0, 0, 0);

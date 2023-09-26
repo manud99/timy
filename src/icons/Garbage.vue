@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { size } = defineProps<{ size: number }>();
+// Source: https://iconmonstr.com/trash-can-28-svg/
 </script>
 
 <template>

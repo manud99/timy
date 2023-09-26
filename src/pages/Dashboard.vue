@@ -7,14 +7,13 @@ import Page from "../blocks/Page.vue";
 import Section from "../blocks/Section.vue";
 import Button, { ButtonSize } from "../components/Button.vue";
 import Calendar from "../components/Calendar.vue";
-import type { Field } from "../components/Table.vue";
 import Tabs from "../components/Tabs.vue";
 import type { Tab } from "../components/Tabs.vue";
 import WeekSlider from "../components/WeekSlider.vue";
 import IconPlus from "../icons/Plus.vue";
+import IconReload from "../icons/Reload.vue";
 import EditTimeEntryModal from "../modals/EditTimeEntryModal.vue";
 import CustomDate from "../utils/CustomDate";
-import { firstOpened } from "../utils/firstOpened";
 import {
     timeEntries,
     loading,
@@ -32,6 +31,7 @@ import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import { updateSubject } from "../utils/subjects";
 import List from "../components/List.vue";
+import { startTime, setStartTime } from "../utils/timeKeeper";
 
 const tabs: Tab[] = [
     { id: "list", label: "Liste" },
@@ -94,6 +94,10 @@ function onKeyPress(event: KeyboardEvent) {
     }
 }
 
+function resetStartTime() {
+    setStartTime(CustomDate.now());
+}
+
 onMounted(() => {
     activeTab.value = getQueryParam("tab") || activeTab.value;
     const weekStart = getQueryParam("weekStart");
@@ -124,10 +128,20 @@ if (ready) {
     <Page title="Übersicht">
         <Section class="flex flex-wrap gap-4 justify-between items-center p-4 bg-white">
             <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes daraus!</div>
-            <div class="flex flex-wrap items-center">
-                <div v-if="firstOpened" class="text-sm text-gray-600 md:mr-4 mb-2 md:mb-0">
-                    Heute geöffnet um: {{ firstOpened.getTime() }}
+            <div class="flex flex-wrap gap-2 items-center">
+                <div v-if="startTime" class="text-sm text-center text-gray-600">
+                    Gestartet um: {{ startTime.getTime() }}<br />
                 </div>
+                <Button
+                    class="flex justify-center items-center w-full md:w-auto"
+                    color="green"
+                    :size="ButtonSize.LG"
+                    label="Jetzt neu starten"
+                    @click="resetStartTime"
+                >
+                    <IconReload class="mr-2" :size="16" />
+                    Jetzt neu starten
+                </Button>
                 <Button
                     class="flex justify-center items-center w-full md:w-auto"
                     label="Neues Eintrag erstellen"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { size } = defineProps<{ size: number }>();
+// Source: https://iconmonstr.com/x-mark-lined-svg/
 </script>
 
 <template>

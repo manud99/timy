@@ -52,3 +52,4 @@ Timy is open-sourced software licensed under the MIT license. See [LICENSE.txt](
 ## Credits
 
 Template is adapted from: https://github.com/estevanmaito/windmill-dashboard
+Icons are from: https://iconmonstr.com/

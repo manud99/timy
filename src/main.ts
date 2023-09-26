@@ -2,9 +2,9 @@ import { createApp } from "vue";
 import "./style.css";
 import App from "./App.vue";
 import gapiPlugin from "./google/plugin";
-import { storeFirstOpenedTime } from "./utils/firstOpened";
+import { autoStartDay } from "./utils/timeKeeper";
 
-storeFirstOpenedTime();
+autoStartDay();
 
 const app = createApp(App);
 
