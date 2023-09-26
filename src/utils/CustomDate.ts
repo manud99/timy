@@ -19,7 +19,7 @@ export default class CustomDate {
     }
 
     getFullDate(): string {
-        return this.date.toLocaleString("de-CH", { weekday: "long", day: "2-digit", month: "short", year: "numeric" });
+        return this.date.toLocaleString("de-CH", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
     }
 
     getIsoDate(): string {

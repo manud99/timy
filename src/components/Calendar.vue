@@ -37,8 +37,6 @@ const days: ComputedRef<Day[]> = computed(() => {
 const hours = [...Array(24).keys()];
 
 function getEntries(date: CustomDate) {
-    console.log(date, props.values);
-
     return props.values.filter((entry) => date.isOnSameDay(entry.start));
 }
 

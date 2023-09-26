@@ -179,57 +179,18 @@ if (ready) {
 
             <template v-if="activeTab === 'list'">
                 <WeekSlider :week-start="weekStart" :week-end="weekEnd" @update="(val) => changeWeek(val)" />
-
-                <Table class="hidden md:block" :fields="fields" :values="timeEntries" :loading="loading">
-                    <template #cell(subject)="{ entry }">
-                        <SubjectTag
-                            v-if="entry.subject"
-                            class="cursor-pointer"
-                            :subject="entry.subject"
-                            @dblclick="editSubject(entry.subject)"
-                        />
-                    </template>
-                    <template #cell(day)="row"> {{ row.entry.start.getFullDate() }}</template>
-                    <template #cell(time)="row">
-                        <span class="whitespace-nowrap"
-                            >{{ row.entry.start.getTime() }} &#x2013; {{ row.entry.end.getTime() }}</span
-                        >
-                    </template>
-                    <template #cell(actions)="{ entry }">
-                        <div class="flex">
-                            <Button
-                                class="mr-2"
-                                :size="ButtonSize.SM"
-                                label="Bearbeiten"
-                                @click="showUpdateModal(entry as TimeEntry)"
-                            >
-                                <IconPencil class="lg:mr-2" :size="16" />
-                                <span class="hidden lg:inline">Bearbeiten</span>
-                            </Button>
-                            <Button :size="ButtonSize.SM" label="Löschen" @click="deleteTimeEntry(entry as TimeEntry)">
-                                <IconGarbage class="lg:mr-2" :size="12" />
-                                <span class="hidden lg:inline">Löschen</span>
-                            </Button>
-                        </div>
-                    </template>
-                </Table>
                 <List
                     :time-entries="timeEntries"
                     :loading="loading"
+                    :active-week="activeWeek"
                     @edit="showUpdateModal"
                     @delete="deleteTimeEntry"
                     @edit-subject="editSubject"
                 />
             </template>
 
-            <div v-else-if="activeTab === 'week'">
-                <WeekSlider
-                    :active-week="activeWeek"
-                    :week-start="weekStart"
-                    :week-end="weekEnd"
-                    @update="(val) => changeWeek(val)"
-                />
-
+            <template v-else-if="activeTab === 'week'">
+                <WeekSlider :week-start="weekStart" :week-end="weekEnd" @update="(val) => changeWeek(val)" />
                 <Calendar
                     :values="timeEntries"
                     :week-start="weekStart"
@@ -237,7 +198,7 @@ if (ready) {
                     @update="updateTimeEntry"
                     @delete="deleteTimeEntry"
                 />
-            </div>
+            </template>
         </Section>
     </Page>
 
