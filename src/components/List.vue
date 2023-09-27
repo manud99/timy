@@ -31,6 +31,15 @@ function getDateOfDay(day: number): CustomDate {
     return activeWeek.value.addDays(day);
 }
 
+function getHoursOfDay(day: number): string {
+    const value = getEntriesForDay(day).reduce((prev, cur) => {
+        return prev + cur.end.diffInMinutes(cur.start);
+    }, 0);
+    const hours = Math.floor(value / 60);
+    const minutes = value - hours * 60;
+    return `${hours}h ${minutes}min`;
+}
+
 function getEntriesForDay(day: number): TimeEntry[] {
     const date = getDateOfDay(day);
     return timeEntries.value.filter((entry) => entry.start.isOnSameDay(date));
@@ -41,9 +50,15 @@ function getEntriesForDay(day: number): TimeEntry[] {
     <div class="border-t" v-if="!loading">
         <div v-for="day in [...Array(7).keys()]">
             <div
-                class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50 p-2 md:px-4 md:py-3"
-                v-text="getDateOfDay(day).getFullDate()"
-            />
+                :class="[
+                    'flex flex-wrap justify-between',
+                    'text-xs font-semibold tracking-wide text-left text-gray-500 uppercase',
+                    'border-b bg-gray-50 p-2 md:px-4 md:py-3',
+                ]"
+            >
+                <div>{{ getDateOfDay(day).getFullDate() }}</div>
+                <div>Total: {{ getHoursOfDay(day) }}</div>
+            </div>
             <div v-for="entry in getEntriesForDay(day)">
                 <div class="bg-white border-b px-2 md:px-4 py-2">
                     <div class="grid grid-cols-10 gap-2 items-center justify-between">
