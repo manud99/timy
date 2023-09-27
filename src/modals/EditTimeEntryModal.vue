@@ -60,7 +60,7 @@ watch(show, (val) => {
         let start;
         let nowRounded = new CustomDate(new Date()).roundedToQuarterHours();
         const todaysEntries = timeEntries.value.filter(
-            (entry) => nowRounded.isOnSameDay(entry.start) && nowRounded.isBiggerThan(entry.start)
+            (entry) => nowRounded.isOnSameDay(entry.end) && nowRounded.isBiggerThan(entry.end)
         );
 
         if (todaysEntries.length) {
