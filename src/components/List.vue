@@ -52,11 +52,15 @@ function getEntriesForDay(day: number): TimeEntry[] {
             <div
                 :class="[
                     'flex flex-wrap justify-between',
-                    'text-xs font-semibold tracking-wide text-left text-gray-500 uppercase',
-                    'border-b bg-gray-50 p-2 md:px-4 md:py-3',
+                    'text-xs font-semibold tracking-wide text-left uppercase',
+                    'border-b p-2 md:px-4 md:py-3',
+                    getDateOfDay(day).isToday() ? 'bg-green-200 text-gray-600' : 'bg-gray-50 text-gray-500',
                 ]"
             >
-                <div>{{ getDateOfDay(day).getFullDate() }}</div>
+                <div>
+                    {{ getDateOfDay(day).getFullDate() }}
+                    <span v-if="getDateOfDay(day).isToday()">– Heute</span>
+                </div>
                 <div>Total: {{ getHoursOfDay(day) }}</div>
             </div>
             <div v-for="entry in getEntriesForDay(day)">

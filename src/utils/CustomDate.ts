@@ -83,6 +83,10 @@ export default class CustomDate {
         );
     }
 
+    isToday(): boolean {
+        return this.isOnSameDay(CustomDate.now());
+    }
+
     isSmallerThan(other: CustomDate): boolean {
         return this.date.valueOf() < other.date.valueOf();
     }
