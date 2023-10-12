@@ -65,8 +65,8 @@ function getEntriesForDay(day: number): TimeEntry[] {
             </div>
             <div v-for="entry in getEntriesForDay(day)">
                 <div class="bg-white border-b px-2 md:px-4 py-2">
-                    <div class="grid grid-cols-10 gap-2 items-center justify-between">
-                        <div class="col-span-5 md:col-span-2 md:order-2">
+                    <div class="grid grid-cols-12 gap-2 items-center justify-between">
+                        <div class="col-span-6 md:col-span-3 md:order-2">
                             <SubjectTag
                                 v-if="entry.subject"
                                 class="cursor-pointer"
@@ -74,7 +74,7 @@ function getEntriesForDay(day: number): TimeEntry[] {
                                 @dblclick="emit('editSubject', entry.subject)"
                             />
                         </div>
-                        <div class="col-span-5 md:col-span-2 md:order-4 flex justify-end">
+                        <div class="col-span-6 md:col-span-2 md:order-4 flex justify-end">
                             <div>
                                 <button
                                     :class="[
@@ -106,11 +106,11 @@ function getEntriesForDay(day: number): TimeEntry[] {
                                 </button>
                             </div>
                         </div>
-                        <span class="col-span-4 xl:col-auto md:order-1 whitespace-nowrap">
+                        <span class="col-span-4 md:col-span-2 md:order-1 whitespace-nowrap">
                             {{ entry.start.getTime() }} &#x2013; {{ entry.end.getTime() }}
                         </span>
                         <span
-                            class="col-span-6 md:col-span-4 xl:col-span-5 md:order-3 font-semibold"
+                            class="col-span-8 md:col-span-5 xl:col-span-5 md:order-3 font-semibold"
                             v-text="entry.description"
                         />
                     </div>
