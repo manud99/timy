@@ -49,6 +49,7 @@ function onInputUpdate(event: Event) {
                 'focus:outline-none focus:ring-2 ring-blue-700',
             ]"
             title="Auswahl löschen"
+            type="button"
             @click="emit('update:value', '')"
         >
             <IconCross :size="16" />

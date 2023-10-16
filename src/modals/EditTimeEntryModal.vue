@@ -6,7 +6,7 @@ import Modal from "../components/Modal.vue";
 import FormGroup from "../components/FormGroup.vue";
 import InputField from "../components/InputField.vue";
 import DatePicker from "../components/DatePicker.vue";
-import SelectField, { Option } from "../components/SelectField.vue";
+import SelectSubjectField from "../components/SelectSubjectField.vue";
 import TimeField from "../components/TimeField.vue";
 import { getSubject, getSubjects, subjects } from "../utils/subjects";
 import { timeEntries } from "../utils/timeEntries";
@@ -98,14 +98,6 @@ watch([date, start, end], () => {
     dateEnd.value = new CustomDate(dateObj);
 });
 
-onMounted(() => {
-    getSubjects();
-});
-
-const subjectOptions = computed(() => {
-    return subjects.value.map((subject): Option => ({ label: subject.name, value: subject.name }));
-});
-
 const newEntry = computed(() => !timeEntry.value);
 
 async function submitTimeEntry() {
@@ -162,13 +154,7 @@ async function submitTimeEntry() {
             <InputField v-model:value="description" name="description" label="Beschreibung" autofocus />
         </FormGroup>
         <FormGroup label="Fach" name="subject" :errors="validationErrors">
-            <SelectField
-                v-model:value="subject"
-                :options="subjectOptions"
-                name="subject"
-                label="Fach auswählen"
-                clearable
-            />
+            <SelectSubjectField v-model:value="subject" name="subject" label="Fach" />
         </FormGroup>
     </Modal>
 </template>
