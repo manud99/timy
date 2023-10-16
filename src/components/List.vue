@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { nextTick, ref, Ref, watch } from "vue";
 import { Subject, TimeEntry } from "../@types/models";
 import CustomDate from "../utils/CustomDate";
 import Button, { ButtonSize } from "./Button.vue";
 import IconGarbage from "../icons/Garbage.vue";
 import IconPencil from "../icons/Pencil.vue";
+import IconArrowRight from "../icons/ArrowRight.vue";
 import SubjectTag from "../blocks/SubjectTag.vue";
 import Spinner from "./Spinner.vue";
 import { activeWeek, timeEntries } from "../utils/timeEntries";
@@ -44,79 +46,116 @@ function getEntriesForDay(day: number): TimeEntry[] {
     const date = getDateOfDay(day);
     return timeEntries.value.filter((entry) => entry.start.isOnSameDay(date));
 }
+
+const isOpen: Ref<boolean[]> = ref(Array(7).fill(true));
+const list: Ref<HTMLElement | null> = ref(null);
+const transitionActive: Ref<boolean> = ref(false);
+
+watch(props, async () => {
+    isOpen.value = Array(7).fill(true);
+    await nextTick();
+    transitionActive.value = !props.loading;
+});
+
+function computeHeight(day: number): number {
+    if (!list.value) return 0;
+    const dayList = list.value.children.item(day)?.querySelector(".day-collapse");
+    if (!dayList) return 0;
+    return Array.from(dayList.children).reduce((acc, el) => acc + el.getBoundingClientRect().height, 0);
+}
+
+function collapseDay(event: MouseEvent, day: number) {
+    if (event.ctrlKey) {
+        // collapse all other days
+        const newVal = !isOpen.value[day];
+        isOpen.value = isOpen.value.map((_) => newVal);
+    } else {
+        isOpen.value[day] = !isOpen.value[day];
+    }
+}
 </script>
 
 <template>
-    <div class="border-t" v-if="!loading">
+    <div class="border-t" v-if="!loading" ref="list">
         <div v-for="day in [...Array(7).keys()]">
             <div
                 :class="[
-                    'flex flex-wrap justify-between',
+                    'flex flex-wrap justify-between cursor-pointer',
                     'text-xs font-semibold tracking-wide text-left uppercase',
                     'border-b p-2 md:px-4 md:py-3',
-                    getDateOfDay(day).isToday() ? 'bg-green-200 text-gray-600' : 'bg-gray-50 text-gray-500',
+                    getDateOfDay(day).isToday() ? 'bg-amber-300 text-gray-800' : 'bg-gray-50 text-gray-500',
                 ]"
+                @click="collapseDay($event, day)"
             >
-                <div>
+                <div class="flex">
+                    <IconArrowRight
+                        :class="['mr-2 transition-transform duration-300', isOpen[day] ? 'rotate-90' : '']"
+                        :size="16"
+                    />
                     {{ getDateOfDay(day).getFullDate() }}
                     <span v-if="getDateOfDay(day).isToday()">– Heute</span>
                 </div>
                 <div>Total: {{ getHoursOfDay(day) }}</div>
             </div>
-            <div v-for="entry in getEntriesForDay(day)">
-                <div class="bg-white border-b px-2 md:px-4 py-2">
-                    <div class="grid grid-cols-12 gap-2 items-center justify-between">
-                        <div class="col-span-6 md:col-span-3 md:order-2">
-                            <SubjectTag
-                                v-if="entry.subject"
-                                class="cursor-pointer"
-                                :subject="entry.subject"
-                                @dblclick="emit('editSubject', entry.subject)"
+            <div
+                :class="['day-collapse overflow-hidden', transitionActive ? 'transition-[height] duration-300' : '']"
+                :style="{ height: isOpen[day] ? computeHeight(day) + 'px' : 0 }"
+            >
+                <div v-for="entry in getEntriesForDay(day)">
+                    <div class="bg-white border-b px-2 md:px-4 py-2">
+                        <div class="grid grid-cols-12 gap-2 items-center justify-between">
+                            <div class="col-span-6 md:col-span-3 md:order-2">
+                                <SubjectTag
+                                    v-if="entry.subject"
+                                    class="cursor-pointer"
+                                    :subject="entry.subject"
+                                    @dblclick="emit('editSubject', entry.subject)"
+                                />
+                            </div>
+                            <div class="col-span-6 md:col-span-2 md:order-4 flex justify-end">
+                                <div>
+                                    <button
+                                        :class="[
+                                            'flex items-center font-semibold text-sm border-b-2 p-1 mr-2',
+                                            'transition-color duration-300 hover:text-blue-600 hover:border-blue-600',
+                                            'focus:text-blue-600 focus:border-blue-600',
+                                        ]"
+                                        :size="ButtonSize.SM"
+                                        label="Bearbeiten"
+                                        @click="emit('edit', entry as TimeEntry)"
+                                    >
+                                        <IconPencil :size="16" />
+                                        <span class="hidden sm:inline ml-2">Bearbeiten</span>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button
+                                        :class="[
+                                            'flex items-center font-semibold text-sm border-b-2 p-1',
+                                            'transition-color duration-300 hover:text-red-600 hover:border-red-600',
+                                            'focus:text-red-600 focus:border-red-600',
+                                        ]"
+                                        :size="ButtonSize.SM"
+                                        label="Löschen"
+                                        @click="emit('delete', entry as TimeEntry)"
+                                    >
+                                        <IconGarbage class="py-[2px]" :size="16" />
+                                        <span class="hidden sm:inline ml-2">Löschen</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <span class="col-span-4 md:col-span-2 md:order-1 whitespace-nowrap">
+                                {{ entry.start.getTime() }} &#x2013; {{ entry.end.getTime() }}
+                            </span>
+                            <span
+                                class="col-span-8 md:col-span-5 xl:col-span-5 md:order-3 font-semibold"
+                                v-text="entry.description"
                             />
                         </div>
-                        <div class="col-span-6 md:col-span-2 md:order-4 flex justify-end">
-                            <div>
-                                <button
-                                    :class="[
-                                        'flex items-center font-semibold text-sm border-b-2 p-1 mr-2',
-                                        'transition-color duration-300 hover:text-blue-600 hover:border-blue-600',
-                                        'focus:text-blue-600 focus:border-blue-600',
-                                    ]"
-                                    :size="ButtonSize.SM"
-                                    label="Bearbeiten"
-                                    @click="emit('edit', entry as TimeEntry)"
-                                >
-                                    <IconPencil :size="16" />
-                                    <span class="hidden sm:inline ml-2">Bearbeiten</span>
-                                </button>
-                            </div>
-                            <div>
-                                <button
-                                    :class="[
-                                        'flex items-center font-semibold text-sm border-b-2 p-1',
-                                        'transition-color duration-300 hover:text-red-600 hover:border-red-600',
-                                        'focus:text-red-600 focus:border-red-600',
-                                    ]"
-                                    :size="ButtonSize.SM"
-                                    label="Löschen"
-                                    @click="emit('delete', entry as TimeEntry)"
-                                >
-                                    <IconGarbage class="py-[2px]" :size="16" />
-                                    <span class="hidden sm:inline ml-2">Löschen</span>
-                                </button>
-                            </div>
-                        </div>
-                        <span class="col-span-4 md:col-span-2 md:order-1 whitespace-nowrap">
-                            {{ entry.start.getTime() }} &#x2013; {{ entry.end.getTime() }}
-                        </span>
-                        <span
-                            class="col-span-8 md:col-span-5 xl:col-span-5 md:order-3 font-semibold"
-                            v-text="entry.description"
-                        />
                     </div>
                 </div>
+                <div v-if="!getEntriesForDay(day).length" class="bg-white px-4 py-2">Keine Einträge für diesen Tag</div>
             </div>
-            <div v-if="!getEntriesForDay(day).length" class="bg-white px-4 py-2">Keine Einträge für diesen Tag</div>
         </div>
     </div>
     <div v-else class="bg-white border-t text-center px-4 py-8" colspan="9999">
