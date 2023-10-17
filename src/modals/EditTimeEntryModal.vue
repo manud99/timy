@@ -63,10 +63,15 @@ watch(show, (val) => {
             (entry) => nowRounded.isOnSameDay(entry.end) && nowRounded.isBiggerThan(entry.end)
         );
 
-        if (todaysEntries.length) {
-            start = todaysEntries[todaysEntries.length - 1].end;
-        } else if (startTime.value && nowRounded.isOnSameDay(startTime.value)) {
-            start = startTime.value.roundedToQuarterHours();
+        const endOfLastEntry = todaysEntries.length ? todaysEntries[todaysEntries.length - 1].end : null;
+        const startTimerTime =
+            startTime.value && nowRounded.isOnSameDay(startTime.value) ? startTime.value.roundedToQuarterHours() : null;
+        if (endOfLastEntry !== null && startTimerTime !== null) {
+            start = endOfLastEntry.max(startTimerTime);
+        } else if (endOfLastEntry !== null) {
+            start = endOfLastEntry;
+        } else if (startTimerTime !== null) {
+            start = startTimerTime;
         } else {
             const midnight = new Date(nowRounded.date);
             midnight.setHours(0, 0, 0, 0);
