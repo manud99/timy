@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, Ref, watch } from "vue";
+import { nextTick, onMounted, ref, Ref, watch } from "vue";
 import { Subject, TimeEntry } from "../@types/models";
 import CustomDate from "../utils/CustomDate";
 import Button, { ButtonSize } from "./Button.vue";
@@ -22,13 +22,6 @@ const emit = defineEmits<{
     (e: "editSubject", subject: Subject): void;
 }>();
 
-let prevDate: CustomDate | null = null;
-function isFirstEntryOfTheDay(entry: TimeEntry): boolean {
-    const res = prevDate === null || !prevDate.isOnSameDay(entry.start);
-    prevDate = entry.start;
-    return res;
-}
-
 function getDateOfDay(day: number): CustomDate {
     return activeWeek.value.addDays(day);
 }
@@ -48,6 +41,7 @@ function getEntriesForDay(day: number): TimeEntry[] {
 }
 
 const isOpen: Ref<boolean[]> = ref(Array(7).fill(true));
+const heights: Ref<number[]> = ref(Array(7).fill(0));
 const list: Ref<HTMLElement | null> = ref(null);
 const transitionActive: Ref<boolean> = ref(false);
 
@@ -57,12 +51,29 @@ watch(props, async () => {
     transitionActive.value = !props.loading;
 });
 
-function computeHeight(day: number): number {
-    if (!list.value) return 0;
-    const dayList = list.value.children.item(day)?.querySelector(".day-collapse");
-    if (!dayList) return 0;
-    return Array.from(dayList.children).reduce((acc, el) => acc + el.getBoundingClientRect().height, 0);
+function computeHeights() {
+    if (!list.value) return;
+    const sections = list.value.querySelectorAll(".day-collapse");
+    if (!sections || sections.length !== 7) return;
+
+    heights.value = Array.from(sections).map((section) => {
+        return Array.from(section.children).reduce((acc, el) => acc + el.getBoundingClientRect().height, 0);
+    });
 }
+
+onMounted(() => {
+    computeHeights();
+    window.addEventListener("resize", computeHeights);
+});
+
+watch(
+    () => timeEntries.value.length,
+    () => nextTick(computeHeights)
+);
+watch(
+    () => props.loading,
+    () => nextTick(computeHeights)
+);
 
 function collapseDay(event: MouseEvent, day: number) {
     if (event.ctrlKey) {
@@ -99,7 +110,7 @@ function collapseDay(event: MouseEvent, day: number) {
             </div>
             <div
                 :class="['day-collapse overflow-hidden', transitionActive ? 'transition-[height] duration-300' : '']"
-                :style="{ height: isOpen[day] ? computeHeight(day) + 'px' : 0 }"
+                :style="{ height: isOpen[day] ? heights[day] + 'px' : 0 }"
             >
                 <div v-for="entry in getEntriesForDay(day)">
                     <div class="bg-white border-b px-2 md:px-4 py-2">
