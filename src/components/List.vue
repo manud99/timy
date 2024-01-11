@@ -94,7 +94,7 @@ function collapseDay(event: MouseEvent, day: number) {
                     'flex flex-wrap justify-between cursor-pointer',
                     'text-xs font-semibold tracking-wide text-left uppercase',
                     'border-b p-2 md:px-4 md:py-3',
-                    getDateOfDay(day).isToday() ? 'bg-amber-300 text-gray-800' : 'bg-gray-50 text-gray-500',
+                    'bg-gray-50 text-gray-500',
                 ]"
                 @click="collapseDay($event, day)"
             >
@@ -103,8 +103,8 @@ function collapseDay(event: MouseEvent, day: number) {
                         :class="['mr-2 transition-transform duration-300', isOpen[day] ? 'rotate-90' : '']"
                         :size="16"
                     />
+                    <span class="mr-2 bg-amber-300 rounded text-gray-800 px-1.5 py-0.5 -my-0.5" v-if="getDateOfDay(day).isToday()">Heute</span>
                     {{ getDateOfDay(day).getFullDate() }}
-                    <span v-if="getDateOfDay(day).isToday()">– Heute</span>
                 </div>
                 <div>Total: {{ getHoursOfDay(day) }}</div>
             </div>
