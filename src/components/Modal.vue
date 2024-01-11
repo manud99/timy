@@ -4,11 +4,12 @@ import { nextTick, ref, toRefs, watch } from "vue";
 import IconCross from "../icons/Cross.vue";
 
 const props = withDefaults(
-    defineProps<{ title: string; submitTitle?: string; show: boolean; noFooter?: boolean; width?: number }>(),
+    defineProps<{ title: string; submitTitle?: string; show: boolean; noFooter?: boolean; width?: number; zIndex: number }>(),
     {
         submitTitle: "Speichern",
         noFooter: false,
         width: 800,
+        zIndex: 10,
     }
 );
 const { title, show } = toRefs(props);
@@ -37,6 +38,7 @@ function onEsc() {
             <div
                 v-if="show"
                 class="flex fixed z-50 inset-0 bg-black/50 transition-opacity duration-300 p-2 overflow-y-auto"
+                :style="{zIndex}"
                 tabindex="0"
                 @keydown.esc="onEsc"
             >

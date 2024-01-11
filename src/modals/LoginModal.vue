@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, toRefs, Ref } from "vue";
+import { watch, toRefs } from "vue";
 import Modal from "../components/Modal.vue";
 import { signIn } from "../google/utils";
 import Button, { ButtonSize } from "../components/Button.vue";
@@ -33,7 +33,7 @@ if (ready) {
 </script>
 
 <template>
-    <Modal title="Anmelden" :show="show" :no-footer="true" :width="500" @close="emit('close')">
+    <Modal title="Anmelden" :show="show" :no-footer="true" :width="500" @close="emit('close')" :z-index="20">
         <div class="">
             <p class="mb-2">Bitte melde dich mit einem Google-Account an, um deine Zeiteinträge zu verwalten:</p>
             <Button

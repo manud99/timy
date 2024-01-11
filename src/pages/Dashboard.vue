@@ -26,7 +26,7 @@ import {
     updateTimeEntry,
     deleteTimeEntry,
 } from "../utils/timeEntries";
-import { readyToFetch } from "../google/plugin";
+import { ready, readyToFetch, showLoginModal } from "../google/plugin";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import { updateSubject } from "../utils/subjects";
@@ -59,11 +59,18 @@ const activeTimeEntry: Ref<TimeEntry | null> = ref(null);
 
 function showCreateModal() {
     activeTimeEntry.value = null;
-    showModal.value = true;
+    showEditModal();
 }
 
 function showUpdateModal(timeEntry: TimeEntry) {
     activeTimeEntry.value = timeEntry;
+    showEditModal();
+}
+
+function showEditModal() {
+    if (ready && !ready.value) {
+        showLoginModal.value = true
+    }
     showModal.value = true;
 }
 
@@ -128,7 +135,7 @@ if (readyToFetch) {
     <Page title="Übersicht">
         <Section class="flex flex-wrap gap-4 justify-between items-center p-4 bg-white">
             <div class="font-semibold text-gray-600 text-lg">Heute ist ein schöner Tag, mach was Gutes daraus!</div>
-            <div class="flex flex-wrap gap-2 items-center">
+            <div class="flex flex-wrap gap-2 items-center ml-auto">
                 <div v-if="startTime" class="text-sm text-center text-gray-600">
                     Gestartet um: {{ startTime.getTime() }}<br />
                 </div>
