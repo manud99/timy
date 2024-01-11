@@ -146,6 +146,7 @@ async function makeRequest(
             console.error("[GAPI]", error?.result?.error?.message);
             if (showLoginModal) showLoginModal.value = true;
             retrySubmissionAfterLogin.push({ endpoint, method, params, body });
+            ready.value = false;
         } else {
             console.error("Dashboard error while loading time entries", error);
         }

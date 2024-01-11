@@ -6,6 +6,7 @@ const ACCESS_TOKEN_KEY: string = "timy_google_access_token";
 
 export const tokenClient: Ref<google.accounts.oauth2.TokenClient | null> = ref(null);
 export const ready = ref(false);
+export const readyToFetch = ref(false);
 const accessToken = ref(window.localStorage.getItem(ACCESS_TOKEN_KEY));
 export const showLoginModal: Ref<boolean> = ref(!accessToken.value);
 
@@ -18,7 +19,7 @@ function handleCodeResponse(res: google.accounts.oauth2.TokenResponse) {
     const accessToken = res.access_token;
     window.localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     ready.value = true;
-    retryRequests();
+    retryRequests().then(() => readyToFetch.value = !readyToFetch.value);
 }
 
 export function forgetToken() {
@@ -33,6 +34,7 @@ export default {
         if (accessToken.value) {
             window.gapi.client.setToken({ access_token: accessToken.value });
             ready.value = true;
+            readyToFetch.value = !readyToFetch.value;
         }
     },
 };

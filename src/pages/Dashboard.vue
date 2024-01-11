@@ -26,7 +26,7 @@ import {
     updateTimeEntry,
     deleteTimeEntry,
 } from "../utils/timeEntries";
-import { ready } from "../google/plugin";
+import { readyToFetch } from "../google/plugin";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
 import EditSubjectModal from "../modals/EditSubjectModal.vue";
 import { updateSubject } from "../utils/subjects";
@@ -117,8 +117,8 @@ onUnmounted(() => {
     document.removeEventListener("keypress", onKeyPress);
 });
 
-if (ready) {
-    watch(ready, () => {
+if (readyToFetch) {
+    watch(readyToFetch, () => {        
         getTimeEntries();
     });
 }
