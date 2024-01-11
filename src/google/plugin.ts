@@ -15,7 +15,7 @@ export const showLoginModal: Ref<boolean> = ref(!accessToken.value);
 function forgetTokenAfterTimeout() {
     if (!accessTokenTimeout.value) return;
 
-    const now = new Date()
+    const now = new Date();
     const timestamp = new Date(parseInt(accessTokenTimeout.value));
     setTimeout(forgetToken, timestamp.valueOf() - now.valueOf());
 }
@@ -32,7 +32,7 @@ function handleCodeResponse(res: google.accounts.oauth2.TokenResponse) {
     window.localStorage.setItem(ACCESS_TOKEN_TIMEOUT_KEY, (new Date().valueOf() + 3600000).toString());
     forgetTokenAfterTimeout();
     ready.value = true;
-    retryRequests().then(() => readyToFetch.value = !readyToFetch.value);
+    retryRequests().then(() => (readyToFetch.value = !readyToFetch.value));
 }
 
 export function forgetToken() {

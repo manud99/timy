@@ -103,7 +103,11 @@ function collapseDay(event: MouseEvent, day: number) {
                         :class="['mr-2 transition-transform duration-300', isOpen[day] ? 'rotate-90' : '']"
                         :size="16"
                     />
-                    <span class="mr-2 bg-amber-300 rounded text-gray-800 px-1.5 py-0.5 -my-0.5" v-if="getDateOfDay(day).isToday()">Heute</span>
+                    <span
+                        class="mr-2 bg-amber-300 rounded text-gray-800 px-1.5 py-0.5 -my-0.5"
+                        v-if="getDateOfDay(day).isToday()"
+                        >Heute</span
+                    >
                     {{ getDateOfDay(day).getFullDate() }}
                 </div>
                 <div>Total: {{ getHoursOfDay(day) }}</div>

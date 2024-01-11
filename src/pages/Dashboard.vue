@@ -69,7 +69,7 @@ function showUpdateModal(timeEntry: TimeEntry) {
 
 function showEditModal() {
     if (ready && !ready.value) {
-        showLoginModal.value = true
+        showLoginModal.value = true;
     }
     showModal.value = true;
 }
@@ -125,7 +125,7 @@ onUnmounted(() => {
 });
 
 if (readyToFetch) {
-    watch(readyToFetch, () => {        
+    watch(readyToFetch, () => {
         getTimeEntries();
     });
 }
