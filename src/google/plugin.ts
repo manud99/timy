@@ -15,9 +15,11 @@ export const showLoginModal: Ref<boolean> = ref(!accessToken.value);
 function forgetTokenAfterTimeout() {
     if (!accessTokenTimeout.value) return;
 
-    const now = new Date();
     const timestamp = new Date(parseInt(accessTokenTimeout.value));
-    setTimeout(forgetToken, timestamp.valueOf() - now.valueOf());
+    const delay = timestamp.valueOf() - new Date().valueOf();
+    if (delay < 0) return;
+
+    setTimeout(forgetToken, delay);
 }
 
 function handleCodeResponse(res: google.accounts.oauth2.TokenResponse) {
