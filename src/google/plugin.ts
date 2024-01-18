@@ -22,20 +22,25 @@ function forgetTokenAfterTimeout() {
 
 function handleCodeResponse(res: google.accounts.oauth2.TokenResponse) {
     if (res.error !== undefined) {
-        console.error("google answered with an error", res.error);
+        console.error("Google answered with an error", res.error);
         throw res;
     }
 
     const accessToken = res.access_token;
+    console.log("[DEBUG] handleCodeResponse - Got code response", accessToken);
     window.localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     // access token is valid for one hour
     window.localStorage.setItem(ACCESS_TOKEN_TIMEOUT_KEY, (new Date().valueOf() + 3600000).toString());
     forgetTokenAfterTimeout();
     ready.value = true;
-    retryRequests().then(() => (readyToFetch.value = !readyToFetch.value));
+    retryRequests().then(() => {
+        console.log("[DEBUG] handleCodeResponse - Ready to fetch");
+        readyToFetch.value = !readyToFetch.value;
+    });
 }
 
 export function forgetToken() {
+    console.log("[DEBUG] forgetToken", new Date());
     window.localStorage.removeItem(ACCESS_TOKEN_KEY);
     window.localStorage.removeItem(ACCESS_TOKEN_TIMEOUT_KEY);
     ready.value = false;

@@ -116,6 +116,7 @@ onMounted(() => {
 
     calendarId.value = getCalendarId();
     getTimeEntries();
+    console.log("[DEBUG] Dashboard - onMounted");
 
     document.addEventListener("keypress", onKeyPress);
 });
@@ -126,6 +127,7 @@ onUnmounted(() => {
 
 if (readyToFetch) {
     watch(readyToFetch, () => {
+        console.log("[DEBUG] Dashboard - readyToFetch watcher called");
         getTimeEntries();
     });
 }
