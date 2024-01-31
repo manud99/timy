@@ -17,6 +17,7 @@ function forgetTokenAfterTimeout() {
 
     const timestamp = new Date(parseInt(accessTokenTimeout.value));
     const delay = timestamp.valueOf() - new Date().valueOf();
+    console.log("[DEBUG] Forget token in " + delay + " ms at", new Date(new Date().valueOf() + delay));
     if (delay < 0) return;
 
     setTimeout(forgetToken, delay);
