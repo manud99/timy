@@ -105,9 +105,6 @@ ChartJS.register(CategoryScale, LinearScale, LineElement, BarElement, PointEleme
 
 const chartHoursPerWeek = computed(() => {
     const labels = Object.keys(minutesPerWeek.value);
-    const totalData = labels.map((label) => {
-        return minutesPerWeek.value[label].total / 60;
-    });
 
     const subjects = getSubjects().value.filter((subject) => subject.isActive);
     const subjectDatasets = subjects.map((subject) => {
@@ -122,6 +119,22 @@ const chartHoursPerWeek = computed(() => {
         labels: labels.map((label) => new CustomDate(label).getDate()),
         datasets: subjectDatasets,
     };
+});
+
+const totalMinutes = computed(() => {
+    const total = Object.values(minutesPerWeek.value).reduce((carry, week) => {
+        return carry + week.total;
+    }, 0)
+    
+    const subjects: { [subject: string]: number } = {};
+    for (const week in minutesPerWeek.value) {
+        for (const subject in minutesPerWeek.value[week]) {
+            if (subject === "total") continue;
+            subjects[subject] = (subjects[subject] || 0) + minutesPerWeek.value[week][subject];
+        }
+    }
+
+    return {subjects, total};
 });
 
 function toHoursAndMin(value: number) {
@@ -195,6 +208,46 @@ const lineChartOptions: ChartOptions<"line"> = {
         <Section class="bg-white p-4">
             <h2 class="text-xl font-bold mb-4">Line-Chart</h2>
             <Line :data="chartHoursPerWeek" :options="lineChartOptions" />
+        </Section>
+        <Section class="bg-white">
+            <h2 class="text-xl font-bold p-4">Tabelle Übersicht</h2>
+            <table class="table-auto border-t w-full" v-if="minutesPerWeek">
+                <thead class="bg-gray-50 text-gray-500 text-xs font-semibold tracking-wide uppercase">
+                    <tr class="divide-x">
+                        <th class="px-4 py-3 text-left">Woche</th>
+                        <th v-for="subject, index in getSubjects().value" :key="index" class="px-4 py-3 text-right">
+                            {{ subject.name }}
+                        </th>
+                        <th class="px-4 py-3 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    <tr v-for="week in Object.keys(minutesPerWeek).reverse()" :key="week" class="divide-x">
+                        <td class="px-4 py-1.5">{{ new CustomDate(week).getDate() }}</td>
+                        <td v-for="subject, index in getSubjects().value" :key="index" class="px-4 py-1.5 text-right">
+                            <span v-if="(minutesPerWeek[week][subject.name] || 0) == 0">-</span>
+                            <span v-else v-text="toHoursAndMin((minutesPerWeek[week][subject.name] || 0) / 60)"/>
+                        </td>
+                        <td class="px-4 py-1.5 text-right">{{ toHoursAndMin(minutesPerWeek[week].total / 60) }}</td>
+                    </tr>
+                    <tr class="!border-t-2 border-gray-500 divide-x font-bold">
+                        <td class="px-4 py-1.5">Insgesamt</td>
+                        <td v-for="total in totalMinutes.subjects" class="px-4 py-1.5 text-right">
+                            <span v-if="total == 0">-</span>
+                            <span v-else v-text="toHoursAndMin(total / 60)"/>
+                        </td>
+                        <td class="px-4 py-1.5 text-right">{{ toHoursAndMin(totalMinutes.total / 60) }}</td>
+                    </tr>
+                    <tr class="divide-x font-bold">
+                        <td class="px-4 py-1.5">ECTS (25h pro Punkt)</td>
+                        <td v-for="total in totalMinutes.subjects" class="px-4 py-1.5 text-right">
+                            <span v-if="total == 0">-</span>
+                            <span v-else v-text="Math.round(total / 60 / 25 * 100) / 100"/>
+                        </td>
+                        <td class="px-4 py-1.5 text-right"/>
+                    </tr>
+                </tbody>
+            </table>            
         </Section>
     </Page>
 </template>
