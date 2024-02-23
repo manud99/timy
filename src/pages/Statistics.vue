@@ -57,6 +57,10 @@ const endProp = computed({
     },
 });
 
+const activeSubjects = computed(() => {
+    return getSubjects().value.filter((subject) => subject.isActive);
+});
+
 function analyzeTimeEntries() {
     const hours: { [startOfWeek: string]: { total: number; [subject: string]: number } } = {};
 
@@ -106,8 +110,7 @@ ChartJS.register(CategoryScale, LinearScale, LineElement, BarElement, PointEleme
 const chartHoursPerWeek = computed(() => {
     const labels = Object.keys(minutesPerWeek.value);
 
-    const subjects = getSubjects().value.filter((subject) => subject.isActive);
-    const subjectDatasets = subjects.map((subject) => {
+    const subjectDatasets = activeSubjects.value.map((subject) => {
         const color = getSubjectColor(subject);
         const data = labels.map((label) => {
             return (minutesPerWeek.value[label][subject.name] || 0) / 60;
@@ -116,7 +119,7 @@ const chartHoursPerWeek = computed(() => {
     });
 
     return {
-        labels: labels.map((label) => new CustomDate(label).getDate()),
+        labels: labels.map((label) => getDateAsString(label)),
         datasets: subjectDatasets,
     };
 });
@@ -124,23 +127,26 @@ const chartHoursPerWeek = computed(() => {
 const totalMinutes = computed(() => {
     const total = Object.values(minutesPerWeek.value).reduce((carry, week) => {
         return carry + week.total;
-    }, 0)
-    
+    }, 0);
+
     const subjects: { [subject: string]: number } = {};
     for (const week in minutesPerWeek.value) {
-        for (const subject in minutesPerWeek.value[week]) {
-            if (subject === "total") continue;
-            subjects[subject] = (subjects[subject] || 0) + minutesPerWeek.value[week][subject];
+        for (const subject in activeSubjects.value) {
+            subjects[subject] = (subjects[subject] || 0) + (minutesPerWeek.value[week][subject] || 0);
         }
     }
 
-    return {subjects, total};
+    return { subjects, total };
 });
 
 function toHoursAndMin(value: number) {
     const hours = Math.floor(value);
     const minutes = (value - hours) * 60;
     return `${hours}h ${minutes}min`;
+}
+
+function getDateAsString(date: string) {
+    return new CustomDate(date).getDate();
 }
 
 function label(item: TooltipItem<"bar" | "line">): string {
@@ -215,7 +221,7 @@ const lineChartOptions: ChartOptions<"line"> = {
                 <thead class="bg-gray-50 text-gray-500 text-xs font-semibold tracking-wide uppercase">
                     <tr class="divide-x">
                         <th class="px-4 py-3 text-left">Woche</th>
-                        <th v-for="subject, index in getSubjects().value" :key="index" class="px-4 py-3 text-right">
+                        <th v-for="(subject, index) in activeSubjects" :key="index" class="px-4 py-3 text-right">
                             {{ subject.name }}
                         </th>
                         <th class="px-4 py-3 text-right">Total</th>
@@ -223,10 +229,10 @@ const lineChartOptions: ChartOptions<"line"> = {
                 </thead>
                 <tbody class="divide-y">
                     <tr v-for="week in Object.keys(minutesPerWeek).reverse()" :key="week" class="divide-x">
-                        <td class="px-4 py-1.5">{{ new CustomDate(week).getDate() }}</td>
-                        <td v-for="subject, index in getSubjects().value" :key="index" class="px-4 py-1.5 text-right">
+                        <td class="px-4 py-1.5">{{ getDateAsString(week) }}</td>
+                        <td v-for="(subject, index) in activeSubjects" :key="index" class="px-4 py-1.5 text-right">
                             <span v-if="(minutesPerWeek[week][subject.name] || 0) == 0">-</span>
-                            <span v-else v-text="toHoursAndMin((minutesPerWeek[week][subject.name] || 0) / 60)"/>
+                            <span v-else v-text="toHoursAndMin((minutesPerWeek[week][subject.name] || 0) / 60)" />
                         </td>
                         <td class="px-4 py-1.5 text-right">{{ toHoursAndMin(minutesPerWeek[week].total / 60) }}</td>
                     </tr>
@@ -234,7 +240,7 @@ const lineChartOptions: ChartOptions<"line"> = {
                         <td class="px-4 py-1.5">Insgesamt</td>
                         <td v-for="total in totalMinutes.subjects" class="px-4 py-1.5 text-right">
                             <span v-if="total == 0">-</span>
-                            <span v-else v-text="toHoursAndMin(total / 60)"/>
+                            <span v-else v-text="toHoursAndMin(total / 60)" />
                         </td>
                         <td class="px-4 py-1.5 text-right">{{ toHoursAndMin(totalMinutes.total / 60) }}</td>
                     </tr>
@@ -242,12 +248,12 @@ const lineChartOptions: ChartOptions<"line"> = {
                         <td class="px-4 py-1.5">ECTS (25h pro Punkt)</td>
                         <td v-for="total in totalMinutes.subjects" class="px-4 py-1.5 text-right">
                             <span v-if="total == 0">-</span>
-                            <span v-else v-text="Math.round(total / 60 / 25 * 100) / 100"/>
+                            <span v-else v-text="Math.round((total / 60 / 25) * 100) / 100" />
                         </td>
-                        <td class="px-4 py-1.5 text-right"/>
+                        <td />
                     </tr>
                 </tbody>
-            </table>            
+            </table>
         </Section>
     </Page>
 </template>

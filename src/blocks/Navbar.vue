@@ -9,12 +9,18 @@ import { ready, showLoginModal } from "../google/plugin";
         <nav class="container flex grid grid-cols-2 md:grid-cols-3 items-center h-full px-4 mx-auto">
             <div class="inline-flex items-center">
                 <a class="text-xl font-bold text-gray-800 px-2 py-1 mr-2" :href="baseUrl"> TIMY </a>
-                
+
                 <div v-if="ready" class="text-sm text-green-800 px-2 py-1">
                     <span class="inline-block bg-green-500 rounded-full w-2 h-2 align-middle" />
                     verbunden
                 </div>
-                <button v-else class="text-sm text-red-800 px-2 py-0.5 -my-0.5" type="button" title="Jetzt anmelden" @click="showLoginModal = true">    
+                <button
+                    v-else
+                    class="text-sm text-red-800 px-2 py-0.5 -my-0.5"
+                    type="button"
+                    title="Jetzt anmelden"
+                    @click="showLoginModal = true"
+                >
                     <span class="inline-block bg-red-500 rounded-full w-2 h-2 align-middle" />
                     nicht verbunden
                 </button>
