@@ -10,7 +10,7 @@ const props = withDefaults(
         show: boolean;
         noFooter?: boolean;
         width?: number;
-        zIndex: number;
+        zIndex?: number;
     }>(),
     {
         submitTitle: "Speichern",

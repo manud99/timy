@@ -23,8 +23,8 @@ const numDaysFromToday = computed(() => {
 
     const today = new Date();
     const then = new Date(value.value);
-    today.setHours(0, 0, 0);
-    then.setHours(0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    then.setHours(0, 0, 0, 0);
 
     return ((then.valueOf() - today.valueOf()) / 86400000) | 0; // seconds per day
 });
@@ -63,7 +63,7 @@ const hasFocus = ref(false);
                 ]"
                 type="button"
                 @click="setDateFromToday(-3)"
-                v-text="'Früher'"
+                v-text="'Datum wählen'"
             />
             <input
                 class="block cursor-pointer text-sm rounded-b-lg md:rounded-bl-none md:rounded-r-lg border focus:outline-none focus:ring-2 border-blue-600 w-full"
