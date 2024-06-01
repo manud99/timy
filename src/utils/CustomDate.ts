@@ -14,6 +14,10 @@ export default class CustomDate {
         return this.date.toISOString();
     }
 
+    valueOf(): number {
+        return this.date.valueOf();
+    }
+
     toDateString(): string {
         const year = this.date.getFullYear().toString();
         const month = (this.date.getMonth() + 1).toString().padStart(2, "0");

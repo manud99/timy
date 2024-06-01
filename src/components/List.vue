@@ -67,7 +67,7 @@ onMounted(() => {
 });
 
 watch(
-    () => timeEntries.value.length,
+    () => timeEntries.value.reduce((acc, cur) => acc + cur.start.valueOf() + cur.end.valueOf(), 0),
     () => nextTick(computeHeights)
 );
 watch(
@@ -106,8 +106,8 @@ function collapseDay(event: MouseEvent, day: number) {
                     <span
                         class="mr-2 bg-amber-300 rounded text-gray-800 px-1.5 py-0.5 -my-0.5"
                         v-if="getDateOfDay(day).isToday()"
-                        >Heute</span
-                    >
+                        v-text="'Heute'"
+                    />
                     {{ getDateOfDay(day).getFullDate() }}
                 </div>
                 <div>Total: {{ getHoursOfDay(day) }}</div>
