@@ -14,6 +14,13 @@ export default class CustomDate {
         return this.date.toISOString();
     }
 
+    toDateString(): string {
+        const year = this.date.getFullYear().toString();
+        const month = (this.date.getMonth() + 1).toString().padStart(2, "0");
+        const day = this.date.getDate().toString().padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
     getDate(): string {
         return this.date.toLocaleString("de-CH", { day: "2-digit", month: "long", year: "numeric" });
     }

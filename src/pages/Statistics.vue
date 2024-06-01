@@ -65,11 +65,11 @@ function analyzeTimeEntries() {
     const hours: { [startOfWeek: string]: { total: number; [subject: string]: number } } = {};
 
     for (let date = start.value.setToWeekStart(); end.value.isBiggerThan(date); date = date.addDays(7)) {
-        hours[date.toString()] = { total: 0 };
+        hours[date.toDateString()] = { total: 0 };
     }
 
     timeEntries.value.forEach((entry) => {
-        const weekStart = entry.start.setToWeekStart().toString();
+        const weekStart = entry.start.setToWeekStart().toDateString();
         const duration = entry.end.diffInMinutes(entry.start);
 
         if (entry.subject?.name) {
@@ -131,9 +131,9 @@ const totalMinutes = computed(() => {
 
     const subjects: { [subject: string]: number } = {};
     for (const week in minutesPerWeek.value) {
-        for (const subject in activeSubjects.value) {
-            subjects[subject] = (subjects[subject] || 0) + (minutesPerWeek.value[week][subject] || 0);
-        }
+        activeSubjects.value.forEach((subject) => {
+            subjects[subject.name] = (subjects[subject.name] || 0) + (minutesPerWeek.value[week][subject.name] || 0);
+        });
     }
 
     return { subjects, total };
