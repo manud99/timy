@@ -17,7 +17,7 @@ function forgetTokenAfterTimeout() {
 
     const timestamp = new Date(parseInt(accessTokenTimeout.value));
     const delay = timestamp.valueOf() - new Date().valueOf();
-    console.log("[DEBUG] Forget token in " + delay + " ms at", new Date(new Date().valueOf() + delay));
+    // console.log("[DEBUG] Forget token in " + delay + " ms at", new Date(new Date().valueOf() + delay));
     if (delay < 0) return;
 
     setTimeout(forgetToken, delay);
@@ -30,20 +30,20 @@ function handleCodeResponse(res: google.accounts.oauth2.TokenResponse) {
     }
 
     const accessToken = res.access_token;
-    console.log("[DEBUG] handleCodeResponse - Got code response", accessToken);
+    // console.log("[DEBUG] handleCodeResponse - Got code response", accessToken);
     window.localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
     // access token is valid for one hour
     window.localStorage.setItem(ACCESS_TOKEN_TIMEOUT_KEY, (new Date().valueOf() + 3600000).toString());
     forgetTokenAfterTimeout();
     ready.value = true;
     retryRequests().then(() => {
-        console.log("[DEBUG] handleCodeResponse - Ready to fetch");
+        // console.log("[DEBUG] handleCodeResponse - Ready to fetch");
         readyToFetch.value = !readyToFetch.value;
     });
 }
 
 export function forgetToken() {
-    console.log("[DEBUG] forgetToken", new Date());
+    // console.log("[DEBUG] forgetToken", new Date());
     window.localStorage.removeItem(ACCESS_TOKEN_KEY);
     window.localStorage.removeItem(ACCESS_TOKEN_TIMEOUT_KEY);
     ready.value = false;

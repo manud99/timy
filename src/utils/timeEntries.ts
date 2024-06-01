@@ -27,13 +27,13 @@ export function makeSureCalendarIdExists() {
 }
 
 export async function getTimeEntries() {
-    console.log("[DEBUG] Get Time Entries - Start", ready?.value);
+    // console.log("[DEBUG] Get Time Entries - Start", ready?.value);
     if (!makeSureCalendarIdExists() || !ready || !ready.value) return;
 
     loading.value = true;
 
     timeEntries.value = await fetchEvents(calendarId.value!, weekStart.value, weekEnd.value);
-    console.log("[DEBUG] Get Time Entries - Got " + timeEntries.value.length);
+    // console.log("[DEBUG] Get Time Entries - Got " + timeEntries.value.length);
 
     loading.value = false;
 }
