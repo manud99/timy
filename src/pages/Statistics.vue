@@ -18,7 +18,7 @@ import Section from "../blocks/Section.vue";
 import { calendarId, makeSureCalendarIdExists } from "../utils/timeEntries";
 import { getCalendarId } from "../utils/settings";
 import { ready } from "../google/plugin";
-import { TimeEntry } from "../@types/models";
+import { Subject, TimeEntry } from "../@types/models";
 import { fetchEvents } from "../google/query";
 import debounce from "lodash.debounce";
 import { getQueryParam, updateQueryParam } from "../utils/queryParams";
@@ -27,7 +27,7 @@ import { getSubjectColor } from "../utils/subjects";
 import CustomDate from "../utils/CustomDate";
 
 const startParam = new CustomDate(getQueryParam("start") || "");
-const todayMinusSixMonth = CustomDate.now().addMonths(-6);
+const todayMinusSixMonth = CustomDate.now().addMonths(-3);
 const startDate = startParam.isValidDate() ? startParam : todayMinusSixMonth;
 const endParam = new CustomDate(getQueryParam("end") || "");
 const endDate = endParam.isValidDate() ? endParam : CustomDate.now();
@@ -38,6 +38,8 @@ const end: Ref<CustomDate> = ref(endDate);
 const timeEntries: Ref<TimeEntry[]> = ref([]);
 const minutesPerWeek: Ref<{ [startOfWeek: string]: { total: number; [subject: string]: number } }> = ref({});
 const debounceGetTimeEntries = debounce(getTimeEntries, 300);
+
+const filterSubject: Ref<string> = ref("");
 
 const startProp = computed({
     get() {
@@ -61,6 +63,11 @@ const activeSubjects = computed(() => {
     return getSubjects().value.filter((subject) => subject.isActive);
 });
 
+const entriesFilteredBySubject = computed(() => {
+    if (filterSubject.value == "") return []
+    return timeEntries.value.filter((entry) => entry.subject?.name == filterSubject.value)
+})
+
 function analyzeTimeEntries() {
     const hours: { [startOfWeek: string]: { total: number; [subject: string]: number } } = {};
 
@@ -75,7 +82,9 @@ function analyzeTimeEntries() {
         if (entry.subject?.name) {
             hours[weekStart][entry.subject.name] = (hours[weekStart][entry.subject.name] || 0) + duration;
         }
-        hours[weekStart].total += duration;
+        if (entry.subject?.isActive) {
+            hours[weekStart].total += duration;
+        }
     });
 
     minutesPerWeek.value = hours;
@@ -119,7 +128,7 @@ const chartHoursPerWeek = computed(() => {
     });
 
     return {
-        labels: labels.map((label) => getDateAsString(label)),
+        labels: labels.map((label) => new CustomDate(label).getShortDate()),
         datasets: subjectDatasets,
     };
 });
@@ -228,7 +237,7 @@ const lineChartOptions: ChartOptions<"line"> = {
                     </tr>
                 </thead>
                 <tbody class="divide-y">
-                    <tr v-for="week in Object.keys(minutesPerWeek).reverse()" :key="week" class="divide-x">
+                    <tr v-for="week in Object.keys(minutesPerWeek)" :key="week" class="divide-x">
                         <td class="px-4 py-1.5">{{ getDateAsString(week) }}</td>
                         <td v-for="(subject, index) in activeSubjects" :key="index" class="px-4 py-1.5 text-right">
                             <span v-if="(minutesPerWeek[week][subject.name] || 0) == 0">-</span>
@@ -245,12 +254,48 @@ const lineChartOptions: ChartOptions<"line"> = {
                         <td class="px-4 py-1.5 text-right">{{ toHoursAndMin(totalMinutes.total / 60) }}</td>
                     </tr>
                     <tr class="divide-x font-bold">
-                        <td class="px-4 py-1.5">ECTS (25h pro Punkt)</td>
+                        <td class="px-4 py-1.5">ECTS (30h pro Punkt)</td>
                         <td v-for="total in totalMinutes.subjects" class="px-4 py-1.5 text-right">
                             <span v-if="total == 0">-</span>
-                            <span v-else v-text="Math.round((total / 60 / 25) * 100) / 100" />
+                            <span v-else v-text="Math.round((total / 60 / 30) * 100) / 100" />
                         </td>
                         <td />
+                    </tr>
+                </tbody>
+            </table>
+        </Section>
+        <Section class="bg-white">
+            <div class="flex flex-wrap gap-4 justify-between items-center p-4">
+                <h2 class="text-xl font-bold">Einträge gefiltert nach Fach</h2>
+                <div>
+                    Fach:
+                    <select v-model="filterSubject">
+                        <option value="" disabled>Fach auswählen</option>
+                        <option v-for="subject in activeSubjects" :value="subject.name" v-text="subject.name"/>
+                    </select>
+                </div>
+            </div>
+            <div v-if="filterSubject == ''" class="p-4 text-lg">
+                Bitte zuerst ein Fach auswählen
+            </div>
+            <table v-else class="table-auto border-t w-full" v-if="minutesPerWeek">
+                <thead class="bg-gray-50 text-gray-500 text-xs font-semibold tracking-wide uppercase">
+                    <tr class="divide-x">
+                        <th class="px-4 py-3 text-left">Tag</th>
+                        <th class="px-4 py-3 text-left">Beschreibung</th>
+                        <th class="px-4 py-3 text-left">von</th>
+                        <th class="px-4 py-3 text-left">bis</th>
+                        <th class="px-4 py-3 text-right">Anzahl Stunden</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    <tr v-for="entry in entriesFilteredBySubject" :key="entry.id" class="divide-x">
+                        <td class="px-4 py-1.5">{{ entry.start.getDate() }}</td>
+                        <td class="px-4 py-1.5">{{ entry.description }}</td>
+                        <td class="px-4 py-1.5">{{ entry.start.getTime() }}</td>
+                        <td class="px-4 py-1.5">{{ entry.end.getTime() }}</td>
+                        
+                        <td class="px-4 py-1.5 text-right">{{ entry.end.diffInMinutes(entry.start) / 60 }}h</td>
                     </tr>
                 </tbody>
             </table>

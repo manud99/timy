@@ -3,6 +3,7 @@ import { Subject } from "../@types/models";
 
 const SUBJECTS_KEY: string = "timy_subjects";
 let loaded: boolean = false;
+let lastColor: number = 1;
 export const subjects: Ref<Subject[]> = ref([]);
 
 function loadSubjects() {
@@ -33,7 +34,8 @@ export function getOrCreateSubject(name: string): Subject {
     loadSubjects();
     const subject = subjects.value.find((record) => record.name === name);
     if (subject) return subject;
-    const newSubject = { name, color: 0, isActive: true };
+    const newSubject = { name, color: lastColor + 1, isActive: true };
+    lastColor = (lastColor + 1) % Object.keys(colorMap).length
     createSubject(newSubject);
     return newSubject;
 }

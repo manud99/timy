@@ -49,6 +49,10 @@ export default defineComponent({
         },
         getColorClasses(): string {
             switch (this.color) {
+                case "yellow":
+                    return "bg-yellow-600 active:bg-yellow-600 hover:bg-yellow-700 ring-yellow-700";
+                case "red":
+                    return "bg-red-600 active:bg-red-600 hover:bg-red-700 ring-red-700";
                 case "green":
                     return "bg-green-600 active:bg-green-600 hover:bg-green-700 ring-green-700";
                 case "blue":

@@ -19,9 +19,9 @@ export default class CustomDate {
     }
 
     toDateString(): string {
-        const year = this.date.getFullYear().toString();
-        const month = (this.date.getMonth() + 1).toString().padStart(2, "0");
-        const day = this.date.getDate().toString().padStart(2, "0");
+        const year = this.getYear().toString();
+        const month = this.getMonth().toString().padStart(2, "0");
+        const day = this.getDay().toString().padStart(2, "0");
         return `${year}-${month}-${day}`;
     }
 
@@ -31,6 +31,12 @@ export default class CustomDate {
 
     getFullDate(): string {
         return this.date.toLocaleString("de-CH", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+    }
+
+    getShortDate(): string {
+        const day = this.getDay().toString().padStart(2, "0");
+        const month = this.getMonth().toString().padStart(2, "0");
+        return `${day}.${month}.`;
     }
 
     getIsoDate(): string {

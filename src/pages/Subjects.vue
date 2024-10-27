@@ -51,6 +51,11 @@ function updateItem(subject: Subject) {
     }
 }
 
+function toggleActive(subject: Subject, index: number) {
+    subject.isActive = !subject.isActive
+    updateSubject(subject, index)
+}
+
 function deleteItem(index: number) {
     deleteSubject(index);
 }
@@ -88,13 +93,23 @@ onMounted(async () => {
                         <Button
                             class="mr-2"
                             :size="ButtonSize.SM"
+                            :label="entry.isActive ? 'Aktivieren' : 'Deaktivieren'"
+                            color="yellow"
+                            @click="toggleActive(entry as Subject, index)"
+                        >
+                            <span v-if="!entry.isActive">Aktivieren</span>
+                            <span v-else>Deaktivieren</span>
+                        </Button>
+                        <Button
+                            class="mr-2"
+                            :size="ButtonSize.SM"
                             label="Bearbeiten"
                             @click="showUpdateModal(entry, index)"
                         >
                             <IconPencil class="mr-2" :size="16" />
                             <span>Bearbeiten</span>
                         </Button>
-                        <Button :size="ButtonSize.SM" label="Löschen" @click="deleteItem(index)">
+                        <Button :size="ButtonSize.SM" color="red" label="Löschen" @click="deleteItem(index)">
                             <IconGarbage class="mr-2" :size="12" />
                             <span>Löschen</span>
                         </Button>
